@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { 
-    PieChart, Pie, Cell, ResponsiveContainer, 
+import {
+    PieChart, Pie, Cell, ResponsiveContainer,
     Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
     Tooltip, Legend
 } from 'recharts';
@@ -22,8 +22,8 @@ export function AnalyticsSection({ results }: AnalyticsSectionProps) {
     const passCount = results.filter(r => r.status === 'pass').length;
     const failCount = results.length - passCount;
     const pieData = [
-        { name: t("pass"), value: passCount, color: '#10b981' }, // emerald-500
-        { name: t("fail"), value: failCount, color: '#ef4444' }  // red-500
+        { name: "pass", value: passCount, color: '#10b981' }, // emerald-500
+        { name: "fail", value: failCount, color: '#ef4444' }  // red-500
     ];
 
     // 2. Score Distribution (Radar Data)
@@ -62,10 +62,10 @@ export function AnalyticsSection({ results }: AnalyticsSectionProps) {
                                     <Cell key={`cell-${index}`} fill={entry.color} className="filter drop-shadow-xl" />
                                 ))}
                             </Pie>
-                            <Tooltip 
-                                contentStyle={{ 
-                                    backgroundColor: 'rgba(9, 9, 11, 0.95)', 
-                                    border: '1px solid rgba(255, 255, 255, 0.1)', 
+                            <Tooltip
+                                contentStyle={{
+                                    backgroundColor: 'rgba(9, 9, 11, 0.95)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
                                     borderRadius: '24px',
                                     padding: '16px',
                                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
@@ -113,10 +113,10 @@ export function AnalyticsSection({ results }: AnalyticsSectionProps) {
                                 fillOpacity={0.3}
                                 strokeWidth={3}
                             />
-                            <Tooltip 
-                                contentStyle={{ 
-                                    backgroundColor: 'rgba(9, 9, 11, 0.95)', 
-                                    border: '1px solid rgba(255, 255, 255, 0.1)', 
+                            <Tooltip
+                                contentStyle={{
+                                    backgroundColor: 'rgba(9, 9, 11, 0.95)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
                                     borderRadius: '24px',
                                     padding: '16px'
                                 }}
