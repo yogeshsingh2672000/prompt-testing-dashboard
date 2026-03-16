@@ -1,0 +1,58 @@
+{
+  "common": {
+    "title": "Promitly",
+    "tagline": "Bedrock AI के लिए सटीक इंजीनियरिंग।",
+    "subTagline": "— सिमेंटिक इंटेलिजेंस के साथ मूल्यांकन, परिष्कृत और अनुकूलित करें।",
+    "runEvaluation": "मूल्यांकन चलाएं",
+    "evaluating": "मूल्यांकन हो रहा है..."
+  },
+  "config": {
+    "title": "कॉन्फ़िगरेशन",
+    "systemPrompt": "सिस्टम प्रॉम्प्ट",
+    "systemPromptPlaceholder": "AI के लिए निर्देश दर्ज करें...",
+    "userInputTemplate": "उपयोगकर्ता इनपुट टेम्पलेट",
+    "userInputPlaceholder": "इनपुट टेम्पलेट (उदा. संदर्भ के आधार पर प्रतिक्रिया उत्पन्न करें...)",
+    "batchSize": "बैच आकार",
+    "threshold": "थ्रेशोल्ड (Pass/Fail) %"
+  },
+  "testCases": {
+    "title": "टेस्ट केस",
+    "addTestCase": "टेस्ट केस जोड़ें",
+    "inputContext": "इनपुट संदर्भ",
+    "inputPlaceholder": "टेस्ट इनपुट संदर्भ दर्ज करें...",
+    "expectedOutput": "अपेक्षित आउटपुट",
+    "expectedPlaceholder": "अपेक्षित परिणाम दर्ज करें...",
+    "remove": "टेस्ट केस हटाएं"
+  },
+  "results": {
+    "title": "मूल्यांकन परिणाम",
+    "all": "सभी",
+    "pass": "सफल",
+    "fail": "विफल",
+    "passRate": "सफलता दर",
+    "avgSimilarity": "औसत समानता",
+    "avgSemantic": "औसत सिमेंटिक",
+    "noResults": "अभी तक कोई परिणाम नहीं। शुरू करने के लिए 'मूल्यांकन चलाएं' पर क्लिक करें।",
+    "total": "कुल",
+    "evaluating": "समानांतर मूल्यांकन चल रहा है...",
+    "table": {
+      "id": "आईडी",
+      "status": "स्थिति",
+      "similarity": "समानता",
+      "semantic": "सिमेंटिक",
+      "output": "LLM आउटपुट",
+      "expected": "अपेक्षित",
+      "generation": "LLM जनरेशन",
+      "goldStandard": "गोल्ड स्टैंडर्ड"
+    }
+  },
+  "ui": {
+    "copy": {
+      "tooltip": "क्लिपबोर्ड पर कॉपी करें",
+      "copied": "कॉपी किया गया!"
+    },
+    "theme": {
+      "toggle": "थीम बदलें"
+    }
+  }
+}

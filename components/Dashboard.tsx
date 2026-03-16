@@ -11,6 +11,7 @@ import { ConfigSection } from "./dashboard/ConfigSection";
 import { TestCasesSection } from "./dashboard/TestCasesSection";
 import { ResultsSection } from "./dashboard/ResultsSection";
 import { ThemeToggle } from "./ui/ThemeToggle";
+import { LanguageToggle } from "./ui/LanguageToggle";
 
 import { useTranslations } from "next-intl";
 
@@ -49,8 +50,10 @@ export default function Dashboard() {
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans p-4 md:p-8 selection:bg-teal-500/30 transition-colors duration-500">
             <div className="max-w-[1600px] mx-auto space-y-6 md:space-y-8">
-                <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/70 dark:bg-zinc-900/40 p-5 md:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/50 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-2xl relative overflow-hidden transition-all duration-500">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 blur-[100px] pointer-events-none" />
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/70 dark:bg-zinc-900/40 p-5 md:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/50 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-2xl relative z-40 transition-all duration-500">
+                    <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 blur-[100px]" />
+                    </div>
                     <div className="flex-1">
                         <h1 className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-teal-600 via-blue-600 to-purple-700 dark:from-teal-400 dark:via-blue-500 dark:to-purple-600 bg-clip-text text-transparent">
                             {t("title")}
@@ -61,6 +64,7 @@ export default function Dashboard() {
                         </p>
                     </div>
                     <div className="flex items-center gap-4 w-full md:w-auto">
+                        <LanguageToggle />
                         <ThemeToggle />
                         <button
                             onClick={runEvaluation}
