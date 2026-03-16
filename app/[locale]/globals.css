@@ -24,10 +24,23 @@
   --color-card-foreground: var(--card-foreground);
 }
 
+@layer base {
+  button {
+    cursor: pointer;
+  }
+
+  button:is([disabled]) {
+    cursor: not-allowed;
+  }
+}
+
+
 :root {
-  --background: oklch(0.985 0 0); /* Zinc-50 vibe */
+  --background: oklch(0.985 0 0);
+  /* Zinc-50 vibe */
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0 / 0.7); /* White/70 for glassmorphism */
+  --card: oklch(1 0 0 / 0.7);
+  /* White/70 for glassmorphism */
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
