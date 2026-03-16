@@ -80,7 +80,7 @@ export function ConfigSection({
                                 <select
                                     value={modelId}
                                     onChange={(e) => setModelId(e.target.value)}
-                                    className="w-full bg-zinc-950 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
+                                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
                                 >
                                     {SUPPORTED_MODELS.map(m => (
                                         <option key={m.id} value={m.id}>{m.name}</option>
