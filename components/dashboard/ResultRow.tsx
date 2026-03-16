@@ -3,7 +3,7 @@
 import React from "react";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { EvaluationResult, TestCase } from "@/types";
-import { cn } from "@/lib/utils";
+import { cn, formatCost } from "@/lib/utils";
 import { CopyButton } from "../ui/CopyButton";
 
 interface ResultRowProps {
@@ -48,7 +48,7 @@ export const ResultRow = React.memo(({ result, testCases }: ResultRowProps) => {
                 {(result.metrics?.latencyMs / 1000).toFixed(2)}s
             </td>
             <td className="p-6 text-center text-xs font-mono text-zinc-500 dark:text-zinc-400">
-                ${result.metrics?.costUsd.toFixed(4)}
+                {formatCost(result.metrics?.costUsd || 0)}
             </td>
             <td className="p-6 max-w-xs xl:max-w-xl relative group/cell">
                 <div 

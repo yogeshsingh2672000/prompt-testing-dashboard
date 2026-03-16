@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Info } from "lucide-react";
 import { EvaluationResult, TestCase } from "@/types";
-import { cn } from "@/lib/utils";
+import { cn, formatCost } from "@/lib/utils";
 import { ResultRow } from "./ResultRow";
 import { MetricInfo } from "./MetricInfo";
 import { useTranslations } from "next-intl";
@@ -33,10 +33,10 @@ export function ResultsSection({
 
     const passCount = results.filter(r => r.status === 'pass').length;
     const passPercentage = results.length > 0 ? (passCount / results.length) * 100 : 0;
-    
+
     const totalCost = results.reduce((sum, r) => sum + (r.metrics?.costUsd || 0), 0);
-    const avgLatency = results.length > 0 
-        ? results.reduce((sum, r) => sum + (r.metrics?.latencyMs || 0), 0) / results.length 
+    const avgLatency = results.length > 0
+        ? results.reduce((sum, r) => sum + (r.metrics?.latencyMs || 0), 0) / results.length
         : 0;
 
     const filteredResults = results.filter((r) => {
@@ -52,12 +52,12 @@ export function ResultsSection({
             <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 bg-white/70 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 p-6 md:p-8 rounded-3xl backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-2xl relative overflow-hidden group transition-all duration-500">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 blur-[120px] pointer-events-none" />
                 <h2 className="font-black flex flex-col sm:flex-row items-start sm:items-center gap-6 text-xl md:text-2xl text-zinc-900 dark:text-zinc-100">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 whitespace-nowrap">
                         {t("title")}
-                        <span className="text-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-3 py-1 rounded-full text-zinc-500 dark:text-zinc-400 font-black">
-                            {results.length} {t("total")}
+                        <span className="whitespace-nowrap text-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-3 py-1 rounded-full text-zinc-500 dark:text-zinc-400 font-black">
+                            {results.length}
                         </span>
-                        <MetricInfo />
+                        {/* <MetricInfo /> */}
                     </div>
                     {results.length > 0 && (
                         <div className="flex flex-wrap items-center gap-3">
@@ -79,7 +79,7 @@ export function ResultsSection({
                             </div>
                             <div className="flex items-center gap-3 px-4 py-2 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-2xl shadow-xl ring-1 ring-amber-500/10">
                                 <span className="text-[10px] uppercase font-black text-amber-600 dark:text-amber-400 tracking-widest">Total Cost</span>
-                                <span className="text-base font-mono font-black text-amber-600 dark:text-amber-400">${totalCost.toFixed(4)}</span>
+                                <span className="text-base font-mono font-black text-amber-600 dark:text-amber-400">{formatCost(totalCost)}</span>
                             </div>
                         </div>
                     )}
@@ -112,8 +112,8 @@ export function ResultsSection({
                                 <th className="p-6 w-32 whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-2">
                                         {t("table.similarity")}
-                                        <Info 
-                                            size={14} 
+                                        <Info
+                                            size={14}
                                             className="text-zinc-400 dark:text-zinc-600 cursor-help transition-colors hover:text-teal-500"
                                             data-tooltip-id="main-tooltip"
                                             data-tooltip-content={tm("similarity.description")}
@@ -125,8 +125,8 @@ export function ResultsSection({
                                 <th className="p-6 w-32 whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-2">
                                         {t("table.semantic")}
-                                        <Info 
-                                            size={14} 
+                                        <Info
+                                            size={14}
                                             className="text-zinc-400 dark:text-zinc-600 cursor-help transition-colors hover:text-teal-500"
                                             data-tooltip-id="main-tooltip"
                                             data-tooltip-content={tm("semantic.description")}

@@ -19,3 +19,11 @@ export function chunk<T>(array: T[], size: number): T[][] {
     }
     return chunked;
 }
+
+export function formatCost(cost: number): string {
+    console.log("cost", cost)
+    if (cost === 0) return '$0.00';
+    if (cost >= 0.01) return `$${cost.toFixed(2)}`;
+    if (cost >= 0.0001) return `$${cost.toFixed(4)}`;
+    return `$${cost.toFixed(6)}`;
+}
