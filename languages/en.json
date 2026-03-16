@@ -4,7 +4,16 @@
     "tagline": "Precision Engineering for Bedrock AI.",
     "subTagline": "— Evaluate, refine, and optimize with semantic intelligence.",
     "runEvaluation": "Run Evaluation",
-    "evaluating": "Evaluating..."
+    "evaluating": "Evaluating...",
+    "history": {
+      "title": "Evaluation History",
+      "subtitle": "Previously saved test runs",
+      "refresh": "Refresh",
+      "similarity": "Avg Similarity",
+      "passRate": "Pass Rate",
+      "delete": "Delete Run",
+      "load": "Load Run"
+    }
   },
   "config": {
     "title": "Configuration",

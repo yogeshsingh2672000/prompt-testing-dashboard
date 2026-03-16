@@ -10,8 +10,10 @@ import { useEvaluation } from "@/hooks/useEvaluation";
 import { ConfigSection } from "./dashboard/ConfigSection";
 import { TestCasesSection } from "./dashboard/TestCasesSection";
 import { ResultsSection } from "./dashboard/ResultsSection";
+import { HistorySection } from "./dashboard/HistorySection";
 import { ThemeToggle } from "./ui/ThemeToggle";
 import { LanguageToggle } from "./ui/LanguageToggle";
+import { TestRun } from "@/lib/persistence";
 
 import { useTranslations } from "next-intl";
 
@@ -24,9 +26,10 @@ export default function Dashboard() {
     const [testCases, setTestCases] = useState<TestCase[]>(INITIAL_TEST_CASES);
     const [batchSize, setBatchSize] = useState(DEFAULT_BATCH_SIZE);
     const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
+    const [activeRunId, setActiveRunId] = useState<string | undefined>();
 
     // 2. Evaluation Logic Hook
-    const { results, loading, runEvaluation } = useEvaluation(
+    const { results, loading, runEvaluation, setResults } = useEvaluation(
         testCases,
         systemPrompt,
         userInput,
@@ -35,6 +38,16 @@ export default function Dashboard() {
     );
 
     // 3. Handlers
+    const handleLoadRun = (run: TestRun) => {
+        setActiveRunId(run.id);
+        setSystemPrompt(run.systemPrompt);
+        setUserInput(run.userInput);
+        setTestCases(run.testCases || []);
+        setBatchSize(run.config.batchSize);
+        setThreshold(run.config.threshold);
+        setResults(run.results);
+    };
+
     const addTestCase = () => {
         setTestCases([...testCases, { id: Math.random().toString(36).substr(2, 9), input: "", expectedOutput: "" }]);
     };
@@ -105,6 +118,12 @@ export default function Dashboard() {
                     results={results}
                     loading={loading}
                     testCases={testCases}
+                />
+
+                {/* History Section */}
+                <HistorySection 
+                    onLoadRun={handleLoadRun} 
+                    activeRunId={activeRunId} 
                 />
             </div>
         </div>

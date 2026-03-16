@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TestCase, EvaluationResult, EvaluationRequest } from "@/types";
+import { persistence, TestRun } from "@/lib/persistence";
 
 export function useEvaluation(testCases: TestCase[], systemPrompt: string, userInput: string, batchSize: number, threshold: number) {
     const [results, setResults] = useState<EvaluationResult[]>([]);
@@ -22,8 +23,34 @@ export function useEvaluation(testCases: TestCase[], systemPrompt: string, userI
                     threshold,
                 } as EvaluationRequest),
             });
-            const data = await response.json();
+            const data: EvaluationResult[] = await response.json();
             setResults(data);
+
+            // Save to persistence
+            if (data.length > 0) {
+                const passCount = data.filter(r => r.status === 'pass').length;
+                const avgSimilarity = data.reduce((sum, r) => sum + r.similarity, 0) / data.length;
+                const avgSemantic = data.reduce((sum, r) => sum + r.semanticScore, 0) / data.length;
+
+                const run: TestRun = {
+                    id: Math.random().toString(36).substr(2, 9),
+                    timestamp: Date.now(),
+                    name: `Run ${new Date().toLocaleString()}`,
+                    systemPrompt,
+                    userInput,
+                    testCases,
+                    results: data,
+                    config: { batchSize, threshold },
+                    metrics: {
+                        avgSimilarity,
+                        avgSemantic,
+                        passRate: (passCount / data.length) * 100,
+                        totalCases: data.length,
+                        passedCases: passCount
+                    }
+                };
+                await persistence.saveRun(run);
+            }
         } catch (error) {
             console.error("Evaluation failed", error);
         } finally {
