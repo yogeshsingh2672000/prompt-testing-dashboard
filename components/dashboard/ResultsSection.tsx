@@ -142,9 +142,10 @@ export function ResultsSection({
                             </tr>
                         </thead>
                         <tbody className="text-sm">
+
                             {loading && results.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="p-12 text-center text-zinc-500 animate-pulse font-medium">
+                                    <td colSpan={12} className="p-12 text-center text-zinc-500 animate-pulse font-medium">
                                         {t("evaluating")}
                                     </td>
                                 </tr>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getResponse, getEmbedding } from '@/lib/ai';
-import { cosineSimilarity, chunk } from '@/lib/utils';
+import { cosineSimilarity, chunk, templateReplace } from '@/lib/utils';
 import { getSemanticScore } from '@/lib/evaluator';
 import { EvaluationRequest, EvaluationResult, PerformanceMetrics } from '@/types';
 import { SUPPORTED_MODELS, DEFAULT_MODEL_ID } from '@/constants/models';
@@ -20,9 +20,13 @@ export async function POST(req: Request) {
             const batchPromises = batch.map(async (testCase) => {
                 const startTime = Date.now();
                 try {
+                    // Replace variables in prompts
+                    const finalSystemPrompt = templateReplace(systemPrompt, testCase.variables || {});
+                    const finalUserInput = templateReplace(userInput, testCase.variables || {});
+
                     // Process LLM response and Expected Output Embedding in parallel
                     const [llmResult, expectedEmbedding] = await Promise.all([
-                        getResponse(systemPrompt, `${userInput}\n\nContext: ${testCase.input}`, selectedModelId),
+                        getResponse(finalSystemPrompt, `${finalUserInput}\n\nContext: ${testCase.input}`, selectedModelId),
                         getEmbedding(testCase.expectedOutput),
                     ]);
 

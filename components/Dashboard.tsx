@@ -66,6 +66,13 @@ export default function Dashboard() {
         setTestCases(testCases.map((tc) => (tc.id === id ? { ...tc, [field]: value } : tc)));
     };
 
+    const updateVariable = (id: string, key: string, value: string) => {
+        setTestCases(testCases.map(tc => tc.id === id ? { 
+            ...tc, 
+            variables: { ...(tc.variables || {}), [key]: value } 
+        } : tc));
+    };
+
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans p-4 md:p-8 selection:bg-teal-500/30 transition-colors duration-500">
             <div className="max-w-[1600px] mx-auto space-y-6 md:space-y-8">
@@ -110,6 +117,7 @@ export default function Dashboard() {
                         setThreshold={setThreshold}
                         modelId={modelId}
                         setModelId={setModelId}
+                        results={results}
                     />
 
                     {/* Test Case Management */}
@@ -117,7 +125,11 @@ export default function Dashboard() {
                         testCases={testCases}
                         addTestCase={addTestCase}
                         updateTestCase={updateTestCase}
+                        updateVariable={updateVariable}
                         removeTestCase={removeTestCase}
+                        setTestCases={setTestCases}
+                        systemPrompt={systemPrompt}
+                        userInputTemplate={userInput}
                     />
                 </div>
 

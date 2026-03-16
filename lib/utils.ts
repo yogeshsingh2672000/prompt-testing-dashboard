@@ -27,3 +27,20 @@ export function formatCost(cost: number): string {
     if (cost >= 0.0001) return `$${cost.toFixed(4)}`;
     return `$${cost.toFixed(6)}`;
 }
+
+export function templateReplace(template: string, vars: Record<string, string>): string {
+    return template.replace(/\{\{([^}]+)\}\}/g, (_, key) => {
+        const trimmedKey = key.trim();
+        return vars[trimmedKey] !== undefined ? vars[trimmedKey] : `{{${trimmedKey}}}`;
+    });
+}
+
+export function extractVariables(text: string): string[] {
+    const regex = /\{\{([^}]+)\}\}/g;
+    const matches = new Set<string>();
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+        matches.add(match[1].trim());
+    }
+    return Array.from(matches);
+}

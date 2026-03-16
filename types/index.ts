@@ -2,6 +2,7 @@ export interface TestCase {
     id: string;
     input: string;
     expectedOutput: string;
+    variables?: Record<string, string>;
 }
 
 export interface PerformanceMetrics {
