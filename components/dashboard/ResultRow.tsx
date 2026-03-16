@@ -44,6 +44,12 @@ export const ResultRow = React.memo(({ result, testCases }: ResultRowProps) => {
                     {result?.semanticScore?.toFixed(0)}%
                 </div>
             </td>
+            <td className="p-6 text-center text-xs font-mono text-zinc-500 dark:text-zinc-400">
+                {(result.metrics?.latencyMs / 1000).toFixed(2)}s
+            </td>
+            <td className="p-6 text-center text-xs font-mono text-zinc-500 dark:text-zinc-400">
+                ${result.metrics?.costUsd.toFixed(4)}
+            </td>
             <td className="p-6 max-w-xs xl:max-w-xl relative group/cell">
                 <div 
                     className="line-clamp-2 text-zinc-600 dark:text-zinc-300 font-medium text-sm leading-relaxed group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors cursor-help"

@@ -17,6 +17,8 @@ import { TestRun } from "@/lib/persistence";
 
 import { useTranslations } from "next-intl";
 
+import { DEFAULT_MODEL_ID } from "@/constants/models";
+
 export default function Dashboard() {
     const t = useTranslations("common");
     
@@ -26,6 +28,7 @@ export default function Dashboard() {
     const [testCases, setTestCases] = useState<TestCase[]>(INITIAL_TEST_CASES);
     const [batchSize, setBatchSize] = useState(DEFAULT_BATCH_SIZE);
     const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
+    const [modelId, setModelId] = useState(DEFAULT_MODEL_ID);
     const [activeRunId, setActiveRunId] = useState<string | undefined>();
 
     // 2. Evaluation Logic Hook
@@ -34,7 +37,8 @@ export default function Dashboard() {
         systemPrompt,
         userInput,
         batchSize,
-        threshold
+        threshold,
+        modelId
     );
 
     // 3. Handlers
@@ -45,6 +49,7 @@ export default function Dashboard() {
         setTestCases(run.testCases || []);
         setBatchSize(run.config.batchSize);
         setThreshold(run.config.threshold);
+        setModelId(run.config.modelId || DEFAULT_MODEL_ID);
         setResults(run.results);
     };
 
@@ -102,6 +107,8 @@ export default function Dashboard() {
                         setBatchSize={setBatchSize}
                         threshold={threshold}
                         setThreshold={setThreshold}
+                        modelId={modelId}
+                        setModelId={setModelId}
                     />
 
                     {/* Test Case Management */}

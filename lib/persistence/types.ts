@@ -22,6 +22,7 @@ export interface TestRun {
     config: {
         batchSize: number;
         threshold: number;
+        modelId?: string;
     };
     metrics: {
         avgSimilarity: number;

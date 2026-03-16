@@ -12,7 +12,7 @@ interface HistorySectionProps {
 }
 
 export function HistorySection({ onLoadRun, activeRunId }: HistorySectionProps) {
-    const t = useTranslations();
+    const t = useTranslations("history");
     const [runs, setRuns] = useState<TestRun[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -48,15 +48,15 @@ export function HistorySection({ onLoadRun, activeRunId }: HistorySectionProps) 
                             <History size={20} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight">{t("history.title")}</h2>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-500 font-bold uppercase tracking-widest mt-1">{t("history.subtitle")}</p>
+                            <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight">{t("title")}</h2>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-500 font-bold uppercase tracking-widest mt-1">{t("subtitle")}</p>
                         </div>
                     </div>
                     <button
                         onClick={loadHistory}
                         className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-teal-500 transition-colors"
                     >
-                        {t("history.refresh")}
+                        {t("refresh")}
                     </button>
                 </div>
 

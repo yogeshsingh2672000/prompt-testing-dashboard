@@ -2,6 +2,7 @@
 
 import { Filter } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { SUPPORTED_MODELS } from "@/constants/models";
 
 interface ConfigSectionProps {
     systemPrompt: string;
@@ -12,6 +13,8 @@ interface ConfigSectionProps {
     setBatchSize: (v: number) => void;
     threshold: number;
     setThreshold: (v: number) => void;
+    modelId: string;
+    setModelId: (v: string) => void;
 }
 
 export function ConfigSection({
@@ -22,7 +25,9 @@ export function ConfigSection({
     batchSize,
     setBatchSize,
     threshold,
-    setThreshold
+    setThreshold,
+    modelId,
+    setModelId
 }: ConfigSectionProps) {
     const t = useTranslations("config");
 
@@ -34,6 +39,18 @@ export function ConfigSection({
                     <Filter size={24} className="text-teal-600 dark:text-teal-400" /> {t("title")}
                 </h2>
                 <div className="space-y-4">
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">Model</label>
+                        <select
+                            value={modelId}
+                            onChange={(e) => setModelId(e.target.value)}
+                            className="w-full bg-zinc-100/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all shadow-inner"
+                        >
+                            {SUPPORTED_MODELS.map(m => (
+                                <option key={m.id} value={m.id}>{m.name}</option>
+                            ))}
+                        </select>
+                    </div>
                     <div>
                         <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">{t("systemPrompt")}</label>
                         <textarea

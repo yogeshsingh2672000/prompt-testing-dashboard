@@ -4,7 +4,7 @@ import { useState } from "react";
 import { TestCase, EvaluationResult, EvaluationRequest } from "@/types";
 import { persistence, TestRun } from "@/lib/persistence";
 
-export function useEvaluation(testCases: TestCase[], systemPrompt: string, userInput: string, batchSize: number, threshold: number) {
+export function useEvaluation(testCases: TestCase[], systemPrompt: string, userInput: string, batchSize: number, threshold: number, modelId?: string) {
     const [results, setResults] = useState<EvaluationResult[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -21,6 +21,7 @@ export function useEvaluation(testCases: TestCase[], systemPrompt: string, userI
                     testCases,
                     batchSize,
                     threshold,
+                    modelId
                 } as EvaluationRequest),
             });
             const data: EvaluationResult[] = await response.json();
@@ -40,7 +41,7 @@ export function useEvaluation(testCases: TestCase[], systemPrompt: string, userI
                     userInput,
                     testCases,
                     results: data,
-                    config: { batchSize, threshold },
+                    config: { batchSize, threshold, modelId },
                     metrics: {
                         avgSimilarity,
                         avgSemantic,

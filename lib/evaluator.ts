@@ -1,5 +1,7 @@
 import { generateText } from 'ai';
-import { model } from './ai';
+import { getModel } from './ai';
+
+const model = getModel()
 
 export async function getSemanticScore(responseText: string, expectedOutput: string): Promise<number> {
     const prompt = `

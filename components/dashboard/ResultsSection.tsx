@@ -33,6 +33,11 @@ export function ResultsSection({
 
     const passCount = results.filter(r => r.status === 'pass').length;
     const passPercentage = results.length > 0 ? (passCount / results.length) * 100 : 0;
+    
+    const totalCost = results.reduce((sum, r) => sum + (r.metrics?.costUsd || 0), 0);
+    const avgLatency = results.length > 0 
+        ? results.reduce((sum, r) => sum + (r.metrics?.latencyMs || 0), 0) / results.length 
+        : 0;
 
     const filteredResults = results.filter((r) => {
         if (filter === "pass") return r.status === "pass";
@@ -67,6 +72,14 @@ export function ResultsSection({
                             <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl shadow-xl ring-1 ring-emerald-500/10">
                                 <span className="text-[10px] uppercase font-black text-emerald-600 dark:text-zinc-400 tracking-widest">{t("passRate")}</span>
                                 <span className="text-base font-mono font-black text-emerald-600 dark:text-emerald-400">{passPercentage.toFixed(0)}% <span className="text-xs opacity-60 ml-1 font-bold">({passCount}/{results.length})</span></span>
+                            </div>
+                            <div className="flex items-center gap-3 px-4 py-2 bg-purple-500/5 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 rounded-2xl shadow-xl ring-1 ring-purple-500/10">
+                                <span className="text-[10px] uppercase font-black text-purple-600 dark:text-purple-400 tracking-widest">Avg Latency</span>
+                                <span className="text-base font-mono font-black text-purple-600 dark:text-purple-400">{(avgLatency / 1000).toFixed(2)}s</span>
+                            </div>
+                            <div className="flex items-center gap-3 px-4 py-2 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-2xl shadow-xl ring-1 ring-amber-500/10">
+                                <span className="text-[10px] uppercase font-black text-amber-600 dark:text-amber-400 tracking-widest">Total Cost</span>
+                                <span className="text-base font-mono font-black text-amber-600 dark:text-amber-400">${totalCost.toFixed(4)}</span>
                             </div>
                         </div>
                     )}
@@ -107,6 +120,8 @@ export function ResultsSection({
                                         />
                                     </div>
                                 </th>
+                                <th className="p-6 w-32 whitespace-nowrap">Latency</th>
+                                <th className="p-6 w-32 whitespace-nowrap">Cost</th>
                                 <th className="p-6 w-32 whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-2">
                                         {t("table.semantic")}
