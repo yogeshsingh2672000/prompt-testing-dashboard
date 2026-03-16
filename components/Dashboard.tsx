@@ -12,7 +12,11 @@ import { TestCasesSection } from "./dashboard/TestCasesSection";
 import { ResultsSection } from "./dashboard/ResultsSection";
 import { ThemeToggle } from "./ui/ThemeToggle";
 
+import { useTranslations } from "next-intl";
+
 export default function Dashboard() {
+    const t = useTranslations("common");
+    
     // 1. Initial State
     const [systemPrompt, setSystemPrompt] = useState(DEFAULT_SYSTEM_PROMPT);
     const [userInput, setUserInput] = useState(DEFAULT_USER_INPUT);
@@ -49,11 +53,11 @@ export default function Dashboard() {
                     <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 blur-[100px] pointer-events-none" />
                     <div className="flex-1">
                         <h1 className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-teal-600 via-blue-600 to-purple-700 dark:from-teal-400 dark:via-blue-500 dark:to-purple-600 bg-clip-text text-transparent">
-                            Promitly
+                            {t("title")}
                         </h1>
                         <p className="text-zinc-600 dark:text-zinc-400 mt-2 font-semibold text-sm md:text-lg tracking-tight">
-                            Precision Engineering for Bedrock AI.
-                            <span className="hidden md:inline text-zinc-400 dark:text-zinc-500 font-medium ml-2">— Evaluate, refine, and optimize with semantic intelligence.</span>
+                            {t("tagline")}
+                            <span className="hidden md:inline text-zinc-400 dark:text-zinc-500 font-medium ml-2">{t("subTagline")}</span>
                         </p>
                     </div>
                     <div className="flex items-center gap-4 w-full md:w-auto">
@@ -65,7 +69,7 @@ export default function Dashboard() {
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-teal-400/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                             {loading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-zinc-900"></div> : <Play size={20} className="fill-current" />}
-                            <span className="relative z-10 text-lg">{loading ? "Evaluating..." : "Run Evaluation"}</span>
+                            <span className="relative z-10 text-lg">{loading ? t("evaluating") : t("runEvaluation")}</span>
                         </button>
                     </div>
                 </header>

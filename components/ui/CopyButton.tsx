@@ -3,12 +3,15 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 
+import { useTranslations } from "next-intl";
+
 interface CopyButtonProps {
     text: string;
     className?: string;
 }
 
 export function CopyButton({ text, className }: CopyButtonProps) {
+    const t = useTranslations("ui.copy");
     const [copied, setCopied] = useState(false);
 
     const handleCopy = (e: React.MouseEvent) => {
@@ -22,12 +25,12 @@ export function CopyButton({ text, className }: CopyButtonProps) {
         <button
             onClick={handleCopy}
             className={`cursor-pointer p-1.5 hover:bg-zinc-800 rounded-md transition-colors text-zinc-500 hover:text-teal-400 group/copy relative ${className}`}
-            title="Copy to clipboard"
+            title={t("tooltip")}
         >
             {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
             {copied && (
                 <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] px-2 py-1 rounded font-bold shadow-xl whitespace-nowrap z-[100]">
-                    Copied!
+                    {t("copied")}
                 </span>
             )}
         </button>

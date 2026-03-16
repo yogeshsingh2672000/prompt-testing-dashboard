@@ -1,0 +1,58 @@
+{
+  "common": {
+    "title": "Promitly",
+    "tagline": "Precision Engineering for Bedrock AI.",
+    "subTagline": "— Evaluate, refine, and optimize with semantic intelligence.",
+    "runEvaluation": "Run Evaluation",
+    "evaluating": "Evaluating..."
+  },
+  "config": {
+    "title": "Configuration",
+    "systemPrompt": "System Prompt",
+    "systemPromptPlaceholder": "Enter instructions for the AI...",
+    "userInputTemplate": "User Input Template",
+    "userInputPlaceholder": "Input template (e.g. Generate a response based on the context...)",
+    "batchSize": "Batch Size",
+    "threshold": "Threshold(Pass/Fail) %"
+  },
+  "testCases": {
+    "title": "Test Cases",
+    "addTestCase": "Add Test Case",
+    "inputContext": "Input Context",
+    "inputPlaceholder": "Enter test input context...",
+    "expectedOutput": "Expected Output",
+    "expectedPlaceholder": "Enter expected outcome...",
+    "remove": "Remove Test Case"
+  },
+  "results": {
+    "title": "Evaluation Results",
+    "all": "All",
+    "pass": "Pass",
+    "fail": "Fail",
+    "passRate": "Pass Rate",
+    "avgSimilarity": "Avg Similarity",
+    "avgSemantic": "Avg Semantic",
+    "noResults": "No results yet. Click 'Run Evaluation' to start.",
+    "total": "total",
+    "evaluating": "Running parallel evaluations...",
+    "table": {
+      "id": "ID",
+      "status": "STATUS",
+      "similarity": "SIMILARITY",
+      "semantic": "SEMANTIC",
+      "output": "LLM OUTPUT",
+      "expected": "EXPECTED",
+      "generation": "LLM Generation",
+      "goldStandard": "Gold Standard"
+    }
+  },
+  "ui": {
+    "copy": {
+      "tooltip": "Copy to clipboard",
+      "copied": "Copied!"
+    },
+    "theme": {
+      "toggle": "Toggle theme"
+    }
+  }
+}

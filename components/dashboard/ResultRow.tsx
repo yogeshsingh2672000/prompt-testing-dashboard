@@ -11,7 +11,10 @@ interface ResultRowProps {
     testCases: TestCase[];
 }
 
+import { useTranslations } from "next-intl";
+
 export const ResultRow = React.memo(({ result, testCases }: ResultRowProps) => {
+    const t = useTranslations("results");
     const originalIndex = testCases.findIndex(tc => tc.id === result.testCaseId) + 1;
     const expectedOutput = testCases.find(tc => tc.id === result.testCaseId)?.expectedOutput || "";
 
@@ -28,7 +31,7 @@ export const ResultRow = React.memo(({ result, testCases }: ResultRowProps) => {
                         : "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/30 group-hover:border-red-400 dark:group-hover:border-red-500/50 shadow-red-500/5"
                 )}>
                     {result.status === "pass" ? <CheckCircle2 size={14} className="stroke-[3]" /> : <AlertCircle size={14} className="stroke-[3]" />}
-                    {result.status}
+                    {t(result.status)}
                 </div>
             </td>
             <td className="p-6 text-center">
@@ -49,7 +52,7 @@ export const ResultRow = React.memo(({ result, testCases }: ResultRowProps) => {
                 {/* Tooltip Overlay */}
                 <div className="absolute left-6 top-0 z-50 invisible group-hover/cell:visible bg-white dark:bg-zinc-950/95 border border-zinc-200 dark:border-zinc-700/50 p-6 rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.15)] dark:shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] w-[400px] md:w-[600px] max-h-[400px] overflow-y-auto text-zinc-800 dark:text-zinc-200 text-sm whitespace-pre-wrap -translate-y-1/2 opacity-0 group-hover/cell:opacity-100 transition-all duration-300 backdrop-blur-2xl ring-1 ring-zinc-200 dark:ring-white/10 pointer-events-auto cursor-default">
                     <div className="flex justify-between items-center mb-4 border-b border-zinc-100 dark:border-zinc-800 pb-3">
-                        <div className="text-[10px] uppercase text-zinc-400 dark:text-zinc-500 font-black tracking-[0.3em]">LLM Generation</div>
+                        <div className="text-[10px] uppercase text-zinc-400 dark:text-zinc-500 font-black tracking-[0.3em]">{t("table.generation")}</div>
                         <CopyButton text={result.response} />
                     </div>
                     <div className="leading-relaxed font-medium highlight-text">
@@ -64,7 +67,7 @@ export const ResultRow = React.memo(({ result, testCases }: ResultRowProps) => {
                 {/* Tooltip for Expected Output */}
                 <div className="absolute right-8 top-0 z-50 invisible group-hover/expected:visible bg-white dark:bg-zinc-950/90 border border-zinc-200 dark:border-zinc-700/50 p-6 rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.15)] dark:shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] w-[400px] md:w-[600px] max-h-[400px] overflow-y-auto text-zinc-600 dark:text-zinc-400 text-sm whitespace-pre-wrap -translate-y-1/2 opacity-0 group-hover/expected:opacity-100 transition-all duration-300 backdrop-blur-2xl ring-1 ring-zinc-200 dark:ring-white/10 pointer-events-auto cursor-default">
                     <div className="flex justify-between items-center mb-4 border-b border-zinc-100 dark:border-zinc-800 pb-3">
-                        <div className="text-[10px] uppercase text-zinc-400 dark:text-zinc-600 font-black tracking-[0.3em]">Gold Standard</div>
+                        <div className="text-[10px] uppercase text-zinc-400 dark:text-zinc-600 font-black tracking-[0.3em]">{t("table.goldStandard")}</div>
                         <CopyButton text={expectedOutput} />
                     </div>
                     <div className="leading-relaxed font-medium">

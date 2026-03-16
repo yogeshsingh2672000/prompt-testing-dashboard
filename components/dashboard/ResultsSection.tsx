@@ -4,6 +4,7 @@ import { useState } from "react";
 import { EvaluationResult, TestCase } from "@/types";
 import { cn } from "@/lib/utils";
 import { ResultRow } from "./ResultRow";
+import { useTranslations } from "next-intl";
 
 interface ResultsSectionProps {
     results: EvaluationResult[];
@@ -16,6 +17,7 @@ export function ResultsSection({
     loading,
     testCases
 }: ResultsSectionProps) {
+    const t = useTranslations("results");
     const [filter, setFilter] = useState<"all" | "pass" | "fail">("all");
 
     const averageSimilarity = results.length > 0
@@ -43,23 +45,23 @@ export function ResultsSection({
                 <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 blur-[120px] pointer-events-none" />
                 <h2 className="font-black flex flex-col sm:flex-row items-start sm:items-center gap-6 text-xl md:text-2xl text-zinc-900 dark:text-zinc-100">
                     <div className="flex items-center gap-3">
-                        Evaluation Results
+                        {t("title")}
                         <span className="text-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-3 py-1 rounded-full text-zinc-500 dark:text-zinc-400 font-black">
-                            {results.length} total
+                            {results.length} {t("total")}
                         </span>
                     </div>
                     {results.length > 0 && (
                         <div className="flex flex-wrap items-center gap-3">
                             <div className="flex items-center gap-3 px-4 py-2 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-lg">
-                                <span className="text-[10px] uppercase font-black text-zinc-400 dark:text-zinc-500 tracking-widest">Avg Vector</span>
+                                <span className="text-[10px] uppercase font-black text-zinc-400 dark:text-zinc-500 tracking-widest">{t("avgSimilarity")}</span>
                                 <span className="text-base font-mono font-black text-zinc-900 dark:text-zinc-100">{averageSimilarity.toFixed(1)}%</span>
                             </div>
                             <div className="flex items-center gap-3 px-4 py-2 bg-teal-500/5 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/30 rounded-2xl shadow-xl ring-1 ring-teal-500/10">
-                                <span className="text-[10px] uppercase font-black text-teal-600 dark:text-zinc-400 tracking-widest">Avg Semantic</span>
+                                <span className="text-[10px] uppercase font-black text-teal-600 dark:text-zinc-400 tracking-widest">{t("avgSemantic")}</span>
                                 <span className="text-base font-mono font-black text-teal-600 dark:text-teal-400">{averageSemantic.toFixed(1)}%</span>
                             </div>
                             <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl shadow-xl ring-1 ring-emerald-500/10">
-                                <span className="text-[10px] uppercase font-black text-emerald-600 dark:text-zinc-400 tracking-widest">Pass Rate</span>
+                                <span className="text-[10px] uppercase font-black text-emerald-600 dark:text-zinc-400 tracking-widest">{t("passRate")}</span>
                                 <span className="text-base font-mono font-black text-emerald-600 dark:text-emerald-400">{passPercentage.toFixed(0)}% <span className="text-xs opacity-60 ml-1 font-bold">({passCount}/{results.length})</span></span>
                             </div>
                         </div>
@@ -77,7 +79,7 @@ export function ResultsSection({
                                     : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                             )}
                         >
-                            {f}
+                            {t(f)}
                         </button>
                     ))}
                 </div>
@@ -88,19 +90,19 @@ export function ResultsSection({
                     <table className="w-full text-left border-collapse min-w-[900px]">
                         <thead>
                             <tr className="border-b border-zinc-200 dark:border-zinc-800/80 text-[11px] uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 font-black">
-                                <th className="p-6 pl-8 w-20">#</th>
-                                <th className="p-6 w-40">Status</th>
-                                <th className="p-6 w-32 text-center">Vector</th>
-                                <th className="p-6 w-32 text-center">Semantic</th>
-                                <th className="p-6">LLM Response</th>
-                                <th className="p-6 pr-8">Expected</th>
+                                <th className="p-6 pl-8 w-20"># {t("table.id")}</th>
+                                <th className="p-6 w-40">{t("table.status")}</th>
+                                <th className="p-6 w-32 text-center">{t("table.similarity")}</th>
+                                <th className="p-6 w-32 text-center">{t("table.semantic")}</th>
+                                <th className="p-6">{t("table.output")}</th>
+                                <th className="p-6 pr-8">{t("table.expected")}</th>
                             </tr>
                         </thead>
                     <tbody className="text-sm">
                         {loading && results.length === 0 ? (
                             <tr>
                                 <td colSpan={6} className="p-12 text-center text-zinc-500 animate-pulse font-medium">
-                                    Running parallel evaluations...
+                                    {t("evaluating")}
                                 </td>
                             </tr>
                         ) : filteredResults.length > 0 ? (
@@ -114,7 +116,7 @@ export function ResultsSection({
                         ) : (
                             <tr>
                                 <td colSpan={6} className="p-12 text-center text-zinc-600 italic">
-                                    No results found for current filter.
+                                    {filter !== "all" ? t("noResults") : t("noResults")}
                                 </td>
                             </tr>
                         )}
