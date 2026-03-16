@@ -74,8 +74,8 @@ export function ResultsSection({
                             onClick={() => setFilter(f)}
                             className={cn(
                                 "flex-1 xl:flex-none px-6 py-2.5 rounded-xl transition-all duration-300",
-                                filter === f 
-                                    ? (f === "all" ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-lg" : f === "pass" ? "bg-emerald-500 text-white shadow-emerald-500/20 shadow-lg" : "bg-red-500 text-white shadow-red-500/20 shadow-lg") 
+                                filter === f
+                                    ? (f === "all" ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-lg" : f === "pass" ? "bg-emerald-500 text-white shadow-emerald-500/20 shadow-lg" : "bg-red-500 text-white shadow-red-500/20 shadow-lg")
                                     : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                             )}
                         >
@@ -90,40 +90,40 @@ export function ResultsSection({
                     <table className="w-full text-left border-collapse min-w-[900px]">
                         <thead>
                             <tr className="border-b border-zinc-200 dark:border-zinc-800/80 text-[11px] uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 font-black">
-                                <th className="p-6 pl-8 w-20"># {t("table.id")}</th>
-                                <th className="p-6 w-40">{t("table.status")}</th>
-                                <th className="p-6 w-32 text-center">{t("table.similarity")}</th>
-                                <th className="p-6 w-32 text-center">{t("table.semantic")}</th>
-                                <th className="p-6">{t("table.output")}</th>
-                                <th className="p-6 pr-8">{t("table.expected")}</th>
+                                <th className="p-6 pl-8 w-20 whitespace-nowrap"># {t("table.id")}</th>
+                                <th className="p-6 w-40 whitespace-nowrap">{t("table.status")}</th>
+                                <th className="p-6 w-32 text-center whitespace-nowrap">{t("table.similarity")}</th>
+                                <th className="p-6 w-32 text-center whitespace-nowrap">{t("table.semantic")}</th>
+                                <th className="p-6 whitespace-nowrap">{t("table.output")}</th>
+                                <th className="p-6 pr-8 whitespace-nowrap">{t("table.expected")}</th>
                             </tr>
                         </thead>
-                    <tbody className="text-sm">
-                        {loading && results.length === 0 ? (
-                            <tr>
-                                <td colSpan={6} className="p-12 text-center text-zinc-500 animate-pulse font-medium">
-                                    {t("evaluating")}
-                                </td>
-                            </tr>
-                        ) : filteredResults.length > 0 ? (
-                            filteredResults.map((result) => (
-                                <ResultRow
-                                    key={result.testCaseId}
-                                    result={result}
-                                    testCases={testCases}
-                                />
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={6} className="p-12 text-center text-zinc-600 italic">
-                                    {filter !== "all" ? t("noResults") : t("noResults")}
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                        <tbody className="text-sm">
+                            {loading && results.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="p-12 text-center text-zinc-500 animate-pulse font-medium">
+                                        {t("evaluating")}
+                                    </td>
+                                </tr>
+                            ) : filteredResults.length > 0 ? (
+                                filteredResults.map((result) => (
+                                    <ResultRow
+                                        key={result.testCaseId}
+                                        result={result}
+                                        testCases={testCases}
+                                    />
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={6} className="p-12 text-center text-zinc-600 italic">
+                                        {filter !== "all" ? t("noResults") : t("noResults")}
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
     );
 }
