@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Info } from "lucide-react";
 import { EvaluationResult, TestCase } from "@/types";
 import { cn } from "@/lib/utils";
 import { ResultRow } from "./ResultRow";
+import { MetricInfo } from "./MetricInfo";
 import { useTranslations } from "next-intl";
 
 interface ResultsSectionProps {
@@ -18,6 +20,7 @@ export function ResultsSection({
     testCases
 }: ResultsSectionProps) {
     const t = useTranslations("results");
+    const tm = useTranslations("ui.metrics");
     const [filter, setFilter] = useState<"all" | "pass" | "fail">("all");
 
     const averageSimilarity = results.length > 0
@@ -49,6 +52,7 @@ export function ResultsSection({
                         <span className="text-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-3 py-1 rounded-full text-zinc-500 dark:text-zinc-400 font-black">
                             {results.length} {t("total")}
                         </span>
+                        <MetricInfo />
                     </div>
                     {results.length > 0 && (
                         <div className="flex flex-wrap items-center gap-3">
@@ -92,8 +96,28 @@ export function ResultsSection({
                             <tr className="border-b border-zinc-200 dark:border-zinc-800/80 text-[11px] uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 font-black">
                                 <th className="p-6 pl-8 w-20 whitespace-nowrap"># {t("table.id")}</th>
                                 <th className="p-6 w-40 whitespace-nowrap">{t("table.status")}</th>
-                                <th className="p-6 w-32 text-center whitespace-nowrap">{t("table.similarity")}</th>
-                                <th className="p-6 w-32 text-center whitespace-nowrap">{t("table.semantic")}</th>
+                                <th className="p-6 w-32 whitespace-nowrap">
+                                    <div className="flex items-center justify-center gap-2">
+                                        {t("table.similarity")}
+                                        <Info 
+                                            size={14} 
+                                            className="text-zinc-400 dark:text-zinc-600 cursor-help transition-colors hover:text-teal-500"
+                                            data-tooltip-id="main-tooltip"
+                                            data-tooltip-content={tm("similarity.description")}
+                                        />
+                                    </div>
+                                </th>
+                                <th className="p-6 w-32 whitespace-nowrap">
+                                    <div className="flex items-center justify-center gap-2">
+                                        {t("table.semantic")}
+                                        <Info 
+                                            size={14} 
+                                            className="text-zinc-400 dark:text-zinc-600 cursor-help transition-colors hover:text-teal-500"
+                                            data-tooltip-id="main-tooltip"
+                                            data-tooltip-content={tm("semantic.description")}
+                                        />
+                                    </div>
+                                </th>
                                 <th className="p-6 whitespace-nowrap">{t("table.output")}</th>
                                 <th className="p-6 pr-8 whitespace-nowrap">{t("table.expected")}</th>
                             </tr>

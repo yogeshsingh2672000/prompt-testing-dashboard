@@ -29,6 +29,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "@/components/TooltipProvider";
 
 export default async function RootLayout({
   children,
@@ -61,6 +62,7 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <TooltipProvider />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

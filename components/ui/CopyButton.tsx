@@ -24,8 +24,9 @@ export function CopyButton({ text, className }: CopyButtonProps) {
     return (
         <button
             onClick={handleCopy}
+            data-tooltip-id="main-tooltip"
+            data-tooltip-content={t("tooltip")}
             className={`cursor-pointer p-1.5 hover:bg-zinc-800 rounded-md transition-colors text-zinc-500 hover:text-teal-400 group/copy relative ${className}`}
-            title={t("tooltip")}
         >
             {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
             {copied && (

@@ -53,6 +53,17 @@
     },
     "theme": {
       "toggle": "Toggle theme"
+    },
+    "metrics": {
+      "info": "Metric Information",
+      "similarity": {
+        "title": "Similarity (Vector)",
+        "description": "Measures how similar the actual output is to the expected output using vector embeddings (Cosine Similarity). Range: 0-100%."
+      },
+      "semantic": {
+        "title": "Semantic Score",
+        "description": "Uses LLM-as-a-Judge to evaluate the meaning, context, and correctness of the response beyond simple keyword matching."
+      }
     }
   }
 }

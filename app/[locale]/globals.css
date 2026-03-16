@@ -123,3 +123,30 @@ body {
     transform: translateY(0px);
   }
 }
+
+/* Premium React Tooltip Styling */
+.react-tooltip {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-radius: 1.5rem !important;
+  padding: 1.25rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important;
+  color: #18181b !important;
+  max-width: 400px !important;
+  font-family: inherit !important;
+  z-index: 9999 !important;
+  opacity: 1 !important;
+  transition: opacity 0.3s ease, transform 0.3s ease !important;
+}
+
+.dark .react-tooltip {
+  background: rgba(9, 9, 11, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  color: #f4f4f5 !important;
+}
+
+.react-tooltip-arrow {
+  display: none !important;
+}
