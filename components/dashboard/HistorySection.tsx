@@ -47,12 +47,12 @@ export function HistorySection({ onLoadRun, activeRunId }: HistorySectionProps) 
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                     <div className="space-y-1">
                         <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 flex items-center gap-3">
-                            <Clock size={16} className="text-amber-500" /> Experiment Archive
+                            <Clock size={16} className="text-amber-500" /> {t("experimentArchive")}
                         </h2>
                         <div className="flex items-center gap-2 mt-2">
-                             <span className="text-sm font-black text-zinc-900 dark:text-zinc-100 italic">Historical Runs</span>
+                             <span className="text-sm font-black text-zinc-900 dark:text-zinc-100 italic">{t("historicalRuns")}</span>
                              <span className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-3 py-0.5 rounded-full text-[10px] font-black shadow-lg">
-                                {runs.length} RECORDS
+                                {runs.length} {t("records")}
                             </span>
                         </div>
                     </div>

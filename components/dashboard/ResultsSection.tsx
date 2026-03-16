@@ -54,10 +54,10 @@ export function ResultsSection({
             <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
                 <div className="flex items-center gap-4">
                     <h2 className="text-3xl font-black tracking-tight text-zinc-900 dark:text-white uppercase italic">
-                        Evaluation Results
+                        {t("title")}
                     </h2>
                     <span className="bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-4 py-1.5 rounded-2xl text-zinc-500 dark:text-zinc-400 font-black text-xs shadow-inner">
-                        {results.length} SESSIONS
+                        {results.length} {t("sessions")}
                     </span>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
@@ -87,8 +87,8 @@ export function ResultsSection({
                     { label: t("avgSimilarity"), value: `${averageSimilarity.toFixed(1)}%`, color: "blue" },
                     { label: t("avgSemantic"), value: `${averageSemantic.toFixed(1)}%`, color: "teal" },
                     { label: t("passRate"), value: `${passPercentage.toFixed(0)}%`, sub: `(${passCount}/${results.length})`, color: "emerald" },
-                    { label: "Avg Latency", value: `${(avgLatency / 1000).toFixed(2)}s`, color: "purple" },
-                    { label: "Total Cost", value: formatCost(totalCost), color: "amber" },
+                    { label: t("avgLatency"), value: `${(avgLatency / 1000).toFixed(2)}s`, color: "purple" },
+                    { label: t("totalCost"), value: formatCost(totalCost), color: "amber" },
                 ].map((stat, i) => (
                     <div key={i} className={cn(
                         "p-6 rounded-[2rem] border transition-all duration-500 hover:scale-[1.02] bg-white dark:bg-zinc-900 shadow-xl relative overflow-hidden group",
@@ -140,8 +140,6 @@ export function ResultsSection({
                                         />
                                     </div>
                                 </th>
-                                <th className="p-6 w-32 whitespace-nowrap">Latency</th>
-                                <th className="p-6 w-32 whitespace-nowrap">Cost</th>
                                 <th className="p-6 w-32 whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-2">
                                         {t("table.semantic")}
@@ -153,6 +151,8 @@ export function ResultsSection({
                                         />
                                     </div>
                                 </th>
+                                <th className="p-6 w-32 whitespace-nowrap">{t("latency")}</th>
+                                <th className="p-6 w-32 whitespace-nowrap">{t("cost")}</th>
                                 <th className="p-6 whitespace-nowrap">{t("table.output")}</th>
                                 <th className="p-6 pr-8 whitespace-nowrap">{t("table.expected")}</th>
                             </tr>

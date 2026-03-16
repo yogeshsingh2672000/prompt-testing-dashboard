@@ -3,14 +3,29 @@
     "title": "Promitly",
     "tagline": "Bedrock AI के लिए सटीक इंजीनियरिंग।",
     "subTagline": "— सिमेंटिक इंटेलिजेंस के साथ मूल्यांकन, परिष्कृत और अनुकूलित करें।",
-    "runEvaluation": "मूल्यांकन शुरू करें",
-    "evaluating": "मूल्यांकन हो रहा है..."
+    "runTest": "मूल्यांकन शुरू करें",
+    "evaluating": "मूल्यांकन हो रहा है...",
+    "tabs": {
+      "design": "डिजाइन",
+      "evaluate": "मूल्यांकन करें",
+      "history": "इतिहास"
+    }
   },
   "analytics": {
     "title": "प्रदर्शन विश्लेषण",
     "successDistribution": "सफलता वितरण",
     "metricComparison": "मीट्रिक तुलना",
-    "total": "कुल"
+    "total": "कुल",
+    "successVelocity": "सफलता की गति",
+    "samples": "नमूने",
+    "success": "सफलता",
+    "cases": "केस",
+    "semanticFingerprint": "सिमेंटिक फिंगरप्रिंट",
+    "avgPerformance": "औसत प्रदर्शन",
+    "vectorMatch": "वेक्टर मिलान",
+    "semanticFit": "सिमेंटिक फिट",
+    "similarity": "समानता",
+    "semantic": "सिमेंटिक"
   },
   "history": {
     "title": "मूल्यांकन इतिहास",
@@ -19,7 +34,10 @@
     "similarity": "औसत समानता",
     "passRate": "पास दर",
     "delete": "रन हटाएं",
-    "load": "रन लोड करें"
+    "load": "रन लोड करें",
+    "experimentArchive": "प्रयोग पुरालेख",
+    "historicalRuns": "ऐतिहासिक रन",
+    "records": "रिकॉर्ड"
   },
   "config": {
     "title": "कॉन्फ़िगरेशन",
@@ -28,7 +46,17 @@
     "userInputTemplate": "उपयोगकर्ता इनपुट टेम्पलेट",
     "userInputPlaceholder": "इनपुट टेम्पलेट (उदा. संदर्भ के आधार पर प्रतिक्रिया उत्पन्न करें...)",
     "batchSize": "बैच आकार",
-    "threshold": "थ्रेशोल्ड (Pass/Fail) %"
+    "threshold": "थ्रेशोल्ड (Pass/Fail) %",
+    "workspaceConfig": "वर्कस्पेस कॉन्फ़िगरेशन",
+    "engineConfiguration": "इंजन कॉन्फ़िगरेशन",
+    "aiModelProvider": "AI मॉडल प्रदाता",
+    "passThreshold": "पास थ्रेशोल्ड (%)",
+    "promptBlueprints": "प्रॉम्प्ट ब्लूप्रिंट",
+    "aiOptimize": "AI ऑप्टिमाइज़",
+    "suggestionReady": "सुझाव तैयार है",
+    "applyOptimization": "ऑप्टिमाइज़ेशन लागू करें",
+    "systemInstructions": "सिस्टम निर्देश",
+    "userInputBlueprint": "उपयोगकर्ता इनपुट ब्लूप्रिंट (टेम्पलेट)"
   },
   "testCases": {
     "title": "टेस्ट केस",
@@ -37,7 +65,13 @@
     "inputPlaceholder": "टेस्ट इनपुट संदर्भ दर्ज करें...",
     "expectedOutput": "अपेक्षित आउटपुट",
     "expectedPlaceholder": "अपेक्षित परिणाम दर्ज करें...",
-    "remove": "टेस्ट केस हटाएं"
+    "remove": "टेस्ट केस हटाएं",
+    "scenarioLab": "टेस्ट परिदृश्य लैब",
+    "activeSuite": "सक्रिय सुइट",
+    "cases": "केस",
+    "aiGenerateCases": "AI जनरेट केस",
+    "synthesizing": "संश्लेषण हो रहा है...",
+    "suiteEmpty": "सुइट खाली है"
   },
   "results": {
     "title": "मूल्यांकन परिणाम",
@@ -50,6 +84,11 @@
     "noResults": "अभी तक कोई परिणाम नहीं। शुरू करने के लिए 'मूल्यांकन चलाएं' पर क्लिक करें।",
     "total": "कुल",
     "evaluating": "समानांतर मूल्यांकन चल रहा है...",
+    "sessions": "सत्र",
+    "avgLatency": "औसत विलंबता",
+    "totalCost": "कुल लागत",
+    "latency": "विलंबता",
+    "cost": "लागत",
     "table": {
       "id": "आईडी",
       "status": "स्थिति",

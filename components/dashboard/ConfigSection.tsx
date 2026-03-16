@@ -67,16 +67,16 @@ export function ConfigSection({
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 via-blue-500 to-transparent opacity-50" />
                 
                 <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 mb-10 flex items-center gap-3">
-                    <Wand2 size={16} className="text-teal-500" /> Workspace Config
+                    <Wand2 size={16} className="text-teal-500" /> {t("workspaceConfig")}
                 </h2>
 
                 <div className="space-y-10">
                     {/* section: Engine */}
                     <div className="space-y-4">
-                        <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1 italic">1. Engine Configuration</label>
+                        <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1 italic">1. {t("engineConfiguration")}</label>
                         <div className="grid grid-cols-1 gap-4">
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">AI Model Provider</label>
+                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("aiModelProvider")}</label>
                                 <select
                                     value={modelId}
                                     onChange={(e) => setModelId(e.target.value)}
@@ -89,7 +89,7 @@ export function ConfigSection({
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="block text-[10px] font-bold text-zinc-500 ml-1">Batch Size</label>
+                                    <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("batchSize")}</label>
                                     <input
                                         type="number"
                                         value={batchSize}
@@ -98,7 +98,7 @@ export function ConfigSection({
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="block text-[10px] font-bold text-zinc-500 ml-1">Pass Threshold (%)</label>
+                                    <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("passThreshold")}</label>
                                     <input
                                         type="number"
                                         value={threshold}
@@ -113,14 +113,14 @@ export function ConfigSection({
                     {/* section: Prompts */}
                     <div className="space-y-6">
                         <div className="flex justify-between items-center ml-1">
-                            <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest italic">2. Prompt Blueprints</label>
+                            <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest italic">2. {t("promptBlueprints")}</label>
                             <button
                                 onClick={handleOptimize}
                                 disabled={isOptimizing || results.length === 0}
                                 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:grayscale group shadow-xl"
                             >
                                 {isOptimizing ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} className="group-hover:rotate-12 transition-transform" />}
-                                AI Optimize
+                                {t("aiOptimize")}
                             </button>
                         </div>
 
@@ -131,7 +131,7 @@ export function ConfigSection({
                                 </button>
                                 <div className="flex items-center gap-2 mb-3">
                                     <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-teal-500">Suggestion Ready</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-teal-500">{t("suggestionReady")}</span>
                                 </div>
                                 <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium mb-4 pr-6 leading-relaxed">
                                     "{suggestion.reasoning}"
@@ -140,14 +140,14 @@ export function ConfigSection({
                                     onClick={applySuggestion}
                                     className="w-full py-3 bg-teal-500 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl hover:bg-teal-400 transition-all shadow-lg shadow-teal-500/20"
                                 >
-                                    Apply Optimization
+                                    {t("applyOptimization")}
                                 </button>
                             </div>
                         )}
 
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">System Instructions</label>
+                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("systemInstructions")}</label>
                                 <textarea
                                     value={systemPrompt}
                                     onChange={(e) => setSystemPrompt(e.target.value)}
@@ -156,7 +156,7 @@ export function ConfigSection({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">User Input Blueprint (Template)</label>
+                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("userInputBlueprint")}</label>
                                 <textarea
                                     value={userInput}
                                     onChange={(e) => setUserInput(e.target.value)}

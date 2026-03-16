@@ -62,12 +62,12 @@ export function TestCasesSection({
                 <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-10">
                     <div className="space-y-1">
                         <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 flex items-center gap-3">
-                            <CheckCircle2 size={16} className="text-blue-500" /> Test Scenario Lab
+                            <CheckCircle2 size={16} className="text-blue-500" /> {t("scenarioLab")}
                         </h2>
                         <div className="flex items-center gap-2 mt-2">
-                             <span className="text-sm font-black text-zinc-900 dark:text-zinc-100 italic">Active Suite</span>
+                             <span className="text-sm font-black text-zinc-900 dark:text-zinc-100 italic">{t("activeSuite")}</span>
                              <span className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-3 py-0.5 rounded-full text-[10px] font-black shadow-lg">
-                                {testCases.length} CASES
+                                {testCases.length} {t("cases")}
                             </span>
                         </div>
                     </div>
@@ -79,7 +79,7 @@ export function TestCasesSection({
                             className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl disabled:opacity-50 group border border-zinc-800 dark:border-zinc-200"
                         >
                             {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} className="text-teal-500 group-hover:rotate-12 transition-transform" />}
-                            {isGenerating ? "Synthesizing..." : "AI Generate Cases"}
+                            {isGenerating ? t("synthesizing") : t("aiGenerateCases")}
                         </button>
                         <button
                             onClick={addTestCase}
@@ -108,7 +108,7 @@ export function TestCasesSection({
                     {testCases.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-[2rem] opacity-40">
                             <Plus size={40} className="mb-4 text-zinc-400" />
-                            <p className="text-sm font-black uppercase tracking-widest text-zinc-500">Suite is empty</p>
+                            <p className="text-sm font-black uppercase tracking-widest text-zinc-500">{t("suiteEmpty")}</p>
                         </div>
                     )}
                 </div>
