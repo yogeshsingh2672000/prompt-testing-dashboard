@@ -58,12 +58,13 @@ export function ConfigSection({
                             <input
                                 type="number"
                                 value={batchSize}
+                                disabled
                                 onChange={(e) => setBatchSize(Number(e.target.value))}
-                                className="w-full bg-zinc-100/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:ring-offset-zinc-950 text-zinc-900 dark:text-zinc-100 transition-all shadow-inner"
+                                className="opacity-50 cursor-not-allowed w-full bg-zinc-100/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:ring-offset-zinc-950 text-zinc-900 dark:text-zinc-100 transition-all shadow-inner"
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">{t("threshold")}</label>
+                            <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5 whitespace-nowrap">{t("threshold")}</label>
                             <input
                                 type="number"
                                 value={threshold}
