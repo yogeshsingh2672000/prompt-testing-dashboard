@@ -55,51 +55,62 @@ export function TestCasesSection({
     };
 
     return (
-        <div className="lg:col-span-8 space-y-6">
-            <div className="bg-white/70 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-5 md:p-8 rounded-3xl backdrop-blur-xl min-h-[400px] shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-2xl relative overflow-hidden group transition-all duration-500">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500/50 to-transparent" />
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                    <h2 className="text-xl md:text-2xl font-bold flex items-center gap-3 text-zinc-900 dark:text-zinc-100">
-                        <CheckCircle2 size={24} className="text-blue-600 dark:text-blue-400" /> {t("title")}
-                        <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full text-zinc-500 dark:text-zinc-400 font-bold border border-zinc-200 dark:border-zinc-700">
-                            {testCases.length}
-                        </span>
-                    </h2>
-                    <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+        <div className="lg:col-span-8 space-y-8 h-full">
+            <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group transition-all duration-500 min-h-[500px]">
+                <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-blue-500 via-purple-500 to-transparent opacity-50" />
+                
+                <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-10">
+                    <div className="space-y-1">
+                        <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 flex items-center gap-3">
+                            <CheckCircle2 size={16} className="text-blue-500" /> Test Scenario Lab
+                        </h2>
+                        <div className="flex items-center gap-2 mt-2">
+                             <span className="text-sm font-black text-zinc-900 dark:text-zinc-100 italic">Active Suite</span>
+                             <span className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-3 py-0.5 rounded-full text-[10px] font-black shadow-lg">
+                                {testCases.length} CASES
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="w-full xl:w-auto flex flex-col sm:flex-row gap-3">
                         <button
                             onClick={handleAIGenerate}
                             disabled={isGenerating}
-                            className="w-full sm:w-auto text-teal-600 dark:text-teal-400 transition-all flex items-center justify-center gap-2 text-sm font-black bg-teal-500/10 hover:bg-teal-500/20 px-5 py-2.5 rounded-xl border border-teal-500/30 shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group"
+                            className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl disabled:opacity-50 group border border-zinc-800 dark:border-zinc-200"
                         >
-                            {isGenerating ? (
-                                <Loader2 size={18} className="animate-spin" />
-                            ) : (
-                                <Sparkles size={18} className="group-hover:animate-pulse" />
-                            )}
-                            {isGenerating ? "Generating..." : "Generate with AI"}
+                            {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} className="text-teal-500 group-hover:rotate-12 transition-transform" />}
+                            {isGenerating ? "Synthesizing..." : "AI Generate Cases"}
                         </button>
                         <button
                             onClick={addTestCase}
-                            className="w-full sm:w-auto text-zinc-900 dark:text-zinc-100 transition-all flex items-center justify-center gap-2 text-sm font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-lg active:scale-95"
+                            className="bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all border border-zinc-200 dark:border-zinc-700 shadow-xl"
                         >
-                            <Plus size={18} /> {t("addTestCase")}
+                            <Plus size={16} /> {t("addTestCase")}
                         </button>
                     </div>
                 </div>
 
-                <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-8 max-h-[800px] overflow-y-auto pr-4 custom-scrollbar pb-8">
                     {testCases.map((tc, index) => (
-                        <TestCaseItem
-                            key={tc.id}
-                            tc={tc}
-                            index={index}
-                            updateTestCase={updateTestCase}
-                            updateVariable={updateVariable}
-                            removeTestCase={removeTestCase}
-                            systemPrompt={systemPrompt}
-                            userInputTemplate={userInputTemplate}
-                        />
+                        <div key={tc.id} className="animate-in fade-in slide-in-from-right-4 duration-500" style={{ animationDelay: `${index * 50}ms` }}>
+                            <TestCaseItem
+                                tc={tc}
+                                index={index}
+                                updateTestCase={updateTestCase}
+                                updateVariable={updateVariable}
+                                removeTestCase={removeTestCase}
+                                systemPrompt={systemPrompt}
+                                userInputTemplate={userInputTemplate}
+                            />
+                        </div>
                     ))}
+
+                    {testCases.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-[2rem] opacity-40">
+                            <Plus size={40} className="mb-4 text-zinc-400" />
+                            <p className="text-sm font-black uppercase tracking-widest text-zinc-500">Suite is empty</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

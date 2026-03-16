@@ -49,53 +49,28 @@ export function ResultsSection({
     if (results.length === 0 && !loading) return null;
 
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 bg-white/70 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 p-6 md:p-8 rounded-3xl backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-2xl relative overflow-hidden group transition-all duration-500">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 blur-[120px] pointer-events-none" />
-                <h2 className="font-black flex flex-col sm:flex-row items-start sm:items-center gap-6 text-xl md:text-2xl text-zinc-900 dark:text-zinc-100">
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                        {t("title")}
-                        <span className="whitespace-nowrap text-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-3 py-1 rounded-full text-zinc-500 dark:text-zinc-400 font-black">
-                            {results.length}
-                        </span>
-                        {/* <MetricInfo /> */}
-                    </div>
-                    {results.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-3">
-                            <div className="flex items-center gap-3 px-4 py-2 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-lg">
-                                <span className="text-[10px] uppercase font-black text-zinc-400 dark:text-zinc-500 tracking-widest">{t("avgSimilarity")}</span>
-                                <span className="text-base font-mono font-black text-zinc-900 dark:text-zinc-100">{averageSimilarity.toFixed(1)}%</span>
-                            </div>
-                            <div className="flex items-center gap-3 px-4 py-2 bg-teal-500/5 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/30 rounded-2xl shadow-xl ring-1 ring-teal-500/10">
-                                <span className="text-[10px] uppercase font-black text-teal-600 dark:text-zinc-400 tracking-widest">{t("avgSemantic")}</span>
-                                <span className="text-base font-mono font-black text-teal-600 dark:text-teal-400">{averageSemantic.toFixed(1)}%</span>
-                            </div>
-                            <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl shadow-xl ring-1 ring-emerald-500/10">
-                                <span className="text-[10px] uppercase font-black text-emerald-600 dark:text-zinc-400 tracking-widest">{t("passRate")}</span>
-                                <span className="text-base font-mono font-black text-emerald-600 dark:text-emerald-400">{passPercentage.toFixed(0)}% <span className="text-xs opacity-60 ml-1 font-bold">({passCount}/{results.length})</span></span>
-                            </div>
-                            <div className="flex items-center gap-3 px-4 py-2 bg-purple-500/5 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 rounded-2xl shadow-xl ring-1 ring-purple-500/10">
-                                <span className="text-[10px] uppercase font-black text-purple-600 dark:text-purple-400 tracking-widest">Avg Latency</span>
-                                <span className="text-base font-mono font-black text-purple-600 dark:text-purple-400">{(avgLatency / 1000).toFixed(2)}s</span>
-                            </div>
-                            <div className="flex items-center gap-3 px-4 py-2 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-2xl shadow-xl ring-1 ring-amber-500/10">
-                                <span className="text-[10px] uppercase font-black text-amber-600 dark:text-amber-400 tracking-widest">Total Cost</span>
-                                <span className="text-base font-mono font-black text-amber-600 dark:text-amber-400">{formatCost(totalCost)}</span>
-                            </div>
-                        </div>
-                    )}
-                </h2>
-                <div className="w-full xl:w-auto flex flex-col sm:flex-row items-center gap-4">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-12">
+            {/* Results Header & Actions */}
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+                <div className="flex items-center gap-4">
+                    <h2 className="text-3xl font-black tracking-tight text-zinc-900 dark:text-white uppercase italic">
+                        Evaluation Results
+                    </h2>
+                    <span className="bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-4 py-1.5 rounded-2xl text-zinc-500 dark:text-zinc-400 font-black text-xs shadow-inner">
+                        {results.length} SESSIONS
+                    </span>
+                </div>
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
                     <ExportActions results={results} testCases={testCases} />
-                    <div className="w-full xl:w-auto flex bg-zinc-100 dark:bg-zinc-950/80 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800/80 text-[10px] font-black uppercase tracking-[0.2em] shadow-inner transition-all duration-300">
+                    <div className="w-full sm:w-auto flex bg-zinc-100 dark:bg-zinc-950/80 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800/80 text-[10px] font-black uppercase tracking-[0.2em] shadow-inner">
                         {(["all", "pass", "fail"] as const).map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
                                 className={cn(
-                                    "flex-1 xl:flex-none px-6 py-2.5 rounded-xl transition-all duration-300",
+                                    "flex-1 sm:flex-none px-6 py-2.5 rounded-xl transition-all duration-300",
                                     filter === f
-                                        ? (f === "all" ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-lg" : f === "pass" ? "bg-emerald-500 text-white shadow-emerald-500/20 shadow-lg" : "bg-red-500 text-white shadow-red-500/20 shadow-lg")
+                                        ? (f === "all" ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-lg" : f === "pass" ? "bg-emerald-500 text-white shadow-lg" : "bg-red-500 text-white shadow-lg")
                                         : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                                 )}
                             >
@@ -104,6 +79,47 @@ export function ResultsSection({
                         ))}
                     </div>
                 </div>
+            </div>
+
+            {/* Performance Ribbon */}
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                {[
+                    { label: t("avgSimilarity"), value: `${averageSimilarity.toFixed(1)}%`, color: "blue" },
+                    { label: t("avgSemantic"), value: `${averageSemantic.toFixed(1)}%`, color: "teal" },
+                    { label: t("passRate"), value: `${passPercentage.toFixed(0)}%`, sub: `(${passCount}/${results.length})`, color: "emerald" },
+                    { label: "Avg Latency", value: `${(avgLatency / 1000).toFixed(2)}s`, color: "purple" },
+                    { label: "Total Cost", value: formatCost(totalCost), color: "amber" },
+                ].map((stat, i) => (
+                    <div key={i} className={cn(
+                        "p-6 rounded-[2rem] border transition-all duration-500 hover:scale-[1.02] bg-white dark:bg-zinc-900 shadow-xl relative overflow-hidden group",
+                        stat.color === 'blue' && "border-blue-200 dark:border-blue-900/50 hover:border-blue-400",
+                        stat.color === 'teal' && "border-teal-200 dark:border-teal-900/50 hover:border-teal-400",
+                        stat.color === 'emerald' && "border-emerald-200 dark:border-emerald-900/50 hover:border-emerald-400",
+                        stat.color === 'purple' && "border-purple-200 dark:border-purple-900/50 hover:border-purple-400",
+                        stat.color === 'amber' && "border-amber-200 dark:border-amber-900/50 hover:border-amber-400"
+                    )}>
+                        <div className={cn(
+                            "absolute top-0 right-0 w-24 h-24 blur-[40px] opacity-10 group-hover:opacity-20 transition-opacity",
+                            stat.color === 'blue' && "bg-blue-500",
+                            stat.color === 'teal' && "bg-teal-500",
+                            stat.color === 'emerald' && "bg-emerald-500",
+                            stat.color === 'purple' && "bg-purple-500",
+                            stat.color === 'amber' && "bg-amber-500"
+                        )} />
+                        <span className="text-[10px] uppercase font-black text-zinc-400 dark:text-zinc-500 tracking-[0.2em] block mb-2">{stat.label}</span>
+                        <div className="flex items-baseline gap-2">
+                            <span className={cn(
+                                "text-2xl md:text-3xl font-black font-mono tracking-tighter",
+                                stat.color === 'blue' && "text-blue-600 dark:text-blue-400",
+                                stat.color === 'teal' && "text-teal-600 dark:text-teal-400",
+                                stat.color === 'emerald' && "text-emerald-600 dark:text-emerald-400",
+                                stat.color === 'purple' && "text-purple-600 dark:text-purple-400",
+                                stat.color === 'amber' && "text-amber-600 dark:text-amber-400"
+                            )}>{stat.value}</span>
+                            {stat.sub && <span className="text-[10px] font-bold text-zinc-400">{stat.sub}</span>}
+                        </div>
+                    </div>
+                ))}
             </div>
 
             <div className="border border-zinc-200 dark:border-zinc-800/80 rounded-[2.5rem] bg-white dark:bg-zinc-900/40 backdrop-blur-md shadow-2xl overflow-hidden transition-all duration-300">

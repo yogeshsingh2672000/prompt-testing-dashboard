@@ -35,49 +35,58 @@ export function AnalyticsSection({ results }: AnalyticsSectionProps) {
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Pass/Fail Distribution */}
-            <div className="bg-white/70 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 p-6 rounded-3xl backdrop-blur-xl shadow-xl">
-                <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-6 flex items-center justify-between">
-                    Success Distribution
-                    <span className="text-[10px] bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">{results.length} total</span>
+            <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-red-500 opacity-50" />
+                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 mb-8 flex items-center justify-between">
+                    Success Velocity
+                    <span className="text-[10px] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-3 py-1 rounded-full shadow-lg">
+                        {results.length} SAMPLES
+                    </span>
                 </h3>
-                <div className="h-[250px] w-full">
+                <div className="h-[300px] w-full flex items-center justify-center">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie
                                 data={pieData}
                                 cx="50%"
                                 cy="50%"
-                                innerRadius={60}
-                                outerRadius={80}
-                                paddingAngle={5}
+                                innerRadius={80}
+                                outerRadius={110}
+                                paddingAngle={8}
                                 dataKey="value"
                                 stroke="none"
                             >
                                 {pieData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                    <Cell key={`cell-${index}`} fill={entry.color} className="filter drop-shadow-xl" />
                                 ))}
                             </Pie>
                             <Tooltip 
                                 contentStyle={{ 
-                                    backgroundColor: 'rgba(24, 24, 27, 0.9)', 
-                                    border: 'none', 
-                                    borderRadius: '12px',
-                                    color: '#fff',
-                                    fontSize: '12px'
+                                    backgroundColor: 'rgba(9, 9, 11, 0.95)', 
+                                    border: '1px solid rgba(255, 255, 255, 0.1)', 
+                                    borderRadius: '24px',
+                                    padding: '16px',
+                                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                                 }}
-                                itemStyle={{ color: '#fff' }}
                             />
                         </PieChart>
                     </ResponsiveContainer>
+                    <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-4xl font-black tracking-tighter text-emerald-500">{((passCount / results.length) * 100).toFixed(0)}%</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">SUCCESS</span>
+                    </div>
                 </div>
-                <div className="flex justify-center gap-8 mt-2">
+                <div className="flex justify-center gap-12 mt-4">
                     {pieData.map((item) => (
-                        <div key={item.name} className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                            <span className="text-sm font-bold text-zinc-600 dark:text-zinc-300">
-                                {item.name}: {((item.value / results.length) * 100).toFixed(0)}%
+                        <div key={item.name} className="flex flex-col items-center gap-1">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">{item.name}</span>
+                            </div>
+                            <span className="text-lg font-black text-zinc-900 dark:text-zinc-100 italic">
+                                {item.value} <span className="text-[10px] opacity-40 not-italic">CASES</span>
                             </span>
                         </div>
                     ))}
@@ -85,43 +94,44 @@ export function AnalyticsSection({ results }: AnalyticsSectionProps) {
             </div>
 
             {/* Score Performance (Radar) */}
-            <div className="bg-white/70 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 p-6 rounded-3xl backdrop-blur-xl shadow-xl flex flex-col items-center">
-                <h3 className="w-full text-sm font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-6">
-                    Metric Comparison
+            <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-teal-500 to-blue-500 opacity-50" />
+                <h3 className="w-full text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 mb-8">
+                    Semantic Fingerprint
                 </h3>
-                <div className="h-[250px] w-full max-w-[300px]">
+                <div className="h-[300px] w-full flex items-center justify-center">
                     <ResponsiveContainer width="100%" height="100%">
                         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                            <PolarGrid stroke="#3f3f46" strokeDasharray="3 3" />
-                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#71717a', fontSize: 10, fontWeight: 800 }} />
+                            <PolarGrid stroke="#3f3f46" strokeDasharray="4 4" opacity={0.3} />
+                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#71717a', fontSize: 11, fontWeight: 900, letterSpacing: '0.1em' }} />
                             <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                             <Radar
-                                name="Average Score"
+                                name="Avg Performance"
                                 dataKey="A"
                                 stroke="#14b8a6"
                                 fill="#14b8a6"
-                                fillOpacity={0.4}
+                                fillOpacity={0.3}
+                                strokeWidth={3}
                             />
                             <Tooltip 
                                 contentStyle={{ 
-                                    backgroundColor: 'rgba(24, 24, 27, 0.9)', 
-                                    border: 'none', 
-                                    borderRadius: '12px',
-                                    color: '#fff',
-                                    fontSize: '12px'
+                                    backgroundColor: 'rgba(9, 9, 11, 0.95)', 
+                                    border: '1px solid rgba(255, 255, 255, 0.1)', 
+                                    borderRadius: '24px',
+                                    padding: '16px'
                                 }}
                             />
                         </RadarChart>
                     </ResponsiveContainer>
                 </div>
                 <div className="grid grid-cols-2 gap-4 w-full mt-4">
-                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700/50 text-center">
-                        <div className="text-[10px] uppercase font-bold text-zinc-400 mb-1">Vector</div>
-                        <div className="text-lg font-black text-zinc-900 dark:text-white">{avgSimilarity.toFixed(1)}%</div>
+                    <div className="p-5 bg-zinc-950/5 dark:bg-zinc-950/40 rounded-3xl border border-dashed border-zinc-200 dark:border-zinc-800 text-center transition-all hover:border-zinc-400 dark:hover:border-zinc-600">
+                        <div className="text-[10px] uppercase font-black text-zinc-400 tracking-widest mb-2 italic">Vector Match</div>
+                        <div className="text-2xl font-black text-zinc-900 dark:text-white tracking-tighter">{avgSimilarity.toFixed(1)}%</div>
                     </div>
-                    <div className="p-3 bg-teal-500/5 rounded-2xl border border-teal-500/20 text-center">
-                        <div className="text-[10px] uppercase font-bold text-teal-500/60 mb-1">Semantic</div>
-                        <div className="text-lg font-black text-teal-500">{avgSemantic.toFixed(1)}%</div>
+                    <div className="p-5 bg-teal-500/[0.03] dark:bg-teal-500/[0.08] rounded-3xl border border-dashed border-teal-500/30 text-center transition-all hover:bg-teal-500/10 hover:border-teal-500/50">
+                        <div className="text-[10px] uppercase font-black text-teal-500/60 tracking-widest mb-2 italic">Semantic Fit</div>
+                        <div className="text-2xl font-black text-teal-500 tracking-tighter">{avgSemantic.toFixed(1)}%</div>
                     </div>
                 </div>
             </div>

@@ -62,94 +62,108 @@ export function ConfigSection({
     };
 
     return (
-        <div className="lg:col-span-4 space-y-6">
-            <div className="h-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-5 md:p-8 rounded-3xl backdrop-blur-sm shadow-xl relative overflow-hidden group transition-all duration-300">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500/50 to-transparent" />
-                <h2 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3 text-zinc-900 dark:text-zinc-100">
-                    <Filter size={24} className="text-teal-600 dark:text-teal-400" /> {t("title")}
+        <div className="lg:col-span-4 space-y-8 h-full">
+            <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group transition-all duration-500">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 via-blue-500 to-transparent opacity-50" />
+                
+                <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 mb-10 flex items-center gap-3">
+                    <Wand2 size={16} className="text-teal-500" /> Workspace Config
                 </h2>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">Model</label>
-                        <select
-                            value={modelId}
-                            onChange={(e) => setModelId(e.target.value)}
-                            className="w-full bg-zinc-100/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all shadow-inner"
-                        >
-                            {SUPPORTED_MODELS.map(m => (
-                                <option key={m.id} value={m.id}>{m.name}</option>
-                            ))}
-                        </select>
+
+                <div className="space-y-10">
+                    {/* section: Engine */}
+                    <div className="space-y-4">
+                        <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1 italic">1. Engine Configuration</label>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="space-y-2">
+                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">AI Model Provider</label>
+                                <select
+                                    value={modelId}
+                                    onChange={(e) => setModelId(e.target.value)}
+                                    className="w-full bg-zinc-950 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
+                                >
+                                    {SUPPORTED_MODELS.map(m => (
+                                        <option key={m.id} value={m.id}>{m.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="block text-[10px] font-bold text-zinc-500 ml-1">Batch Size</label>
+                                    <input
+                                        type="number"
+                                        value={batchSize}
+                                        disabled
+                                        className="opacity-50 cursor-not-allowed w-full bg-zinc-900/5 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-[10px] font-bold text-zinc-500 ml-1">Pass Threshold (%)</label>
+                                    <input
+                                        type="number"
+                                        value={threshold}
+                                        onChange={(e) => setThreshold(Number(e.target.value))}
+                                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div className="flex justify-between items-center mb-1.5">
-                            <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider">{t("systemPrompt")}</label>
+
+                    {/* section: Prompts */}
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center ml-1">
+                            <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest italic">2. Prompt Blueprints</label>
                             <button
                                 onClick={handleOptimize}
                                 disabled={isOptimizing || results.length === 0}
-                                className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-lg hover:bg-teal-500/20 transition-all disabled:opacity-30 disabled:grayscale group"
-                                title={results.length === 0 ? "Run evaluation first to optimize" : "Optimize with AI"}
+                                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:grayscale group shadow-xl"
                             >
-                                {isOptimizing ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} className="group-hover:animate-pulse" />}
-                                Optimize
+                                {isOptimizing ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} className="group-hover:rotate-12 transition-transform" />}
+                                AI Optimize
                             </button>
                         </div>
-                        
+
                         {suggestion && (
-                            <div className="mb-4 bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/30 rounded-2xl p-4 animate-in slide-in-from-top-4 duration-300">
-                                <div className="flex justify-between items-start mb-3">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-teal-600 dark:text-teal-400">AI Suggestion</h4>
-                                    <button onClick={() => setSuggestion(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
-                                        <X size={14} />
-                                    </button>
+                            <div className="relative bg-zinc-900 dark:bg-white p-6 rounded-[2rem] border border-zinc-800 dark:border-zinc-200 shadow-2xl animate-in zoom-in-95 duration-300">
+                                <button onClick={() => setSuggestion(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-red-500 transition-colors">
+                                    <X size={16} />
+                                </button>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-teal-500">Suggestion Ready</span>
                                 </div>
-                                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 italic mb-3">"{suggestion.reasoning}"</p>
-                                <div className="flex gap-2">
-                                    <button 
-                                        onClick={applySuggestion}
-                                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-teal-500 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-teal-600 shadow-lg shadow-teal-500/20 transition-all"
-                                    >
-                                        <Check size={14} /> Apply Suggestion
-                                    </button>
-                                </div>
+                                <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium mb-4 pr-6 leading-relaxed">
+                                    "{suggestion.reasoning}"
+                                </p>
+                                <button 
+                                    onClick={applySuggestion}
+                                    className="w-full py-3 bg-teal-500 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl hover:bg-teal-400 transition-all shadow-lg shadow-teal-500/20"
+                                >
+                                    Apply Optimization
+                                </button>
                             </div>
                         )}
 
-                        <textarea
-                            value={systemPrompt}
-                            onChange={(e) => setSystemPrompt(e.target.value)}
-                            className="custom-scrollbar w-full h-32 lg:h-84 bg-zinc-100/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm resize-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 shadow-inner"
-                            placeholder={t("systemPromptPlaceholder")}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">{t("userInputTemplate")}</label>
-                        <textarea
-                            value={userInput}
-                            onChange={(e) => setUserInput(e.target.value)}
-                            className="w-full h-24 bg-zinc-100/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm resize-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 shadow-inner"
-                            placeholder={t("userInputPlaceholder")}
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">{t("batchSize")}</label>
-                            <input
-                                type="number"
-                                value={batchSize}
-                                disabled
-                                onChange={(e) => setBatchSize(Number(e.target.value))}
-                                className="opacity-50 cursor-not-allowed w-full bg-zinc-100/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:ring-offset-zinc-950 text-zinc-900 dark:text-zinc-100 transition-all shadow-inner"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5 whitespace-nowrap">{t("threshold")}</label>
-                            <input
-                                type="number"
-                                value={threshold}
-                                onChange={(e) => setThreshold(Number(e.target.value))}
-                                className="w-full bg-zinc-100/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:ring-offset-zinc-950 text-zinc-900 dark:text-zinc-100 transition-all shadow-inner"
-                            />
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">System Instructions</label>
+                                <textarea
+                                    value={systemPrompt}
+                                    onChange={(e) => setSystemPrompt(e.target.value)}
+                                    className="custom-scrollbar w-full h-48 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm resize-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 font-medium leading-relaxed"
+                                    placeholder="Enter system prompt instructions..."
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">User Input Blueprint (Template)</label>
+                                <textarea
+                                    value={userInput}
+                                    onChange={(e) => setUserInput(e.target.value)}
+                                    className="custom-scrollbar w-full h-32 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm resize-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 font-medium leading-relaxed"
+                                    placeholder="e.g. Please analyze this text: {{input}}"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -31,9 +31,10 @@ export default function Dashboard() {
     const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
     const [modelId, setModelId] = useState(DEFAULT_MODEL_ID);
     const [activeRunId, setActiveRunId] = useState<string | undefined>();
+    const [activeTab, setActiveTab] = useState<'design' | 'results' | 'history'>('design');
 
     // 2. Evaluation Logic Hook
-    const { results, loading, runEvaluation, setResults } = useEvaluation(
+    const { results, loading, runEvaluation: executeEvaluation, setResults } = useEvaluation(
         testCases,
         systemPrompt,
         userInput,
@@ -41,6 +42,11 @@ export default function Dashboard() {
         threshold,
         modelId
     );
+
+    const runEvaluation = async () => {
+        setActiveTab('results');
+        await executeEvaluation();
+    };
 
     // 3. Handlers
     const handleLoadRun = (run: TestRun) => {
@@ -52,14 +58,11 @@ export default function Dashboard() {
         setThreshold(run.config.threshold);
         setModelId(run.config.modelId || DEFAULT_MODEL_ID);
         setResults(run.results);
+        setActiveTab('results');
     };
 
     const addTestCase = () => {
         setTestCases([...testCases, { id: Math.random().toString(36).substr(2, 9), input: "", expectedOutput: "" }]);
-    };
-
-    const removeTestCase = (id: string) => {
-        setTestCases(testCases.filter((tc) => tc.id !== id));
     };
 
     const updateTestCase = (id: string, field: keyof TestCase, value: string) => {
@@ -73,85 +76,117 @@ export default function Dashboard() {
         } : tc));
     };
 
+    const removeTestCase = (id: string) => {
+        setTestCases(testCases.filter(tc => tc.id !== id));
+    };
+
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans p-4 md:p-8 selection:bg-teal-500/30 transition-colors duration-500">
-            <div className="max-w-[1600px] mx-auto space-y-6 md:space-y-8">
-                <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/70 dark:bg-zinc-900/40 p-5 md:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800/50 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-2xl relative z-40 transition-all duration-500">
-                    <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 blur-[100px]" />
-                    </div>
-                    <div className="flex-1">
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-teal-600 via-blue-600 to-purple-700 dark:from-teal-400 dark:via-blue-500 dark:to-purple-600 bg-clip-text text-transparent">
-                            {t("title")}
+        <div className="min-h-screen bg-transparent relative">
+            <div className="p-4 md:p-8 lg:p-12 space-y-8 max-w-[1600px] mx-auto relative z-10">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-4">
+                    <div className="space-y-2">
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-zinc-900 dark:text-white flex items-center gap-4">
+                            <span className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-4 py-1 rounded-2xl rotate-[-2deg] shadow-2xl">PROMITLY</span>
+                            <span className="text-zinc-400 dark:text-zinc-600 hidden sm:inline">/</span>
+                            <span className="opacity-50 hidden sm:inline">DASHBOARD</span>
                         </h1>
-                        <p className="text-zinc-600 dark:text-zinc-400 mt-2 font-semibold text-sm md:text-lg tracking-tight">
-                            {t("tagline")}
-                            <span className="hidden md:inline text-zinc-400 dark:text-zinc-500 font-medium ml-2">{t("subTagline")}</span>
+                        <p className="text-zinc-500 dark:text-zinc-400 font-medium ml-1 text-sm md:text-base">
+                            The Complete Prompt Engineering Workspace.
                         </p>
                     </div>
-                    <div className="flex items-center gap-4 w-full md:w-auto">
-                        <LanguageToggle />
+
+                    <div className="flex items-center gap-3">
                         <ThemeToggle />
+                        <LanguageToggle />
                         <button
                             onClick={runEvaluation}
                             disabled={loading}
-                            className="flex-1 md:flex-none group relative flex items-center justify-center gap-3 bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 px-8 py-4 rounded-2xl font-bold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl overflow-hidden"
+                            className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-8 py-4 rounded-3xl font-black flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)] disabled:opacity-50 group border border-zinc-800 dark:border-zinc-200"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-teal-400/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            {loading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-zinc-900"></div> : <Play size={20} className="fill-current" />}
-                            <span className="relative z-10 text-lg">{loading ? t("evaluating") : t("runEvaluation")}</span>
+                            {loading ? <span className="animate-spin text-2xl">O</span> : <Play size={22} fill="currentColor" />}
+                            {loading ? t("evaluating") : t("runTest")}
                         </button>
                     </div>
-                </header>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-sm">
-                    {/* Config Area */}
-                    <ConfigSection
-                        systemPrompt={systemPrompt}
-                        setSystemPrompt={setSystemPrompt}
-                        userInput={userInput}
-                        setUserInput={setUserInput}
-                        batchSize={batchSize}
-                        setBatchSize={setBatchSize}
-                        threshold={threshold}
-                        setThreshold={setThreshold}
-                        modelId={modelId}
-                        setModelId={setModelId}
-                        results={results}
-                    />
-
-                    {/* Test Case Management */}
-                    <TestCasesSection
-                        testCases={testCases}
-                        addTestCase={addTestCase}
-                        updateTestCase={updateTestCase}
-                        updateVariable={updateVariable}
-                        removeTestCase={removeTestCase}
-                        setTestCases={setTestCases}
-                        systemPrompt={systemPrompt}
-                        userInputTemplate={userInput}
-                    />
                 </div>
 
-                    {/* Analytics Header (only if results exist) */}
-                    {results.length > 0 && !loading && (
-                        <div className="mb-8">
-                            <AnalyticsSection results={results} />
+                {/* Modern Navigation Tabs */}
+                <div className="flex p-1.5 bg-zinc-100 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-3xl w-full sm:w-fit backdrop-blur-xl">
+                    <button
+                        onClick={() => setActiveTab('design')}
+                        className={`flex-1 sm:flex-none px-8 py-3 rounded-2xl text-sm font-black tracking-widest uppercase transition-all duration-300 ${activeTab === 'design' ? 'bg-white dark:bg-zinc-800 text-teal-600 dark:text-teal-400 shadow-xl' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+                    >
+                        1. Design
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('results')}
+                        className={`flex-1 sm:flex-none px-8 py-3 rounded-2xl text-sm font-black tracking-widest uppercase transition-all duration-300 ${activeTab === 'results' ? 'bg-white dark:bg-zinc-800 text-teal-600 dark:text-teal-400 shadow-xl' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+                    >
+                        2. Evaluate
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('history')}
+                        className={`flex-1 sm:flex-none px-8 py-3 rounded-2xl text-sm font-black tracking-widest uppercase transition-all duration-300 ${activeTab === 'history' ? 'bg-white dark:bg-zinc-800 text-teal-600 dark:text-teal-400 shadow-xl' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+                    >
+                        3. History
+                    </button>
+                </div>
+
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    {activeTab === 'design' && (
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-sm">
+                            {/* Config Area */}
+                            <ConfigSection
+                                systemPrompt={systemPrompt}
+                                setSystemPrompt={setSystemPrompt}
+                                userInput={userInput}
+                                setUserInput={setUserInput}
+                                batchSize={batchSize}
+                                setBatchSize={setBatchSize}
+                                threshold={threshold}
+                                setThreshold={setThreshold}
+                                modelId={modelId}
+                                setModelId={setModelId}
+                                results={results}
+                            />
+
+                            {/* Test Case Management */}
+                            <TestCasesSection
+                                testCases={testCases}
+                                addTestCase={addTestCase}
+                                updateTestCase={updateTestCase}
+                                updateVariable={updateVariable}
+                                removeTestCase={removeTestCase}
+                                setTestCases={setTestCases}
+                                systemPrompt={systemPrompt}
+                                userInputTemplate={userInput}
+                            />
                         </div>
                     )}
 
-                    {/* Results Table */}
-                    <ResultsSection
-                        results={results}
-                        loading={loading}
-                        testCases={testCases}
-                    />
+                    {activeTab === 'results' && (
+                        <div className="space-y-8">
+                            {/* Analytics Header (only if results exist) */}
+                            {results.length > 0 && !loading && (
+                                <AnalyticsSection results={results} />
+                            )}
 
-                {/* History Section */}
-                <HistorySection 
-                    onLoadRun={handleLoadRun} 
-                    activeRunId={activeRunId} 
-                />
+                            {/* Results Table */}
+                            <ResultsSection
+                                results={results}
+                                loading={loading}
+                                testCases={testCases}
+                            />
+                        </div>
+                    )}
+
+                    {activeTab === 'history' && (
+                        <HistorySection 
+                            onLoadRun={handleLoadRun} 
+                            activeRunId={activeRunId} 
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );
