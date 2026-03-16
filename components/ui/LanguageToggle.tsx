@@ -34,7 +34,6 @@ export function LanguageToggle() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-
     return (
         <div className="relative" ref={dropdownRef}>
             <button
@@ -50,7 +49,7 @@ export function LanguageToggle() {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-3 w-48 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl backdrop-blur-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute left-0 md:left-auto md:right-0 mt-3 w-48 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl backdrop-blur-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                     <div className="p-2 space-y-1">
                         {languages.map((lang) => (
                             <button
