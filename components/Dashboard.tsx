@@ -49,9 +49,12 @@ export default function Dashboard() {
                     <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 blur-[100px] pointer-events-none" />
                     <div className="flex-1">
                         <h1 className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-teal-600 via-blue-600 to-purple-700 dark:from-teal-400 dark:via-blue-500 dark:to-purple-600 bg-clip-text text-transparent">
-                            Prompt Evaluation Dashboard
+                            Promitly
                         </h1>
-                        <p className="text-zinc-600 dark:text-zinc-400 mt-2 font-medium text-sm md:text-base">Professional testbed for AWS Bedrock prompts.</p>
+                        <p className="text-zinc-600 dark:text-zinc-400 mt-2 font-semibold text-sm md:text-lg tracking-tight">
+                            Precision Engineering for Bedrock AI.
+                            <span className="hidden md:inline text-zinc-400 dark:text-zinc-500 font-medium ml-2">— Evaluate, refine, and optimize with semantic intelligence.</span>
+                        </p>
                     </div>
                     <div className="flex items-center gap-4 w-full md:w-auto">
                         <ThemeToggle />
