@@ -24,10 +24,11 @@ export function ConfigSection({
     setThreshold
 }: ConfigSectionProps) {
     return (
-        <div className="lg:col-span-12 xl:col-span-5 space-y-6">
-            <div className="h-full bg-zinc-900/50 border border-zinc-800 p-6 rounded-2xl backdrop-blur-sm shadow-xl">
-                <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                    <Filter size={18} className="text-teal-400" /> Configuration
+        <div className="lg:col-span-4 space-y-6">
+            <div className="h-full bg-zinc-900/50 border border-zinc-800 p-5 md:p-8 rounded-3xl backdrop-blur-sm shadow-xl relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500/50 to-transparent" />
+                <h2 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
+                    <Filter size={24} className="text-teal-400" /> Configuration
                 </h2>
                 <div className="space-y-4">
                     <div>

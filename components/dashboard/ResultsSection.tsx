@@ -38,41 +38,42 @@ export function ResultsSection({
     if (results.length === 0 && !loading) return null;
 
     return (
-        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex justify-between items-center bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl backdrop-blur-sm shadow-lg">
-                <h2 className="font-semibold flex items-center gap-4">
-                    <div className="flex items-center gap-2">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 bg-zinc-900/60 border border-zinc-800/80 p-6 md:p-8 rounded-3xl backdrop-blur-xl shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 blur-[120px] pointer-events-none" />
+                <h2 className="font-black flex flex-col sm:flex-row items-start sm:items-center gap-6 text-xl md:text-2xl">
+                    <div className="flex items-center gap-3">
                         Evaluation Results
-                        {results.length > 0 && (<span className="text-xs bg-zinc-800 px-2 py-0.5 rounded text-zinc-400 font-normal">
+                        <span className="text-sm bg-zinc-800 border border-zinc-700 px-3 py-1 rounded-full text-zinc-400 font-black">
                             {results.length} total
-                        </span>)}
+                        </span>
                     </div>
                     {results.length > 0 && (
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2 px-3 py-1 bg-zinc-800/50 border border-zinc-800 rounded-lg">
-                                <span className="text-[10px] uppercase font-bold text-zinc-500">Avg Vector:</span>
-                                <span className="text-xs font-mono font-bold text-zinc-400">{averageSimilarity.toFixed(1)}%</span>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex items-center gap-3 px-4 py-2 bg-zinc-800/80 border border-zinc-700 rounded-2xl shadow-lg">
+                                <span className="text-[10px] uppercase font-black text-zinc-500 tracking-widest">Avg Vector</span>
+                                <span className="text-base font-mono font-black text-zinc-100">{averageSimilarity.toFixed(1)}%</span>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-1 bg-teal-500/10 border border-teal-500/20 rounded-lg shadow-[0_0_15px_rgba(45,212,191,0.1)]">
-                                <span className="text-[10px] uppercase font-bold text-zinc-500">Avg Semantic:</span>
-                                <span className="text-xs font-mono font-bold text-teal-400">{averageSemantic.toFixed(1)}%</span>
+                            <div className="flex items-center gap-3 px-4 py-2 bg-teal-500/10 border border-teal-500/30 rounded-2xl shadow-[0_0_25px_rgba(45,212,191,0.15)] ring-1 ring-teal-500/20">
+                                <span className="text-[10px] uppercase font-black text-zinc-400 tracking-widest">Avg Semantic</span>
+                                <span className="text-base font-mono font-black text-teal-400">{averageSemantic.toFixed(1)}%</span>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                                <span className="text-[10px] uppercase font-bold text-zinc-500">Pass Rate:</span>
-                                <span className="text-xs font-mono font-bold text-emerald-400">{passPercentage.toFixed(0)}% <span className="text-[10px] opacity-70">({passCount}/{results.length})</span></span>
+                            <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl shadow-[0_0_25px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/20">
+                                <span className="text-[10px] uppercase font-black text-zinc-400 tracking-widest">Pass Rate</span>
+                                <span className="text-base font-mono font-black text-emerald-400">{passPercentage.toFixed(0)}% <span className="text-xs opacity-60 ml-1 font-bold">({passCount}/{results.length})</span></span>
                             </div>
                         </div>
                     )}
                 </h2>
-                <div className="flex bg-zinc-950 p-1 rounded-lg border border-zinc-800 text-[10px] font-bold uppercase tracking-wider">
+                <div className="w-full xl:w-auto flex bg-zinc-950/80 p-1.5 rounded-2xl border border-zinc-800/80 text-[10px] font-black uppercase tracking-[0.2em] shadow-inner">
                     {(["all", "pass", "fail"] as const).map((f) => (
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
                             className={cn(
-                                "px-4 py-1.5 rounded-md transition-all",
-                                filter === f
-                                    ? (f === "all" ? "bg-zinc-800 text-white" : f === "pass" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400")
+                                "flex-1 xl:flex-none px-6 py-2.5 rounded-xl transition-all duration-300",
+                                filter === f 
+                                    ? (f === "all" ? "bg-zinc-800 text-white shadow-lg shadow-black/50" : f === "pass" ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-red-500/20 text-red-400 border border-red-500/20") 
                                     : "text-zinc-500 hover:text-zinc-300"
                             )}
                         >
@@ -82,18 +83,19 @@ export function ResultsSection({
                 </div>
             </div>
 
-            <div className="border border-zinc-800 rounded-2xl bg-zinc-900/50 backdrop-blur-sm shadow-xl">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500 font-semibold">
-                            <th className="p-4 pl-6 w-16">#</th>
-                            <th className="p-4 w-32">Status</th>
-                            <th className="p-4 w-28 text-center">Vector</th>
-                            <th className="p-4 w-28 text-center">Semantic</th>
-                            <th className="p-4">Response</th>
-                            <th className="p-4 pr-6">Expected</th>
-                        </tr>
-                    </thead>
+            <div className="border border-zinc-800/80 rounded-[2.5rem] bg-zinc-900/40 backdrop-blur-md shadow-2xl overflow-hidden">
+                <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-left border-collapse min-w-[900px]">
+                        <thead>
+                            <tr className="border-b border-zinc-800/80 text-[11px] uppercase tracking-[0.2em] text-zinc-500 font-black">
+                                <th className="p-6 pl-8 w-20">#</th>
+                                <th className="p-6 w-40">Status</th>
+                                <th className="p-6 w-32 text-center">Vector</th>
+                                <th className="p-6 w-32 text-center">Semantic</th>
+                                <th className="p-6">LLM Response</th>
+                                <th className="p-6 pr-8">Expected</th>
+                            </tr>
+                        </thead>
                     <tbody className="text-sm">
                         {loading && results.length === 0 ? (
                             <tr>
@@ -120,5 +122,6 @@ export function ResultsSection({
                 </table>
             </div>
         </div>
+    </div>
     );
 }

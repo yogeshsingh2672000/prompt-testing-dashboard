@@ -42,23 +42,24 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans p-8 selection:bg-teal-500/30">
-            <div className="max-w-6xl mx-auto space-y-8">
-                <header className="flex justify-between items-center bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800/50 backdrop-blur-md shadow-2xl">
+        <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans p-4 md:p-8 selection:bg-teal-500/30">
+            <div className="max-w-[1600px] mx-auto space-y-6 md:space-y-8">
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-zinc-900/40 p-5 md:p-8 rounded-2xl md:rounded-3xl border border-zinc-800/50 backdrop-blur-md shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 blur-[100px] pointer-events-none" />
                     <div>
-                        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-teal-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
                             Prompt Evaluation Dashboard
                         </h1>
-                        <p className="text-zinc-400 mt-2 font-medium">Test and score your prompts with AWS Bedrock.</p>
+                        <p className="text-zinc-400 mt-2 font-medium text-sm md:text-base">Professional testbed for AWS Bedrock prompts.</p>
                     </div>
                     <button
                         onClick={runEvaluation}
                         disabled={loading}
-                        className="cursor-pointer group relative flex items-center gap-2 bg-zinc-100 text-zinc-900 px-8 py-4 rounded-2xl font-bold hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_30px_rgba(255,255,255,0.1)] overflow-hidden"
+                        className="w-full md:w-auto group relative flex items-center justify-center gap-3 bg-zinc-100 text-zinc-900 px-8 py-4 rounded-2xl font-bold hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_40px_rgba(255,255,255,0.1)] overflow-hidden"
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-teal-400/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                         {loading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-zinc-900"></div> : <Play size={20} className="fill-current" />}
-                        <span className="relative z-10">{loading ? "Evaluating..." : "Run Evaluation"}</span>
+                        <span className="relative z-10 text-lg">{loading ? "Evaluating..." : "Run Evaluation"}</span>
                     </button>
                 </header>
 

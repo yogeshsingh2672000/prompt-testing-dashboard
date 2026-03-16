@@ -16,54 +16,60 @@ export const ResultRow = React.memo(({ result, testCases }: ResultRowProps) => {
     const expectedOutput = testCases.find(tc => tc.id === result.testCaseId)?.expectedOutput || "";
 
     return (
-        <tr className="border-b border-zinc-800/50 hover:bg-white/[0.02] group transition-colors relative">
-            <td className="p-4 pl-6 font-mono text-xs text-zinc-500">
-                {originalIndex}
+        <tr className="border-b border-zinc-800/40 hover:bg-white/[0.03] group transition-all duration-300 relative">
+            <td className="p-6 pl-8 font-mono text-xs font-black text-zinc-600 group-hover:text-zinc-400 transition-colors">
+                {originalIndex.toString().padStart(2, "0")}
             </td>
-            <td className="p-4">
+            <td className="p-6">
                 <div className={cn(
-                    "flex items-center gap-2 w-fit px-2.5 py-1 rounded-full text-[10px] font-bold uppercase",
-                    result.status === "pass" ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20" : "bg-red-400/10 text-red-400 border border-red-400/20"
+                    "flex items-center gap-3 w-fit px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border shadow-lg transition-all",
+                    result.status === "pass" 
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 group-hover:border-emerald-500/50 shadow-emerald-500/5" 
+                        : "bg-red-500/10 text-red-400 border-red-500/30 group-hover:border-red-500/50 shadow-red-500/5"
                 )}>
-                    {result.status === "pass" ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+                    {result.status === "pass" ? <CheckCircle2 size={14} className="stroke-[3]" /> : <AlertCircle size={14} className="stroke-[3]" />}
                     {result.status}
                 </div>
             </td>
-            <td className="p-4 text-center">
-                <div className="font-mono text-xs font-medium text-zinc-500">
+            <td className="p-6 text-center">
+                <div className="font-mono text-sm font-black text-zinc-500 group-hover:text-zinc-300 transition-colors">
                     {result?.similarity?.toFixed(1)}%
                 </div>
             </td>
-            <td className="p-4 text-center">
-                <div className="font-mono text-xs font-bold bg-teal-500/5 text-teal-400/80 w-fit px-2 py-1 rounded border border-teal-500/20 mx-auto shadow-[0_0_10px_rgba(45,212,191,0.05)]">
+            <td className="p-6 text-center">
+                <div className="font-mono text-sm font-black bg-teal-500/5 text-teal-400/80 w-fit px-3 py-1.5 rounded-xl border border-teal-500/20 mx-auto shadow-xl group-hover:border-teal-500/40 transition-all">
                     {result?.semanticScore?.toFixed(0)}%
                 </div>
             </td>
-            <td className="p-4 max-w-xs xl:max-w-md relative group/cell">
-                <div className="line-clamp-2 text-zinc-300">
+            <td className="p-6 max-w-xs xl:max-w-xl relative group/cell">
+                <div className="line-clamp-2 text-zinc-300 font-medium text-sm leading-relaxed group-hover:text-zinc-100 transition-colors">
                     {result.response}
-                    {result.error && <span className="text-red-400 italic">Error: {result.error}</span>}
+                    {result.error && <span className="text-red-400 font-bold ml-2 underline decoration-red-500/30">Error: {result.error}</span>}
                 </div>
                 {/* Tooltip Overlay */}
-                <div className="absolute left-0 top-0 z-50 invisible group-hover/cell:visible bg-zinc-900 border border-zinc-700 p-4 rounded-xl shadow-2xl w-[400px] max-h-[300px] overflow-y-auto text-zinc-200 text-sm whitespace-pre-wrap -translate-y-[20%] opacity-0 group-hover/cell:opacity-100 transition-opacity pointer-events-auto cursor-default">
-                    <div className="flex justify-between items-center mb-2 border-b border-zinc-800 pb-1">
-                        <div className="text-[10px] uppercase text-zinc-500 font-bold tracking-widest">LLM Response</div>
+                <div className="absolute left-6 top-0 z-50 invisible group-hover/cell:visible bg-zinc-950/95 border border-zinc-700/50 p-6 rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] w-[400px] md:w-[600px] max-h-[400px] overflow-y-auto text-zinc-200 text-sm whitespace-pre-wrap -translate-y-1/2 opacity-0 group-hover/cell:opacity-100 transition-all duration-300 backdrop-blur-2xl ring-1 ring-white/10 pointer-events-auto cursor-default">
+                    <div className="flex justify-between items-center mb-4 border-b border-zinc-800 pb-3">
+                        <div className="text-[10px] uppercase text-zinc-500 font-black tracking-[0.3em]">LLM Generation</div>
                         <CopyButton text={result.response} />
                     </div>
-                    {result.response}
+                    <div className="leading-relaxed font-medium highlight-text">
+                        {result.response}
+                    </div>
                 </div>
             </td>
-            <td className="p-4 pr-6 text-zinc-500 italic max-w-xs relative group/expected">
-                <div className="line-clamp-2 overflow-hidden text-ellipsis">
+            <td className="p-6 pr-8 text-zinc-500 italic max-w-xs xl:max-w-md relative group/expected">
+                <div className="line-clamp-2 overflow-hidden text-ellipsis font-medium text-sm leading-relaxed text-zinc-500 group-hover:text-zinc-400 transition-colors">
                     {expectedOutput}
                 </div>
                 {/* Tooltip for Expected Output */}
-                <div className="absolute right-0 top-0 z-50 invisible group-hover/expected:visible bg-zinc-900 border border-zinc-700 p-4 rounded-xl shadow-2xl w-[400px] max-h-[300px] overflow-y-auto text-zinc-400 text-sm whitespace-pre-wrap -translate-y-[20%] opacity-0 group-hover/expected:opacity-100 transition-opacity pointer-events-auto cursor-default">
-                    <div className="flex justify-between items-center mb-2 border-b border-zinc-800 pb-1">
-                        <div className="text-[10px] uppercase text-zinc-500 font-bold tracking-widest">Expected Output</div>
+                <div className="absolute right-8 top-0 z-50 invisible group-hover/expected:visible bg-zinc-950/90 border border-zinc-700/50 p-6 rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] w-[400px] md:w-[600px] max-h-[400px] overflow-y-auto text-zinc-400 text-sm whitespace-pre-wrap -translate-y-1/2 opacity-0 group-hover/expected:opacity-100 transition-all duration-300 backdrop-blur-2xl ring-1 ring-white/10 pointer-events-auto cursor-default">
+                    <div className="flex justify-between items-center mb-4 border-b border-zinc-800 pb-3">
+                        <div className="text-[10px] uppercase text-zinc-600 font-black tracking-[0.3em]">Gold Standard</div>
                         <CopyButton text={expectedOutput} />
                     </div>
-                    {expectedOutput}
+                    <div className="leading-relaxed font-medium">
+                        {expectedOutput}
+                    </div>
                 </div>
             </td>
         </tr>

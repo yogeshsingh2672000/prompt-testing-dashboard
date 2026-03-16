@@ -13,35 +13,41 @@ interface TestCaseItemProps {
 
 export const TestCaseItem = React.memo(({ tc, index, updateTestCase, removeTestCase }: TestCaseItemProps) => {
     return (
-        <div className="grid grid-cols-12 gap-2 rounded-2xl relative group hover:bg-white/[0.01] transition-all p-2">
-            <div className="col-span-1 flex flex-col items-center justify-center pt-5">
-                <div className="w-8 h-8 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center text-xs font-bold text-zinc-500 group-hover:border-teal-500/30 group-hover:text-teal-400 transition-all shadow-inner">
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-2 rounded-2xl relative group hover:bg-white/[0.02] transition-all p-4 border border-transparent md:border-dashed md:hover:border-zinc-800">
+            <div className="md:col-span-1 flex items-center justify-between md:flex-col md:justify-center">
+                <div className="w-10 h-10 md:w-8 md:h-8 bg-zinc-800 border-2 border-zinc-700 md:bg-zinc-900 md:border md:border-zinc-800 rounded-xl flex items-center justify-center text-sm md:text-xs font-black text-zinc-400 group-hover:border-teal-500/50 group-hover:text-teal-400 transition-all shadow-xl">
                     {index + 1}
                 </div>
+                <button
+                    onClick={() => removeTestCase(tc.id)}
+                    className="md:hidden p-2.5 text-red-500 bg-red-500/10 rounded-xl"
+                    title="Remove Test Case"
+                >
+                    <Trash2 size={20} />
+                </button>
             </div>
-            <div className="col-span-5 space-y-2">
-                <label className="block text-[10px] font-bold text-zinc-600 uppercase tracking-tighter ml-1">Test Input</label>
+            <div className="md:col-span-5 space-y-2">
+                <label className="block text-xs font-black text-zinc-500 uppercase tracking-widest ml-1">Input Context</label>
                 <textarea
                     value={tc.input}
                     onChange={(e) => updateTestCase(tc.id, "input", e.target.value)}
-                    className="w-full overflow-hidden bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 text-zinc-300 focus:outline-none focus:border-teal-500/40 focus:ring-1 focus:ring-teal-500/10 min-h-[80px] text-sm transition-all resize-none"
+                    className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 text-zinc-100 focus:outline-none focus:border-teal-500/50 focus:ring-4 focus:ring-teal-500/5 min-h-[100px] md:min-h-[80px] text-sm transition-all resize-none shadow-inner"
                     placeholder="Enter test input context..."
                 />
             </div>
-            <div className="col-span-5 space-y-2">
-                <label className="block text-[10px] font-bold text-zinc-600 uppercase tracking-tighter ml-1">Expected Output</label>
+            <div className="md:col-span-5 space-y-2">
+                <label className="block text-xs font-black text-zinc-500 uppercase tracking-widest ml-1">Expected Output</label>
                 <textarea
                     value={tc.expectedOutput}
                     onChange={(e) => updateTestCase(tc.id, "expectedOutput", e.target.value)}
-                    // [&::-webkit-scrollbar]:hidden
-                    className="w-full overflow-y-auto custom-scrollbar bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 text-zinc-300 focus:outline-none focus:border-teal-500/40 focus:ring-1 focus:ring-teal-500/10 min-h-[80px] text-sm transition-all resize-none"
+                    className="w-full custom-scrollbar bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 text-zinc-100 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 min-h-[100px] md:min-h-[80px] text-sm transition-all resize-none shadow-inner"
                     placeholder="Enter expected outcome..."
                 />
             </div>
-            <div className="col-span-1 flex items-center justify-center pt-5">
+            <div className="hidden md:flex md:col-span-1 items-center justify-center pt-5">
                 <button
                     onClick={() => removeTestCase(tc.id)}
-                    className="p-3 text-zinc-700 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                    className="p-3 text-zinc-600 hover:text-red-400 hover:bg-red-500/10 rounded-2xl transition-all opacity-0 group-hover:opacity-100 scale-90 hover:scale-100"
                     title="Remove Test Case"
                 >
                     <Trash2 size={18} />
