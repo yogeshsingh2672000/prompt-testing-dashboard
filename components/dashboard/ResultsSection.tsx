@@ -6,6 +6,7 @@ import { EvaluationResult, TestCase } from "@/types";
 import { cn, formatCost } from "@/lib/utils";
 import { ResultRow } from "./ResultRow";
 import { MetricInfo } from "./MetricInfo";
+import { ExportActions } from "./ExportActions";
 import { useTranslations } from "next-intl";
 
 interface ResultsSectionProps {
@@ -84,21 +85,24 @@ export function ResultsSection({
                         </div>
                     )}
                 </h2>
-                <div className="w-full xl:w-auto flex bg-zinc-100 dark:bg-zinc-950/80 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800/80 text-[10px] font-black uppercase tracking-[0.2em] shadow-inner transition-all duration-300">
-                    {(["all", "pass", "fail"] as const).map((f) => (
-                        <button
-                            key={f}
-                            onClick={() => setFilter(f)}
-                            className={cn(
-                                "flex-1 xl:flex-none px-6 py-2.5 rounded-xl transition-all duration-300",
-                                filter === f
-                                    ? (f === "all" ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-lg" : f === "pass" ? "bg-emerald-500 text-white shadow-emerald-500/20 shadow-lg" : "bg-red-500 text-white shadow-red-500/20 shadow-lg")
-                                    : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-                            )}
-                        >
-                            {t(f)}
-                        </button>
-                    ))}
+                <div className="w-full xl:w-auto flex flex-col sm:flex-row items-center gap-4">
+                    <ExportActions results={results} testCases={testCases} />
+                    <div className="w-full xl:w-auto flex bg-zinc-100 dark:bg-zinc-950/80 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800/80 text-[10px] font-black uppercase tracking-[0.2em] shadow-inner transition-all duration-300">
+                        {(["all", "pass", "fail"] as const).map((f) => (
+                            <button
+                                key={f}
+                                onClick={() => setFilter(f)}
+                                className={cn(
+                                    "flex-1 xl:flex-none px-6 py-2.5 rounded-xl transition-all duration-300",
+                                    filter === f
+                                        ? (f === "all" ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-lg" : f === "pass" ? "bg-emerald-500 text-white shadow-emerald-500/20 shadow-lg" : "bg-red-500 text-white shadow-red-500/20 shadow-lg")
+                                        : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                                )}
+                            >
+                                {t(f)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 

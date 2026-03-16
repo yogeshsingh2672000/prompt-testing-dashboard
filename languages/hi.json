@@ -6,6 +6,12 @@
     "runEvaluation": "मूल्यांकन शुरू करें",
     "evaluating": "मूल्यांकन हो रहा है..."
   },
+  "analytics": {
+    "title": "प्रदर्शन विश्लेषण",
+    "successDistribution": "सफलता वितरण",
+    "metricComparison": "मीट्रिक तुलना",
+    "total": "कुल"
+  },
   "history": {
     "title": "मूल्यांकन इतिहास",
     "subtitle": "पहले सहेजे गए टेस्ट रन",

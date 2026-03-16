@@ -6,6 +6,12 @@
     "runEvaluation": "Run Evaluation",
     "evaluating": "Evaluating..."
   },
+  "analytics": {
+    "title": "Performance Analytics",
+    "successDistribution": "Success Distribution",
+    "metricComparison": "Metric Comparison",
+    "total": "total"
+  },
   "history": {
     "title": "Evaluation History",
     "subtitle": "Previously saved test runs",

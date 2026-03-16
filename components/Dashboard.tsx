@@ -11,6 +11,7 @@ import { ConfigSection } from "./dashboard/ConfigSection";
 import { TestCasesSection } from "./dashboard/TestCasesSection";
 import { ResultsSection } from "./dashboard/ResultsSection";
 import { HistorySection } from "./dashboard/HistorySection";
+import { AnalyticsSection } from "./dashboard/AnalyticsSection";
 import { ThemeToggle } from "./ui/ThemeToggle";
 import { LanguageToggle } from "./ui/LanguageToggle";
 import { TestRun } from "@/lib/persistence";
@@ -120,12 +121,19 @@ export default function Dashboard() {
                     />
                 </div>
 
-                {/* Evaluation Feedback */}
-                <ResultsSection
-                    results={results}
-                    loading={loading}
-                    testCases={testCases}
-                />
+                    {/* Analytics Header (only if results exist) */}
+                    {results.length > 0 && !loading && (
+                        <div className="mb-8">
+                            <AnalyticsSection results={results} />
+                        </div>
+                    )}
+
+                    {/* Results Table */}
+                    <ResultsSection
+                        results={results}
+                        loading={loading}
+                        testCases={testCases}
+                    />
 
                 {/* History Section */}
                 <HistorySection 
