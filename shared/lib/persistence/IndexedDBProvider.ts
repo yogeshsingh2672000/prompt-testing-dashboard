@@ -1,10 +1,11 @@
-import { PersistenceProvider, TestRun, TestCaseSuite } from "./types";
+import { PersistenceProvider, PromptVersion, TestRun, TestCaseSuite } from "./types";
 
 const DB_NAME = "PromitlyDB";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORES = {
     RUNS: "evaluation_runs",
-    SUITES: "test_case_suites"
+    SUITES: "test_case_suites",
+    PROMPT_VERSIONS: "prompt_versions"
 };
 
 export class IndexedDBProvider implements PersistenceProvider {
@@ -29,6 +30,9 @@ export class IndexedDBProvider implements PersistenceProvider {
                 }
                 if (!db.objectStoreNames.contains(STORES.SUITES)) {
                     db.createObjectStore(STORES.SUITES, { keyPath: "id" });
+                }
+                if (!db.objectStoreNames.contains(STORES.PROMPT_VERSIONS)) {
+                    db.createObjectStore(STORES.PROMPT_VERSIONS, { keyPath: "id" });
                 }
             };
         });
@@ -91,10 +95,28 @@ export class IndexedDBProvider implements PersistenceProvider {
         await this.perform(STORES.SUITES, "readwrite", (store) => store.delete(id));
     }
 
+    // Prompt versions
+    async savePromptVersion(version: PromptVersion): Promise<void> {
+        await this.perform(STORES.PROMPT_VERSIONS, "readwrite", (store) => store.put(version));
+    }
+
+    async getPromptVersions(): Promise<PromptVersion[]> {
+        return this.perform<PromptVersion[]>(STORES.PROMPT_VERSIONS, "readonly", (store) => store.getAll());
+    }
+
+    async getPromptVersion(id: string): Promise<PromptVersion | undefined> {
+        return this.perform<PromptVersion>(STORES.PROMPT_VERSIONS, "readonly", (store) => store.get(id));
+    }
+
+    async deletePromptVersion(id: string): Promise<void> {
+        await this.perform(STORES.PROMPT_VERSIONS, "readwrite", (store) => store.delete(id));
+    }
+
     async clearAll(): Promise<void> {
         const db = await this.getDB();
-        const transaction = db.transaction([STORES.RUNS, STORES.SUITES], "readwrite");
+        const transaction = db.transaction([STORES.RUNS, STORES.SUITES, STORES.PROMPT_VERSIONS], "readwrite");
         transaction.objectStore(STORES.RUNS).clear();
         transaction.objectStore(STORES.SUITES).clear();
+        transaction.objectStore(STORES.PROMPT_VERSIONS).clear();
     }
 }

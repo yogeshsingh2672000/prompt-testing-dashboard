@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useEvaluation } from "@/features/evaluation/hooks/useEvaluation";
 import {
     DEFAULT_BATCH_SIZE,
@@ -10,7 +10,7 @@ import {
     INITIAL_TEST_CASES,
 } from "@/shared/constants/defaults";
 import { DEFAULT_MODEL_ID } from "@/shared/constants/models";
-import { TestRun } from "@/shared/lib/persistence";
+import { persistence, PromptVersion, TestCaseSuite, TestRun } from "@/shared/lib/persistence";
 import { TestCase } from "@/shared/types";
 import { ToastItem } from "@/shared/ui/ToastViewport";
 
@@ -31,6 +31,10 @@ interface DashboardWorkspaceContextValue {
     loading: boolean;
     error: string | null;
     activeRunId?: string;
+    suites: TestCaseSuite[];
+    promptVersions: PromptVersion[];
+    activeSuiteId?: string;
+    activePromptVersionId?: string;
     toasts: ToastItem[];
     dismissToast: (id: string) => void;
     pushToast: (toast: Omit<ToastItem, "id">) => void;
@@ -40,6 +44,13 @@ interface DashboardWorkspaceContextValue {
     updateVariable: (id: string, key: string, value: string) => void;
     removeTestCase: (id: string) => void;
     loadRun: (run: TestRun) => void;
+    saveCurrentSuite: (name: string) => Promise<void>;
+    loadSuite: (suite: TestCaseSuite) => void;
+    deleteSuite: (id: string) => Promise<void>;
+    savePromptVersion: (name: string) => Promise<void>;
+    loadPromptVersion: (version: PromptVersion) => void;
+    deletePromptVersion: (id: string) => Promise<void>;
+    refreshAssets: () => Promise<void>;
 }
 
 const DashboardWorkspaceContext = createContext<DashboardWorkspaceContextValue | null>(null);
@@ -52,6 +63,10 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
     const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
     const [modelId, setModelId] = useState(DEFAULT_MODEL_ID);
     const [activeRunId, setActiveRunId] = useState<string | undefined>();
+    const [activeSuiteId, setActiveSuiteId] = useState<string | undefined>();
+    const [activePromptVersionId, setActivePromptVersionId] = useState<string | undefined>();
+    const [suites, setSuites] = useState<TestCaseSuite[]>([]);
+    const [promptVersions, setPromptVersions] = useState<PromptVersion[]>([]);
     const [toasts, setToasts] = useState<ToastItem[]>([]);
 
     const pushToast = (toast: Omit<ToastItem, "id">) => {
@@ -66,6 +81,24 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
     const dismissToast = (id: string) => {
         setToasts((current) => current.filter((item) => item.id !== id));
     };
+
+    const refreshAssets = async () => {
+        const [savedSuites, savedPromptVersions] = await Promise.all([
+            persistence.getSuites(),
+            persistence.getPromptVersions(),
+        ]);
+
+        setSuites(savedSuites.sort((a, b) => b.updatedAt - a.updatedAt));
+        setPromptVersions(savedPromptVersions.sort((a, b) => b.createdAt - a.createdAt));
+    };
+
+    useEffect(() => {
+        const timeoutId = window.setTimeout(() => {
+            void refreshAssets();
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
+    }, []);
 
     const { results, loading, error, runEvaluation, setResults, setError } = useEvaluation(
         testCases,
@@ -101,6 +134,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
 
     const loadRun = (run: TestRun) => {
         setActiveRunId(run.id);
+        setActiveSuiteId(run.suiteId);
         setSystemPrompt(run.systemPrompt);
         setUserInput(run.userInput);
         setTestCases(run.testCases || []);
@@ -109,6 +143,95 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         setModelId(run.config.modelId || DEFAULT_MODEL_ID);
         setResults(run.results);
         setError(null);
+    };
+
+    const saveCurrentSuite = async (name: string) => {
+        const trimmedName = name.trim();
+        if (!trimmedName) {
+            throw new Error("Suite name is required");
+        }
+
+        const timestamp = Date.now();
+        const suite: TestCaseSuite = {
+            id: activeSuiteId || crypto.randomUUID(),
+            name: trimmedName,
+            systemPrompt,
+            userInput,
+            testCases,
+            versionCount: promptVersions.filter((version) => version.suiteId === activeSuiteId).length,
+            createdAt: suites.find((suiteItem) => suiteItem.id === activeSuiteId)?.createdAt || timestamp,
+            updatedAt: timestamp,
+        };
+
+        await persistence.saveSuite(suite);
+        setActiveSuiteId(suite.id);
+        await refreshAssets();
+        pushToast({ title: "Suite saved", message: `"${suite.name}" is ready to reuse.`, variant: "success" });
+    };
+
+    const loadSuite = (suite: TestCaseSuite) => {
+        setActiveSuiteId(suite.id);
+        setSystemPrompt(suite.systemPrompt);
+        setUserInput(suite.userInput);
+        setTestCases(suite.testCases);
+        setResults([]);
+        setError(null);
+        pushToast({ title: "Suite loaded", message: `"${suite.name}" has been loaded into the workspace.`, variant: "success" });
+    };
+
+    const deleteSuiteRecord = async (id: string) => {
+        await persistence.deleteSuite(id);
+        if (activeSuiteId === id) {
+            setActiveSuiteId(undefined);
+        }
+        await refreshAssets();
+    };
+
+    const savePromptVersion = async (name: string) => {
+        const trimmedName = name.trim();
+        if (!trimmedName) {
+            throw new Error("Version name is required");
+        }
+
+        const version: PromptVersion = {
+            id: crypto.randomUUID(),
+            name: trimmedName,
+            systemPrompt,
+            userInput,
+            testCases,
+            modelId,
+            threshold,
+            batchSize,
+            suiteId: activeSuiteId,
+            createdAt: Date.now(),
+        };
+
+        await persistence.savePromptVersion(version);
+        setActivePromptVersionId(version.id);
+        await refreshAssets();
+        pushToast({ title: "Prompt version saved", message: `"${version.name}" is now available for comparison.`, variant: "success" });
+    };
+
+    const loadPromptVersion = (version: PromptVersion) => {
+        setActivePromptVersionId(version.id);
+        setActiveSuiteId(version.suiteId);
+        setSystemPrompt(version.systemPrompt);
+        setUserInput(version.userInput);
+        setTestCases(version.testCases);
+        setModelId(version.modelId || DEFAULT_MODEL_ID);
+        setThreshold(version.threshold);
+        setBatchSize(version.batchSize);
+        setResults([]);
+        setError(null);
+        pushToast({ title: "Prompt version loaded", message: `"${version.name}" is now active in the workspace.`, variant: "success" });
+    };
+
+    const deletePromptVersionRecord = async (id: string) => {
+        await persistence.deletePromptVersion(id);
+        if (activePromptVersionId === id) {
+            setActivePromptVersionId(undefined);
+        }
+        await refreshAssets();
     };
 
     return (
@@ -130,6 +253,10 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 loading,
                 error,
                 activeRunId,
+                suites,
+                promptVersions,
+                activeSuiteId,
+                activePromptVersionId,
                 toasts,
                 dismissToast,
                 pushToast,
@@ -139,6 +266,13 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 updateVariable,
                 removeTestCase,
                 loadRun,
+                saveCurrentSuite,
+                loadSuite,
+                deleteSuite: deleteSuiteRecord,
+                savePromptVersion,
+                loadPromptVersion,
+                deletePromptVersion: deletePromptVersionRecord,
+                refreshAssets,
             }}
         >
             {children}

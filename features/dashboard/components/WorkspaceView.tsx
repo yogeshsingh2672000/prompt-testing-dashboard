@@ -2,6 +2,7 @@
 
 import { ConfigSection } from "./ConfigSection";
 import { TestCasesSection } from "./TestCasesSection";
+import { WorkspaceAssetsPanel } from "./WorkspaceAssetsPanel";
 import { useDashboardWorkspace } from "@/features/dashboard/providers/DashboardWorkspaceProvider";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
 
@@ -33,6 +34,7 @@ export function WorkspaceView() {
                 title="Design prompts and build robust evaluation cases"
                 description="Shape your system prompt, define user-input templates, and curate the test cases that future comparison and dataset features will build on."
             />
+            <WorkspaceAssetsPanel />
             <div className="flex flex-col gap-8 text-sm xl:flex-row xl:items-stretch">
                 <ConfigSection
                     systemPrompt={systemPrompt}

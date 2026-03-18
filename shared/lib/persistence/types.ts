@@ -6,8 +6,22 @@ export interface TestCaseSuite {
     systemPrompt: string;
     userInput: string;
     testCases: TestCase[];
+    versionCount?: number;
     createdAt: number;
     updatedAt: number;
+}
+
+export interface PromptVersion {
+    id: string;
+    name: string;
+    systemPrompt: string;
+    userInput: string;
+    testCases: TestCase[];
+    modelId?: string;
+    threshold: number;
+    batchSize: number;
+    suiteId?: string;
+    createdAt: number;
 }
 
 export interface TestRun {
@@ -45,6 +59,12 @@ export interface PersistenceProvider {
     getSuites(): Promise<TestCaseSuite[]>;
     getSuite(id: string): Promise<TestCaseSuite | undefined>;
     deleteSuite(id: string): Promise<void>;
+
+    // Prompt versions
+    savePromptVersion(version: PromptVersion): Promise<void>;
+    getPromptVersions(): Promise<PromptVersion[]>;
+    getPromptVersion(id: string): Promise<PromptVersion | undefined>;
+    deletePromptVersion(id: string): Promise<void>;
 
     // Helpers
     clearAll(): Promise<void>;
