@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { RubricDefinition, TestCase, EvaluationResult, EvaluationRequest } from "@/shared/types";
 import { persistence, TestRun } from "@/shared/lib/persistence";
+import { summarizeEvaluationResults } from "@/shared/lib/evaluation-summary";
 
 export function useEvaluation(
     testCases: TestCase[],
@@ -65,11 +66,7 @@ export function useEvaluation(
 
             // Save to persistence
             if (data.length > 0) {
-                const passCount = data.filter(r => r.status === 'pass').length;
-                const avgSimilarity = data.reduce((sum, r) => sum + r.similarity, 0) / data.length;
-                const avgSemantic = data.reduce((sum, r) => sum + r.semanticScore, 0) / data.length;
-                const avgRubric = data.reduce((sum, r) => sum + r.rubricScore, 0) / data.length;
-                const avgOverall = data.reduce((sum, r) => sum + r.overallScore, 0) / data.length;
+                const summary = summarizeEvaluationResults(data);
 
                 const run: TestRun = {
                     id: crypto.randomUUID(),
@@ -81,13 +78,13 @@ export function useEvaluation(
                     results: data,
                     config: { batchSize, threshold, modelId, rubrics },
                     metrics: {
-                        avgSimilarity,
-                        avgSemantic,
-                        avgRubric,
-                        avgOverall,
-                        passRate: (passCount / data.length) * 100,
-                        totalCases: data.length,
-                        passedCases: passCount
+                        avgSimilarity: summary.avgSimilarity,
+                        avgSemantic: summary.avgSemantic,
+                        avgRubric: summary.avgRubric,
+                        avgOverall: summary.avgOverall,
+                        passRate: summary.passRate,
+                        totalCases: summary.totalCases,
+                        passedCases: summary.passedCases,
                     }
                 };
                 await persistence.saveRun(run);

@@ -9,6 +9,7 @@ import {
     EvaluationRequest,
     EvaluationResult,
 } from "@/shared/types";
+import { toComparisonMetricsSummary } from "@/shared/lib/evaluation-summary";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
 import { SurfaceCard } from "@/shared/ui/SurfaceCard";
 import { cn, formatCost } from "@/shared/lib/utils";
@@ -24,32 +25,6 @@ interface ComparisonRunState {
 }
 
 const CURRENT_WORKSPACE_DATASET_ID = "__current_workspace__";
-
-function summarizeResults(results: EvaluationResult[]): ComparisonMetricsSummary {
-    if (results.length === 0) {
-        return {
-            avgSimilarity: 0,
-            avgSemanticScore: 0,
-            avgRubricScore: 0,
-            avgOverallScore: 0,
-            passRate: 0,
-            totalCostUsd: 0,
-            avgLatencyMs: 0,
-        };
-    }
-
-    const passCount = results.filter((result) => result.status === "pass").length;
-
-    return {
-        avgSimilarity: results.reduce((sum, result) => sum + result.similarity, 0) / results.length,
-        avgSemanticScore: results.reduce((sum, result) => sum + result.semanticScore, 0) / results.length,
-        avgRubricScore: results.reduce((sum, result) => sum + result.rubricScore, 0) / results.length,
-        avgOverallScore: results.reduce((sum, result) => sum + result.overallScore, 0) / results.length,
-        passRate: (passCount / results.length) * 100,
-        totalCostUsd: results.reduce((sum, result) => sum + result.metrics.costUsd, 0),
-        avgLatencyMs: results.reduce((sum, result) => sum + result.metrics.latencyMs, 0) / results.length,
-    };
-}
 
 export function CompareWorkbench() {
     const { promptVersions, suites, testCases, pushToast } = useDashboardWorkspace();
@@ -206,8 +181,8 @@ export function CompareWorkbench() {
                 leftResults,
                 rightResults,
                 summary: {
-                    left: summarizeResults(leftResults),
-                    right: summarizeResults(rightResults),
+                    left: toComparisonMetricsSummary(leftResults),
+                    right: toComparisonMetricsSummary(rightResults),
                 },
                 cases,
             });

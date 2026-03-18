@@ -2,6 +2,7 @@ import { getEmbedding, getResponse } from '@/server/lib/ai';
 import { getRubricScores, getSemanticScore } from '@/server/lib/evaluator';
 import { validateStructuredOutput } from '@/server/services/output-validation';
 import { DEFAULT_MODEL_ID, SUPPORTED_MODELS } from '@/shared/constants/models';
+import { calculateOverallScore, calculateRubricScore } from '@/shared/lib/evaluation-summary';
 import { clamp, chunk, cosineSimilarity, templateReplace } from '@/shared/lib/utils';
 import { EvaluationRequest, EvaluationResult, PerformanceMetrics } from '@/shared/types';
 
@@ -59,12 +60,8 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
                     getRubricScores(responseText, testCase.expectedOutput, rubrics),
                 ]);
                 const validation = validateStructuredOutput(responseText, testCase.outputValidation);
-                const enabledRubricWeight = rubricResults.reduce((sum, rubric) => sum + rubric.weight, 0);
-                const rubricScore =
-                    enabledRubricWeight > 0
-                        ? rubricResults.reduce((sum, rubric) => sum + rubric.score * rubric.weight, 0) / enabledRubricWeight
-                        : semanticScore;
-                const overallScore = rubricResults.length > 0 ? (semanticScore + rubricScore) / 2 : semanticScore;
+                const rubricScore = calculateRubricScore(semanticScore, rubricResults);
+                const overallScore = calculateOverallScore(semanticScore, rubricScore, rubricResults);
 
                 const similarity = clamp(cosineSimilarity(responseEmbedding, expectedEmbedding) * 100, 0, 100);
                 const promptTokens = usage?.inputTokens ?? 0;
