@@ -2,9 +2,9 @@
 
 import React from "react";
 import { Trash2 } from "lucide-react";
-import { TestCase } from "@/types";
+import { TestCase } from "@/shared/types";
 import { useTranslations } from "next-intl";
-import { extractVariables } from "@/lib/utils";
+import { extractVariables } from "@/shared/lib/utils";
 
 interface TestCaseItemProps {
     tc: TestCase;

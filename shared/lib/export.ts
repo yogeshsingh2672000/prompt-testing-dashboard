@@ -1,4 +1,4 @@
-import { EvaluationResult, TestCase } from "@/types";
+import { EvaluationResult, TestCase } from "@/shared/types";
 
 /**
  * Converts evaluation results to a CSV string

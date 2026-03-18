@@ -2,8 +2,8 @@
 
 import React from "react";
 import { CheckCircle2, AlertCircle } from "lucide-react";
-import { EvaluationResult, TestCase } from "@/types";
-import { cn, formatCost } from "@/lib/utils";
+import { EvaluationResult, TestCase } from "@/shared/types";
+import { cn, formatCost } from "@/shared/lib/utils";
 
 interface ResultRowProps {
     result: EvaluationResult;

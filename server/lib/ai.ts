@@ -1,6 +1,6 @@
 import { bedrock } from '@ai-sdk/amazon-bedrock';
 import { generateText, embed } from 'ai';
-import { DEFAULT_MODEL_ID } from '@/constants/models';
+import { DEFAULT_MODEL_ID } from '@/shared/constants/models';
 
 export function getModel(modelId?: string) {
   return bedrock(modelId || DEFAULT_MODEL_ID);

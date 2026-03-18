@@ -4,7 +4,7 @@ import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/routing";
 import { Languages } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 export function LanguageToggle() {
     const locale = useLocale();

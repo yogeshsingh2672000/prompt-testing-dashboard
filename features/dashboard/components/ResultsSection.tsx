@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Info } from "lucide-react";
-import { EvaluationResult, TestCase } from "@/types";
-import { cn, formatCost } from "@/lib/utils";
+import { EvaluationResult, TestCase } from "@/shared/types";
+import { cn, formatCost } from "@/shared/lib/utils";
 import { ResultRow } from "./ResultRow";
 import { ExportActions } from "./ExportActions";
 import { useTranslations } from "next-intl";

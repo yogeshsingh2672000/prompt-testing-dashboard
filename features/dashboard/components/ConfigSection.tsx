@@ -1,8 +1,8 @@
 import { Sparkles, Wand2, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { SUPPORTED_MODELS } from "@/constants/models";
+import { SUPPORTED_MODELS } from "@/shared/constants/models";
 import { useState } from "react";
-import { EvaluationResult, PromptOptimizationSuggestion } from "@/types";
+import { EvaluationResult, PromptOptimizationSuggestion } from "@/shared/types";
 
 interface ConfigSectionProps {
     systemPrompt: string;

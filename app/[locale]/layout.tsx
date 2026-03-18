@@ -17,8 +17,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
-import { ThemeProvider } from "@/components/theme-provider";
-import { TooltipProvider } from "@/components/TooltipProvider";
+import { ThemeProvider } from "@/shared/ui/theme-provider";
+import { TooltipProvider } from "@/shared/ui/TooltipProvider";
 
 export default async function RootLayout({
   children,

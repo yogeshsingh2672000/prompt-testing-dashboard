@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { FileJson, FileSpreadsheet } from 'lucide-react';
-import { EvaluationResult, TestCase } from '@/types';
-import { resultsToCSV, downloadFile } from '@/lib/export';
+import { EvaluationResult, TestCase } from '@/shared/types';
+import { resultsToCSV, downloadFile } from '@/shared/lib/export';
 
 interface ExportActionsProps {
     results: EvaluationResult[];

@@ -1,4 +1,4 @@
-import { TestCase, EvaluationResult } from "../../types";
+import { EvaluationResult, TestCase } from "@/shared/types";
 
 export interface TestCaseSuite {
     id: string;

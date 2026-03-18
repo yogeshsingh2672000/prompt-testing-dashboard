@@ -1,5 +1,5 @@
 import { Plus, CheckCircle2, Sparkles, Loader2 } from "lucide-react";
-import { GeneratedTestCasePayload, TestCase } from "@/types";
+import { GeneratedTestCasePayload, TestCase } from "@/shared/types";
 import { TestCaseItem } from "./TestCaseItem";
 import { useTranslations } from "next-intl";
 import { useState } from "react";

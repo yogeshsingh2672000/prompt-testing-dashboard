@@ -1,6 +1,6 @@
 import { generateText } from 'ai';
 import { getModel } from './ai';
-import { clamp } from './utils';
+import { clamp } from '@/shared/lib/utils';
 
 const model = getModel();
 

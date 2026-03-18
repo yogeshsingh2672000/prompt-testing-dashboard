@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Trash2, Clock, ChevronRight } from "lucide-react";
-import { persistence, TestRun } from "@/lib/persistence";
+import { persistence, TestRun } from "@/shared/lib/persistence";
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 interface HistorySectionProps {
     onLoadRun: (run: TestRun) => void;

@@ -6,7 +6,7 @@ import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
     Tooltip
 } from 'recharts';
-import { EvaluationResult } from '@/types';
+import { EvaluationResult } from '@/shared/types';
 import { useTranslations } from 'next-intl';
 
 interface AnalyticsSectionProps {

@@ -2,24 +2,24 @@
 
 import { useState } from "react";
 import { Loader2, Play } from "lucide-react";
-import { TestCase } from "@/types";
-import { INITIAL_TEST_CASES, DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_INPUT, DEFAULT_BATCH_SIZE, DEFAULT_THRESHOLD } from "@/constants/defaults";
-import { useEvaluation } from "@/hooks/useEvaluation";
+import { TestCase } from "@/shared/types";
+import { INITIAL_TEST_CASES, DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_INPUT, DEFAULT_BATCH_SIZE, DEFAULT_THRESHOLD } from "@/shared/constants/defaults";
+import { useEvaluation } from "@/features/evaluation/hooks/useEvaluation";
 
 // Modular Components
-import { ConfigSection } from "./dashboard/ConfigSection";
-import { TestCasesSection } from "./dashboard/TestCasesSection";
-import { ResultsSection } from "./dashboard/ResultsSection";
-import { HistorySection } from "./dashboard/HistorySection";
-import { AnalyticsSection } from "./dashboard/AnalyticsSection";
-import { ThemeToggle } from "./ui/ThemeToggle";
-import { LanguageToggle } from "./ui/LanguageToggle";
-import { ToastItem, ToastViewport } from "./ui/ToastViewport";
-import { TestRun } from "@/lib/persistence";
+import { ConfigSection } from "./ConfigSection";
+import { TestCasesSection } from "./TestCasesSection";
+import { ResultsSection } from "./ResultsSection";
+import { HistorySection } from "./HistorySection";
+import { AnalyticsSection } from "./AnalyticsSection";
+import { ThemeToggle } from "@/shared/ui/ThemeToggle";
+import { LanguageToggle } from "@/shared/ui/LanguageToggle";
+import { ToastItem, ToastViewport } from "@/shared/ui/ToastViewport";
+import { TestRun } from "@/shared/lib/persistence";
 
 import { useTranslations } from "next-intl";
 
-import { DEFAULT_MODEL_ID } from "@/constants/models";
+import { DEFAULT_MODEL_ID } from "@/shared/constants/models";
 
 export default function Dashboard() {
     const t = useTranslations("common");

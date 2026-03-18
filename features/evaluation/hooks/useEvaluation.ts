@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { TestCase, EvaluationResult, EvaluationRequest } from "@/types";
-import { persistence, TestRun } from "@/lib/persistence";
+import { TestCase, EvaluationResult, EvaluationRequest } from "@/shared/types";
+import { persistence, TestRun } from "@/shared/lib/persistence";
 
 export function useEvaluation(
     testCases: TestCase[],

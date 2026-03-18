@@ -1,4 +1,4 @@
-import { TestCase } from "@/types";
+import { TestCase } from "@/shared/types";
 
 export const DEFAULT_SYSTEM_PROMPT = "";
 export const DEFAULT_USER_INPUT = "";
