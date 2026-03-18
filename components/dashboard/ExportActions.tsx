@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Download, FileJson, FileSpreadsheet } from 'lucide-react';
+import { FileJson, FileSpreadsheet } from 'lucide-react';
 import { EvaluationResult, TestCase } from '@/types';
 import { resultsToCSV, downloadFile } from '@/lib/export';
 

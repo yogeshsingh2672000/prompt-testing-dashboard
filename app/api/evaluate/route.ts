@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getResponse, getEmbedding } from '@/lib/ai';
-import { cosineSimilarity, chunk, templateReplace } from '@/lib/utils';
+import { clamp, cosineSimilarity, chunk, templateReplace } from '@/lib/utils';
 import { getSemanticScore } from '@/lib/evaluator';
 import { EvaluationRequest, EvaluationResult, PerformanceMetrics } from '@/types';
 import { SUPPORTED_MODELS, DEFAULT_MODEL_ID } from '@/constants/models';
@@ -10,10 +10,33 @@ export async function POST(req: Request) {
         const body: EvaluationRequest = await req.json();
         const { systemPrompt, userInput, testCases, batchSize, threshold, modelId } = body;
 
-        const selectedModelId = modelId || DEFAULT_MODEL_ID;
-        const modelMetadata = SUPPORTED_MODELS.find(m => m.id === selectedModelId) || SUPPORTED_MODELS[1];
+        if (!systemPrompt?.trim()) {
+            return NextResponse.json({ error: 'System prompt is required' }, { status: 400 });
+        }
 
-        const batches = chunk(testCases, batchSize);
+        if (!Array.isArray(testCases) || testCases.length === 0) {
+            return NextResponse.json({ error: 'At least one test case is required' }, { status: 400 });
+        }
+
+        const safeBatchSize = clamp(Number(batchSize) || 1, 1, 20);
+        const safeThreshold = clamp(Number(threshold) || 0, 0, 100);
+        const sanitizedTestCases = testCases.filter(
+            (testCase) =>
+                testCase &&
+                typeof testCase.id === 'string' &&
+                typeof testCase.input === 'string' &&
+                typeof testCase.expectedOutput === 'string' &&
+                testCase.expectedOutput.trim().length > 0
+        );
+
+        if (sanitizedTestCases.length === 0) {
+            return NextResponse.json({ error: 'No valid test cases were provided' }, { status: 400 });
+        }
+
+        const selectedModelId = modelId || DEFAULT_MODEL_ID;
+        const modelMetadata = SUPPORTED_MODELS.find((m) => m.id === selectedModelId) || SUPPORTED_MODELS[1];
+
+        const batches = chunk(sanitizedTestCases, safeBatchSize);
         const allResults: EvaluationResult[] = [];
 
         for (const batch of batches) {
@@ -40,13 +63,11 @@ export async function POST(req: Request) {
                         getSemanticScore(responseText, testCase.expectedOutput)
                     ]);
 
-                    const similarity = cosineSimilarity(responseEmbedding, expectedEmbedding);
+                    const similarity = clamp(cosineSimilarity(responseEmbedding, expectedEmbedding) * 100, 0, 100);
 
-                    // Calculate Cost (Using any to bypass lint for dynamic usage properties)
-                    const u = usage as any;
-                    const promptTokens = u.promptTokens || 0;
-                    const completionTokens = u.completionTokens || 0;
-                    const totalTokens = u.totalTokens || 0;
+                    const promptTokens = usage?.inputTokens ?? 0;
+                    const completionTokens = usage?.outputTokens ?? 0;
+                    const totalTokens = usage?.totalTokens ?? promptTokens + completionTokens;
 
                     const promptCost = (promptTokens / 1000000) * modelMetadata.pricing.inputPer1M;
                     const completionCost = (completionTokens / 1000000) * modelMetadata.pricing.outputPer1M;
@@ -65,12 +86,13 @@ export async function POST(req: Request) {
                     return {
                         testCaseId: testCase.id,
                         response: responseText,
-                        similarity: similarity * 100,
+                        similarity,
                         semanticScore: semanticScore,
-                        status: semanticScore >= threshold ? 'pass' : 'fail',
+                        status: semanticScore >= safeThreshold ? 'pass' : 'fail',
                         metrics
                     } as EvaluationResult;
-                } catch (error: any) {
+                } catch (error: unknown) {
+                    const message = error instanceof Error ? error.message : 'Unknown evaluation error';
                     console.error(`Error processing test case ${testCase.id}:`, error);
                     return {
                         testCaseId: testCase.id,
@@ -83,7 +105,7 @@ export async function POST(req: Request) {
                             tokens: { prompt: 0, completion: 0, total: 0 },
                             costUsd: 0
                         },
-                        error: error.message,
+                        error: message,
                     } as EvaluationResult;
                 }
             });
@@ -93,7 +115,8 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json(allResults);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Evaluation failed';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

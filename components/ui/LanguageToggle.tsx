@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/routing";
 import { Languages } from "lucide-react";
 import { useState, useRef, useEffect } from "react";

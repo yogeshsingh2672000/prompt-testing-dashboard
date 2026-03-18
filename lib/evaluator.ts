@@ -1,21 +1,22 @@
 import { generateText } from 'ai';
 import { getModel } from './ai';
+import { clamp } from './utils';
 
-const model = getModel()
+const model = getModel();
 
 export async function getSemanticScore(responseText: string, expectedOutput: string): Promise<number> {
     const prompt = `
-        Evaluate the semantic similarity between an LLM response and an expected output for a recruitment bot.
-        
+        Evaluate how well an LLM response matches an expected output for a prompt-evaluation tool.
+
         LLM Response: "${responseText}"
         Expected Output: "${expectedOutput}"
-        
+
         Instructions:
-        1. Ignore conversational fluff (e.g., "I understood", "Please let me know").
-        2. Focus on whether the core intent and information match.
-        3. For example, if both are asking to confirm "Assistant Section Officer", the similarity is 100%.
-        4. Provide only a number between 0 and 100 representing the similarity percentage.
-        
+        1. Ignore conversational filler and stylistic differences unless they change meaning.
+        2. Focus on whether the response preserves the expected intent, constraints, and critical facts.
+        3. Penalize contradictions, missing required actions, hallucinated details, or safety failures.
+        4. Return only one integer from 0 to 100.
+
         Score (0-100):
     `;
 
@@ -26,8 +27,12 @@ export async function getSemanticScore(responseText: string, expectedOutput: str
             temperature: 0,
         });
 
-        const score = parseInt(text.trim());
-        return isNaN(score) ? 0 : score;
+        const match = text.match(/\d{1,3}/);
+        if (!match) {
+            return 0;
+        }
+
+        return clamp(Number.parseInt(match[0], 10), 0, 100);
     } catch (error) {
         console.error('Semantic scoring error:', error);
         return 0;

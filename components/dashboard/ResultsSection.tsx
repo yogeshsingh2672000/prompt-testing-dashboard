@@ -5,7 +5,6 @@ import { Info } from "lucide-react";
 import { EvaluationResult, TestCase } from "@/types";
 import { cn, formatCost } from "@/lib/utils";
 import { ResultRow } from "./ResultRow";
-import { MetricInfo } from "./MetricInfo";
 import { ExportActions } from "./ExportActions";
 import { useTranslations } from "next-intl";
 
@@ -13,12 +12,14 @@ interface ResultsSectionProps {
     results: EvaluationResult[];
     loading: boolean;
     testCases: TestCase[];
+    error?: string | null;
 }
 
 export function ResultsSection({
     results,
     loading,
-    testCases
+    testCases,
+    error
 }: ResultsSectionProps) {
     const t = useTranslations("results");
     const tm = useTranslations("ui.metrics");
@@ -46,7 +47,7 @@ export function ResultsSection({
         return true;
     });
 
-    if (results.length === 0 && !loading) return null;
+    if (results.length === 0 && !loading && !error) return null;
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-12">
@@ -81,8 +82,28 @@ export function ResultsSection({
                 </div>
             </div>
 
+            {error && (
+                <div className="rounded-[2rem] border border-red-200 bg-red-50 px-6 py-5 text-sm font-medium text-red-700 shadow-sm dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+                    {error}
+                </div>
+            )}
+
             {/* Performance Ribbon */}
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            {loading && (
+                <div className="rounded-[2rem] border border-teal-200 bg-teal-50/80 px-6 py-5 dark:border-teal-500/20 dark:bg-teal-500/10">
+                    <div className="flex items-center gap-3 text-sm font-semibold text-teal-700 dark:text-teal-300">
+                        <div className="h-2.5 w-2.5 rounded-full bg-teal-500 animate-pulse" />
+                        Running evaluation across your test cases
+                    </div>
+                    <div className="mt-4 flex gap-3">
+                        <div className="h-2 w-24 rounded-full bg-teal-200/80 dark:bg-teal-500/20 animate-pulse" />
+                        <div className="h-2 w-36 rounded-full bg-teal-200/60 dark:bg-teal-500/10 animate-pulse" />
+                    </div>
+                </div>
+            )}
+
+            {results.length > 0 && (
+            <div className="flex flex-wrap gap-4">
                 {[
                     { label: t("avgSimilarity"), value: `${averageSimilarity.toFixed(1)}%`, color: "blue" },
                     { label: t("avgSemantic"), value: `${averageSemantic.toFixed(1)}%`, color: "teal" },
@@ -91,7 +112,7 @@ export function ResultsSection({
                     { label: t("totalCost"), value: formatCost(totalCost), color: "amber" },
                 ].map((stat, i) => (
                     <div key={i} className={cn(
-                        "p-6 rounded-[2rem] border transition-all duration-500 hover:scale-[1.02] bg-white dark:bg-zinc-900 shadow-xl relative overflow-hidden group",
+                        "min-w-[180px] flex-1 p-6 rounded-[2rem] border transition-all duration-500 hover:scale-[1.02] bg-white dark:bg-zinc-900 shadow-xl relative overflow-hidden group",
                         stat.color === 'blue' && "border-blue-200 dark:border-blue-900/50 hover:border-blue-400",
                         stat.color === 'teal' && "border-teal-200 dark:border-teal-900/50 hover:border-teal-400",
                         stat.color === 'emerald' && "border-emerald-200 dark:border-emerald-900/50 hover:border-emerald-400",
@@ -121,7 +142,9 @@ export function ResultsSection({
                     </div>
                 ))}
             </div>
+            )}
 
+            {results.length > 0 && (
             <div className="border border-zinc-200 dark:border-zinc-800/80 rounded-[2.5rem] bg-white dark:bg-zinc-900/40 backdrop-blur-md shadow-2xl overflow-hidden transition-all duration-300">
                 <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left border-collapse min-w-[900px]">
@@ -184,6 +207,7 @@ export function ResultsSection({
                     </table>
                 </div>
             </div>
+            )}
         </div>
     );
 }

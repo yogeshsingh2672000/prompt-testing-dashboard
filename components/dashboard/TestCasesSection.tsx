@@ -1,5 +1,5 @@
 import { Plus, CheckCircle2, Sparkles, Loader2 } from "lucide-react";
-import { TestCase } from "@/types";
+import { GeneratedTestCasePayload, TestCase } from "@/types";
 import { TestCaseItem } from "./TestCaseItem";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -13,6 +13,7 @@ interface TestCasesSectionProps {
     setTestCases: React.Dispatch<React.SetStateAction<TestCase[]>>;
     systemPrompt: string;
     userInputTemplate: string;
+    onError?: (message: string) => void;
 }
 
 export function TestCasesSection({
@@ -23,7 +24,8 @@ export function TestCasesSection({
     removeTestCase,
     setTestCases,
     systemPrompt,
-    userInputTemplate
+    userInputTemplate,
+    onError
 }: TestCasesSectionProps) {
     const t = useTranslations("testCases");
     const [isGenerating, setIsGenerating] = useState(false);
@@ -31,6 +33,10 @@ export function TestCasesSection({
     const handleAIGenerate = async () => {
         setIsGenerating(true);
         try {
+            if (!systemPrompt.trim()) {
+                throw new Error("Add a system prompt before generating AI test cases.");
+            }
+
             // Use the first test case as sample if available
             const sampleInput = testCases.length > 0 ? testCases[0].input : "general input";
 
@@ -40,23 +46,27 @@ export function TestCasesSection({
                 body: JSON.stringify({ sampleInput, systemPrompt }),
             });
             const data = await response.json();
+            if (!response.ok) {
+                throw new Error(typeof data?.error === "string" ? data.error : "Failed to generate test cases");
+            }
             if (data.testCases) {
-                const newCases = data.testCases.map((tc: any) => ({
-                    id: Math.random().toString(36).substr(2, 9),
+                const newCases = (data.testCases as GeneratedTestCasePayload[]).map((tc) => ({
+                    id: crypto.randomUUID(),
                     ...tc
                 }));
                 setTestCases([...testCases, ...newCases]);
             }
         } catch (error) {
             console.error("Failed to generate test cases", error);
+            onError?.(error instanceof Error ? error.message : "Failed to generate test cases");
         } finally {
             setIsGenerating(false);
         }
     };
 
     return (
-        <div className="lg:col-span-8 space-y-8 h-full">
-            <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group transition-all duration-500 min-h-[500px]">
+        <div className="min-w-0 flex-1 space-y-8">
+            <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-6 md:p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group transition-all duration-500 min-h-[500px] h-full">
                 <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-blue-500 via-purple-500 to-transparent opacity-50" />
                 
                 <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-10">

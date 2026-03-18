@@ -51,7 +51,7 @@ export class IndexedDBProvider implements PersistenceProvider {
             }
 
             transaction.oncomplete = () => {
-                if (!request) resolve(undefined as any);
+                if (!request) resolve(undefined as T);
             };
             transaction.onerror = () => reject(transaction.error);
         });

@@ -1,16 +1,23 @@
 import { NextResponse } from 'next/server';
 import { generateText } from 'ai';
 import { getModel } from '@/lib/ai';
+import { extractJson } from '@/lib/utils';
+import { GeneratedTestCasePayload } from '@/types';
 
 export async function POST(req: Request) {
   try {
     const { sampleInput, systemPrompt, count = 5 } = await req.json();
+    const requestedCount = Number.isFinite(count) ? Math.min(Math.max(Number(count), 1), 20) : 5;
+
+    if (!systemPrompt?.trim()) {
+      return NextResponse.json({ error: 'System prompt is required' }, { status: 400 });
+    }
 
     const model = getModel();
 
     const prompt = `
       You are an expert QA and Prompt Engineer.
-      Given the following System Prompt and a Sample Input, generate ${count} diverse and challenging test cases.
+      Given the following System Prompt and a Sample Input, generate ${requestedCount} diverse and challenging test cases.
       Each test case must have a representative "input" and an "expectedOutput" that follows the logic of the System Prompt.
       
       Focus on variety:
@@ -31,11 +38,21 @@ export async function POST(req: Request) {
     const { text } = await generateText({
       model,
       prompt,
+      temperature: 0.3,
     });
 
-    // Extract JSON if model wraps it in backticks
-    const jsonString = text.replace(/```json\n?|```/g, '').trim();
-    const testCases = JSON.parse(jsonString);
+    const rawTestCases = extractJson<GeneratedTestCasePayload[]>(text);
+    const testCases = rawTestCases
+      .filter((testCase) => typeof testCase?.input === 'string' && typeof testCase?.expectedOutput === 'string')
+      .map((testCase) => ({
+        input: testCase.input.trim(),
+        expectedOutput: testCase.expectedOutput.trim(),
+      }))
+      .filter((testCase) => testCase.input && testCase.expectedOutput);
+
+    if (testCases.length === 0) {
+      return NextResponse.json({ error: 'No valid test cases were generated' }, { status: 502 });
+    }
 
     return NextResponse.json({ testCases });
   } catch (error) {

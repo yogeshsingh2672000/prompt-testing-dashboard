@@ -4,12 +4,40 @@ import { useState } from "react";
 import { TestCase, EvaluationResult, EvaluationRequest } from "@/types";
 import { persistence, TestRun } from "@/lib/persistence";
 
-export function useEvaluation(testCases: TestCase[], systemPrompt: string, userInput: string, batchSize: number, threshold: number, modelId?: string) {
+export function useEvaluation(
+    testCases: TestCase[],
+    systemPrompt: string,
+    userInput: string,
+    batchSize: number,
+    threshold: number,
+    modelId?: string,
+    onError?: (message: string) => void
+) {
     const [results, setResults] = useState<EvaluationResult[]>([]);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const runEvaluation = async () => {
+        const hasValidTestCase = testCases.some(
+            (testCase) => testCase.input.trim().length > 0 && testCase.expectedOutput.trim().length > 0
+        );
+
+        if (!systemPrompt.trim()) {
+            const message = "Add a system prompt before running an evaluation.";
+            setError(message);
+            onError?.(message);
+            return;
+        }
+
+        if (!hasValidTestCase) {
+            const message = "Add at least one test case with both input and expected output.";
+            setError(message);
+            onError?.(message);
+            return;
+        }
+
         setLoading(true);
+        setError(null);
         setResults([]);
         try {
             const response = await fetch("/api/evaluate", {
@@ -24,7 +52,13 @@ export function useEvaluation(testCases: TestCase[], systemPrompt: string, userI
                     modelId
                 } as EvaluationRequest),
             });
-            const data: EvaluationResult[] = await response.json();
+
+            const payload = await response.json();
+            if (!response.ok) {
+                throw new Error(typeof payload?.error === "string" ? payload.error : "Evaluation failed");
+            }
+
+            const data = payload as EvaluationResult[];
             setResults(data);
 
             // Save to persistence
@@ -34,7 +68,7 @@ export function useEvaluation(testCases: TestCase[], systemPrompt: string, userI
                 const avgSemantic = data.reduce((sum, r) => sum + r.semanticScore, 0) / data.length;
 
                 const run: TestRun = {
-                    id: Math.random().toString(36).substr(2, 9),
+                    id: crypto.randomUUID(),
                     timestamp: Date.now(),
                     name: `Run ${new Date().toLocaleString()}`,
                     systemPrompt,
@@ -51,9 +85,13 @@ export function useEvaluation(testCases: TestCase[], systemPrompt: string, userI
                     }
                 };
                 await persistence.saveRun(run);
+                window.dispatchEvent(new CustomEvent("promitly:runs-updated"));
             }
         } catch (error) {
+            const message = error instanceof Error ? error.message : "Evaluation failed";
             console.error("Evaluation failed", error);
+            setError(message);
+            onError?.(message);
         } finally {
             setLoading(false);
         }
@@ -62,7 +100,9 @@ export function useEvaluation(testCases: TestCase[], systemPrompt: string, userI
     return {
         results,
         loading,
+        error,
         runEvaluation,
-        setResults
+        setResults,
+        setError
     };
 }

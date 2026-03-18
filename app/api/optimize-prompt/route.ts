@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
 import { generateText } from 'ai';
 import { getModel } from '@/lib/ai';
+import { extractJson } from '@/lib/utils';
+import { OptimizePromptRequest, PromptOptimizationSuggestion } from '@/types';
 
 export async function POST(req: Request) {
   try {
-    const { currentPrompt, results, modelId } = await req.json();
+    const { currentPrompt, results, modelId } = await req.json() as OptimizePromptRequest;
+
+    if (!currentPrompt?.trim()) {
+      return NextResponse.json({ error: 'Current prompt is required' }, { status: 400 });
+    }
+
+    if (!Array.isArray(results) || results.length === 0) {
+      return NextResponse.json({ error: 'Evaluation results are required' }, { status: 400 });
+    }
 
     const model = getModel(modelId);
 
@@ -39,10 +49,10 @@ export async function POST(req: Request) {
     const { text } = await generateText({
       model,
       prompt,
+      temperature: 0.2,
     });
 
-    const jsonString = text.replace(/```json\n?|```/g, '').trim();
-    const suggestions = JSON.parse(jsonString);
+    const suggestions = extractJson<PromptOptimizationSuggestion>(text);
 
     return NextResponse.json(suggestions);
   } catch (error) {

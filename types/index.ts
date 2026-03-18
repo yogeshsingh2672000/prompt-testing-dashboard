@@ -33,3 +33,19 @@ export interface EvaluationRequest {
     threshold: number;
     modelId?: string;
 }
+
+export interface GeneratedTestCasePayload {
+    input: string;
+    expectedOutput: string;
+}
+
+export interface OptimizePromptRequest {
+    currentPrompt: string;
+    results: EvaluationResult[];
+    modelId?: string;
+}
+
+export interface PromptOptimizationSuggestion {
+    optimizedPrompt: string;
+    reasoning: string;
+}

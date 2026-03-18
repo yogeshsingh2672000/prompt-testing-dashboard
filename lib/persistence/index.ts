@@ -1,4 +1,4 @@
-import { PersistenceProvider } from "./types";
+import { PersistenceProvider, TestCaseSuite, TestRun } from "./types";
 import { IndexedDBProvider } from "./IndexedDBProvider";
 
 class PersistenceService {
@@ -9,7 +9,7 @@ class PersistenceService {
     }
 
     // Runs
-    async saveRun(run: any) {
+    async saveRun(run: TestRun) {
         return this.provider.saveRun(run);
     }
 
@@ -26,7 +26,7 @@ class PersistenceService {
     }
 
     // Suites
-    async saveSuite(suite: any) {
+    async saveSuite(suite: TestCaseSuite) {
         return this.provider.saveSuite(suite);
     }
 

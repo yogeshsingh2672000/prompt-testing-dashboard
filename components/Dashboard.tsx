@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Play } from "lucide-react";
+import { Loader2, Play } from "lucide-react";
 import { TestCase } from "@/types";
 import { INITIAL_TEST_CASES, DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_INPUT, DEFAULT_BATCH_SIZE, DEFAULT_THRESHOLD } from "@/constants/defaults";
 import { useEvaluation } from "@/hooks/useEvaluation";
@@ -14,6 +14,7 @@ import { HistorySection } from "./dashboard/HistorySection";
 import { AnalyticsSection } from "./dashboard/AnalyticsSection";
 import { ThemeToggle } from "./ui/ThemeToggle";
 import { LanguageToggle } from "./ui/LanguageToggle";
+import { ToastItem, ToastViewport } from "./ui/ToastViewport";
 import { TestRun } from "@/lib/persistence";
 
 import { useTranslations } from "next-intl";
@@ -32,15 +33,30 @@ export default function Dashboard() {
     const [modelId, setModelId] = useState(DEFAULT_MODEL_ID);
     const [activeRunId, setActiveRunId] = useState<string | undefined>();
     const [activeTab, setActiveTab] = useState<'design' | 'results' | 'history'>('design');
+    const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+    const pushToast = (toast: Omit<ToastItem, "id">) => {
+        const id = crypto.randomUUID();
+        setToasts((current) => [...current, { id, ...toast }]);
+
+        window.setTimeout(() => {
+            setToasts((current) => current.filter((item) => item.id !== id));
+        }, 5000);
+    };
+
+    const dismissToast = (id: string) => {
+        setToasts((current) => current.filter((item) => item.id !== id));
+    };
 
     // 2. Evaluation Logic Hook
-    const { results, loading, runEvaluation: executeEvaluation, setResults } = useEvaluation(
+    const { results, loading, error, runEvaluation: executeEvaluation, setResults, setError } = useEvaluation(
         testCases,
         systemPrompt,
         userInput,
         batchSize,
         threshold,
-        modelId
+        modelId,
+        (message) => pushToast({ title: "Evaluation failed", message, variant: "error" })
     );
 
     const runEvaluation = async () => {
@@ -58,6 +74,7 @@ export default function Dashboard() {
         setThreshold(run.config.threshold);
         setModelId(run.config.modelId || DEFAULT_MODEL_ID);
         setResults(run.results);
+        setError(null);
         setActiveTab('results');
     };
 
@@ -82,6 +99,7 @@ export default function Dashboard() {
 
     return (
         <div className="min-h-screen bg-transparent relative">
+            <ToastViewport toasts={toasts} onDismiss={dismissToast} />
             <div className="p-4 md:p-8 lg:p-12 space-y-8 max-w-[1600px] mx-auto relative z-10">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-4">
@@ -102,9 +120,9 @@ export default function Dashboard() {
                         <button
                             onClick={runEvaluation}
                             disabled={loading}
-                            className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-8 py-4 rounded-3xl font-black flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)] disabled:opacity-50 group border border-zinc-800 dark:border-zinc-200"
+                            className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 min-w-[180px] px-8 py-4 rounded-3xl font-black flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)] disabled:opacity-50 group border border-zinc-800 dark:border-zinc-200"
                         >
-                            {loading ? <span className="animate-spin text-2xl">O</span> : <Play size={22} fill="currentColor" />}
+                            {loading ? <Loader2 size={20} className="animate-spin" /> : <Play size={22} fill="currentColor" />}
                             {loading ? t("evaluating") : t("runTest")}
                         </button>
                     </div>
@@ -134,7 +152,7 @@ export default function Dashboard() {
 
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {activeTab === 'design' && (
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-sm">
+                        <div className="flex flex-col gap-8 text-sm xl:flex-row xl:items-stretch">
                             {/* Config Area */}
                             <ConfigSection
                                 systemPrompt={systemPrompt}
@@ -142,12 +160,12 @@ export default function Dashboard() {
                                 userInput={userInput}
                                 setUserInput={setUserInput}
                                 batchSize={batchSize}
-                                setBatchSize={setBatchSize}
                                 threshold={threshold}
                                 setThreshold={setThreshold}
                                 modelId={modelId}
                                 setModelId={setModelId}
                                 results={results}
+                                onError={(message) => pushToast({ title: "Optimization failed", message, variant: "error" })}
                             />
 
                             {/* Test Case Management */}
@@ -160,12 +178,13 @@ export default function Dashboard() {
                                 setTestCases={setTestCases}
                                 systemPrompt={systemPrompt}
                                 userInputTemplate={userInput}
+                                onError={(message) => pushToast({ title: "Case generation failed", message, variant: "error" })}
                             />
                         </div>
                     )}
 
                     {activeTab === 'results' && (
-                        <div className="space-y-8">
+                        <div className="flex flex-col gap-8">
                             {/* Analytics Header (only if results exist) */}
                             {results.length > 0 && !loading && (
                                 <AnalyticsSection results={results} />
@@ -176,6 +195,7 @@ export default function Dashboard() {
                                 results={results}
                                 loading={loading}
                                 testCases={testCases}
+                                error={error}
                             />
                         </div>
                     )}

@@ -4,7 +4,7 @@ import React from 'react';
 import {
     PieChart, Pie, Cell, ResponsiveContainer,
     Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-    Tooltip, Legend
+    Tooltip
 } from 'recharts';
 import { EvaluationResult } from '@/types';
 import { useTranslations } from 'next-intl';
@@ -35,9 +35,9 @@ export function AnalyticsSection({ results }: AnalyticsSectionProps) {
     ];
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex flex-col gap-8 xl:flex-row animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Pass/Fail Distribution */}
-            <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group">
+            <div className="min-w-0 flex-1 bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-6 md:p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-red-500 opacity-50" />
                 <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 mb-8 flex items-center justify-between">
                     {t("successVelocity")}
@@ -94,7 +94,7 @@ export function AnalyticsSection({ results }: AnalyticsSectionProps) {
             </div>
 
             {/* Score Performance (Radar) */}
-            <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group">
+            <div className="min-w-0 flex-1 bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-6 md:p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-teal-500 to-blue-500 opacity-50" />
                 <h3 className="w-full text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 mb-8">
                     {t("semanticFingerprint")}

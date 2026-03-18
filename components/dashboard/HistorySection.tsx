@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { History, Trash2, Clock, ChevronRight, BarChart3 } from "lucide-react";
+import { Trash2, Clock, ChevronRight } from "lucide-react";
 import { persistence, TestRun } from "@/lib/persistence";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -25,16 +25,22 @@ export function HistorySection({ onLoadRun, activeRunId }: HistorySectionProps) 
     };
 
     useEffect(() => {
-        loadHistory();
+        void (async () => {
+            await loadHistory();
+        })();
 
-        // Listen for new runs being saved (we can use a custom event or just refresh every now and then)
-        // For now, let's just refresh when the evaluation starts/ends in a real app you'd use a shared state or event bus
+        const handleRunsUpdated = () => {
+            void loadHistory();
+        };
+
+        window.addEventListener("promitly:runs-updated", handleRunsUpdated);
+        return () => window.removeEventListener("promitly:runs-updated", handleRunsUpdated);
     }, []);
 
     const deleteRun = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         await persistence.deleteRun(id);
-        loadHistory();
+        window.dispatchEvent(new CustomEvent("promitly:runs-updated"));
     };
 
     if (runs.length === 0 && !loading) return null;

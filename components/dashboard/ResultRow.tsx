@@ -4,7 +4,6 @@ import React from "react";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { EvaluationResult, TestCase } from "@/types";
 import { cn, formatCost } from "@/lib/utils";
-import { CopyButton } from "../ui/CopyButton";
 
 interface ResultRowProps {
     result: EvaluationResult;
