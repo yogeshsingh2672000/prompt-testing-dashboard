@@ -1,5 +1,10 @@
-import Dashboard from "@/features/dashboard/components/Dashboard";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  return <Dashboard />;
+export default async function LocaleHome({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  redirect(`/${locale}/workspace`);
 }
