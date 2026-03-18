@@ -1,5 +1,6 @@
 import { getEmbedding, getResponse } from '@/server/lib/ai';
 import { getSemanticScore } from '@/server/lib/evaluator';
+import { validateStructuredOutput } from '@/server/services/output-validation';
 import { DEFAULT_MODEL_ID, SUPPORTED_MODELS } from '@/shared/constants/models';
 import { clamp, chunk, cosineSimilarity, templateReplace } from '@/shared/lib/utils';
 import { EvaluationRequest, EvaluationResult, PerformanceMetrics } from '@/shared/types';
@@ -56,6 +57,7 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
                     getEmbedding(responseText),
                     getSemanticScore(responseText, testCase.expectedOutput),
                 ]);
+                const validation = validateStructuredOutput(responseText, testCase.outputValidation);
 
                 const similarity = clamp(cosineSimilarity(responseEmbedding, expectedEmbedding) * 100, 0, 100);
                 const promptTokens = usage?.inputTokens ?? 0;
@@ -79,8 +81,9 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
                     response: responseText,
                     similarity,
                     semanticScore,
-                    status: semanticScore >= safeThreshold ? 'pass' : 'fail',
+                    status: semanticScore >= safeThreshold && validation.passed ? 'pass' : 'fail',
                     metrics,
+                    validation,
                 } satisfies EvaluationResult;
             } catch (error: unknown) {
                 const message = error instanceof Error ? error.message : 'Unknown evaluation error';
@@ -95,6 +98,12 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
                         latencyMs: Date.now() - startTime,
                         tokens: { prompt: 0, completion: 0, total: 0 },
                         costUsd: 0,
+                    },
+                    validation: {
+                        type: testCase.outputValidation?.type || 'none',
+                        enabled: Boolean(testCase.outputValidation && testCase.outputValidation.type !== 'none'),
+                        passed: false,
+                        message,
                     },
                     error: message,
                 } satisfies EvaluationResult;

@@ -3,6 +3,14 @@ export interface TestCase {
     input: string;
     expectedOutput: string;
     variables?: Record<string, string>;
+    outputValidation?: OutputValidationConfig;
+}
+
+export type OutputValidationType = "none" | "json" | "contains" | "starts_with" | "regex";
+
+export interface OutputValidationConfig {
+    type: OutputValidationType;
+    value?: string;
 }
 
 export interface PerformanceMetrics {
@@ -22,7 +30,15 @@ export interface EvaluationResult {
     semanticScore: number;
     status: 'pass' | 'fail';
     metrics: PerformanceMetrics;
+    validation: OutputValidationResult;
     error?: string;
+}
+
+export interface OutputValidationResult {
+    type: OutputValidationType;
+    enabled: boolean;
+    passed: boolean;
+    message: string;
 }
 
 export interface EvaluationRequest {

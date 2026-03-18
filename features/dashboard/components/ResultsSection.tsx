@@ -40,6 +40,9 @@ export function ResultsSection({
     const avgLatency = results.length > 0
         ? results.reduce((sum, r) => sum + (r.metrics?.latencyMs || 0), 0) / results.length
         : 0;
+    const validationEnabledCount = results.filter((result) => result.validation?.enabled).length;
+    const validationPassCount = results.filter((result) => result.validation?.enabled && result.validation.passed).length;
+    const validationPassRate = validationEnabledCount > 0 ? (validationPassCount / validationEnabledCount) * 100 : 0;
 
     const filteredResults = results.filter((r) => {
         if (filter === "pass") return r.status === "pass";
@@ -108,6 +111,7 @@ export function ResultsSection({
                     { label: t("avgSimilarity"), value: `${averageSimilarity.toFixed(1)}%`, color: "blue" },
                     { label: t("avgSemantic"), value: `${averageSemantic.toFixed(1)}%`, color: "teal" },
                     { label: t("passRate"), value: `${passPercentage.toFixed(0)}%`, sub: `(${passCount}/${results.length})`, color: "emerald" },
+                    { label: "Format pass rate", value: validationEnabledCount > 0 ? `${validationPassRate.toFixed(0)}%` : "N/A", sub: validationEnabledCount > 0 ? `(${validationPassCount}/${validationEnabledCount})` : undefined, color: "violet" },
                     { label: t("avgLatency"), value: `${(avgLatency / 1000).toFixed(2)}s`, color: "purple" },
                     { label: t("totalCost"), value: formatCost(totalCost), color: "amber" },
                 ].map((stat, i) => (
@@ -116,6 +120,7 @@ export function ResultsSection({
                         stat.color === 'blue' && "border-blue-200 dark:border-blue-900/50 hover:border-blue-400",
                         stat.color === 'teal' && "border-teal-200 dark:border-teal-900/50 hover:border-teal-400",
                         stat.color === 'emerald' && "border-emerald-200 dark:border-emerald-900/50 hover:border-emerald-400",
+                        stat.color === 'violet' && "border-violet-200 dark:border-violet-900/50 hover:border-violet-400",
                         stat.color === 'purple' && "border-purple-200 dark:border-purple-900/50 hover:border-purple-400",
                         stat.color === 'amber' && "border-amber-200 dark:border-amber-900/50 hover:border-amber-400"
                     )}>
@@ -124,6 +129,7 @@ export function ResultsSection({
                             stat.color === 'blue' && "bg-blue-500",
                             stat.color === 'teal' && "bg-teal-500",
                             stat.color === 'emerald' && "bg-emerald-500",
+                            stat.color === 'violet' && "bg-violet-500",
                             stat.color === 'purple' && "bg-purple-500",
                             stat.color === 'amber' && "bg-amber-500"
                         )} />
@@ -134,6 +140,7 @@ export function ResultsSection({
                                 stat.color === 'blue' && "text-blue-600 dark:text-blue-400",
                                 stat.color === 'teal' && "text-teal-600 dark:text-teal-400",
                                 stat.color === 'emerald' && "text-emerald-600 dark:text-emerald-400",
+                                stat.color === 'violet' && "text-violet-600 dark:text-violet-400",
                                 stat.color === 'purple' && "text-purple-600 dark:text-purple-400",
                                 stat.color === 'amber' && "text-amber-600 dark:text-amber-400"
                             )}>{stat.value}</span>
@@ -176,6 +183,7 @@ export function ResultsSection({
                                 </th>
                                 <th className="p-6 w-32 whitespace-nowrap">{t("latency")}</th>
                                 <th className="p-6 w-32 whitespace-nowrap">{t("cost")}</th>
+                                <th className="p-6 w-48 whitespace-nowrap">Format validation</th>
                                 <th className="p-6 whitespace-nowrap">{t("table.output")}</th>
                                 <th className="p-6 pr-8 whitespace-nowrap">{t("table.expected")}</th>
                             </tr>

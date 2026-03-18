@@ -16,6 +16,11 @@ export const ResultRow = React.memo(({ result, testCases }: ResultRowProps) => {
     const t = useTranslations("results");
     const originalIndex = testCases.findIndex(tc => tc.id === result.testCaseId) + 1;
     const expectedOutput = testCases.find(tc => tc.id === result.testCaseId)?.expectedOutput || "";
+    const validationTone = result.validation?.enabled
+        ? result.validation.passed
+            ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/30"
+            : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/30"
+        : "bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700";
 
     return (
         <tr className="border-b border-zinc-100 dark:border-zinc-800/40 hover:bg-zinc-50 dark:hover:bg-white/[0.03] group transition-all duration-300 relative">
@@ -48,6 +53,22 @@ export const ResultRow = React.memo(({ result, testCases }: ResultRowProps) => {
             </td>
             <td className="p-6 text-center text-xs font-mono text-zinc-500 dark:text-zinc-400">
                 {formatCost(result.metrics?.costUsd || 0)}
+            </td>
+            <td className="p-6">
+                <div
+                    className={cn(
+                        "w-fit max-w-[12rem] rounded-xl border px-3 py-2 text-xs font-semibold shadow-sm",
+                        validationTone
+                    )}
+                    data-tooltip-id="main-tooltip"
+                    data-tooltip-content={result.validation?.message || "No structured validation configured."}
+                >
+                    {result.validation?.enabled
+                        ? result.validation.passed
+                            ? `Pass • ${result.validation.type}`
+                            : `Fail • ${result.validation.type}`
+                        : "Not configured"}
+                </div>
             </td>
             <td className="p-6 max-w-xs xl:max-w-xl relative group/cell">
                 <div 

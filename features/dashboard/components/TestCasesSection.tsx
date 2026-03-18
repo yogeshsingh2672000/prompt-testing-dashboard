@@ -1,5 +1,5 @@
 import { Plus, CheckCircle2, Sparkles, Loader2 } from "lucide-react";
-import { GeneratedTestCasePayload, TestCase } from "@/shared/types";
+import { GeneratedTestCasePayload, OutputValidationType, TestCase } from "@/shared/types";
 import { TestCaseItem } from "./TestCaseItem";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -9,6 +9,7 @@ interface TestCasesSectionProps {
     addTestCase: () => void;
     updateTestCase: (id: string, field: keyof TestCase, value: string) => void;
     updateVariable: (id: string, key: string, value: string) => void;
+    updateOutputValidation: (id: string, type: OutputValidationType, value?: string) => void;
     removeTestCase: (id: string) => void;
     setTestCases: React.Dispatch<React.SetStateAction<TestCase[]>>;
     systemPrompt: string;
@@ -21,6 +22,7 @@ export function TestCasesSection({
     addTestCase,
     updateTestCase,
     updateVariable,
+    updateOutputValidation,
     removeTestCase,
     setTestCases,
     systemPrompt,
@@ -108,6 +110,7 @@ export function TestCasesSection({
                                 index={index}
                                 updateTestCase={updateTestCase}
                                 updateVariable={updateVariable}
+                                updateOutputValidation={updateOutputValidation}
                                 removeTestCase={removeTestCase}
                                 systemPrompt={systemPrompt}
                                 userInputTemplate={userInputTemplate}

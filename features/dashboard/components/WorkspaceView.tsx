@@ -22,6 +22,7 @@ export function WorkspaceView() {
         addTestCase,
         updateTestCase,
         updateVariable,
+        updateOutputValidation,
         removeTestCase,
         setTestCases,
         pushToast,
@@ -54,6 +55,7 @@ export function WorkspaceView() {
                     addTestCase={addTestCase}
                     updateTestCase={updateTestCase}
                     updateVariable={updateVariable}
+                    updateOutputValidation={updateOutputValidation}
                     removeTestCase={removeTestCase}
                     setTestCases={setTestCases}
                     systemPrompt={systemPrompt}

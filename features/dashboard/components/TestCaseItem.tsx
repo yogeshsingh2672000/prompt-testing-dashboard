@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Trash2 } from "lucide-react";
-import { TestCase } from "@/shared/types";
+import { OutputValidationType, TestCase } from "@/shared/types";
 import { useTranslations } from "next-intl";
 import { extractVariables } from "@/shared/lib/utils";
 
@@ -11,6 +11,7 @@ interface TestCaseItemProps {
     index: number;
     updateTestCase: (id: string, field: keyof TestCase, value: string) => void;
     updateVariable: (id: string, key: string, value: string) => void;
+    updateOutputValidation: (id: string, type: OutputValidationType, value?: string) => void;
     removeTestCase: (id: string) => void;
     systemPrompt: string;
     userInputTemplate: string;
@@ -21,11 +22,14 @@ export const TestCaseItem = React.memo(({
     index,
     updateTestCase,
     updateVariable,
+    updateOutputValidation,
     removeTestCase,
     systemPrompt,
     userInputTemplate
 }: TestCaseItemProps) => {
     const t = useTranslations("testCases");
+    const validationType = tc.outputValidation?.type || "none";
+    const requiresValidationValue = validationType === "contains" || validationType === "starts_with" || validationType === "regex";
 
     // Detect variables from both prompts
     const variables = Array.from(new Set([
@@ -100,6 +104,40 @@ export const TestCaseItem = React.memo(({
                         placeholder="Expected behavior..."
                     />
                 </div>
+                    <div className="space-y-3 rounded-2xl border border-zinc-200/70 bg-white/70 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/70">
+                        <div className="space-y-1">
+                            <label className="block text-[10px] uppercase font-black text-zinc-400 dark:text-zinc-500 tracking-wider">Structured Validation</label>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                Add a format rule when the model must return JSON or follow a strict pattern.
+                            </p>
+                        </div>
+                        <select
+                            value={validationType}
+                            onChange={(e) => updateOutputValidation(tc.id, e.target.value as OutputValidationType, tc.outputValidation?.value)}
+                            className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm transition-all focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        >
+                            <option value="none">No format validation</option>
+                            <option value="json">Valid JSON</option>
+                            <option value="contains">Must contain text</option>
+                            <option value="starts_with">Must start with</option>
+                            <option value="regex">Must match regex</option>
+                        </select>
+                        {requiresValidationValue && (
+                            <input
+                                type="text"
+                                value={tc.outputValidation?.value || ""}
+                                onChange={(e) => updateOutputValidation(tc.id, validationType, e.target.value)}
+                                className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm transition-all focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                                placeholder={
+                                    validationType === "contains"
+                                        ? "Required substring"
+                                        : validationType === "starts_with"
+                                            ? "Required prefix"
+                                            : "Regex pattern"
+                                }
+                            />
+                        )}
+                    </div>
             </div>
         </div>
     );

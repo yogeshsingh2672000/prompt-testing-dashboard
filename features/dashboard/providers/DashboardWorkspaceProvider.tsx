@@ -11,7 +11,7 @@ import {
 } from "@/shared/constants/defaults";
 import { DEFAULT_MODEL_ID } from "@/shared/constants/models";
 import { persistence, PromptVersion, TestCaseSuite, TestRun } from "@/shared/lib/persistence";
-import { TestCase } from "@/shared/types";
+import { OutputValidationType, TestCase } from "@/shared/types";
 import { ToastItem } from "@/shared/ui/ToastViewport";
 
 interface DashboardWorkspaceContextValue {
@@ -42,6 +42,7 @@ interface DashboardWorkspaceContextValue {
     addTestCase: () => void;
     updateTestCase: (id: string, field: keyof TestCase, value: string) => void;
     updateVariable: (id: string, key: string, value: string) => void;
+    updateOutputValidation: (id: string, type: OutputValidationType, value?: string) => void;
     removeTestCase: (id: string) => void;
     loadRun: (run: TestRun) => void;
     saveCurrentSuite: (name: string) => Promise<void>;
@@ -125,6 +126,28 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                     ? { ...testCase, variables: { ...(testCase.variables || {}), [key]: value } }
                     : testCase
             )
+        );
+    };
+
+    const updateOutputValidation = (id: string, type: OutputValidationType, value?: string) => {
+        setTestCases((current) =>
+            current.map((testCase) => {
+                if (testCase.id !== id) {
+                    return testCase;
+                }
+
+                if (type === "none") {
+                    return { ...testCase, outputValidation: { type: "none" } };
+                }
+
+                return {
+                    ...testCase,
+                    outputValidation: {
+                        type,
+                        value: value ?? "",
+                    },
+                };
+            })
         );
     };
 
@@ -264,6 +287,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 addTestCase,
                 updateTestCase,
                 updateVariable,
+                updateOutputValidation,
                 removeTestCase,
                 loadRun,
                 saveCurrentSuite,

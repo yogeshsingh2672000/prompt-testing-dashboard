@@ -145,22 +145,27 @@ export function CompareWorkbench() {
             const rightResultsMap = new Map(rightResults.map((result) => [result.testCaseId, result]));
 
             const cases: ComparisonCaseResult[] = selectedDataset.testCases.map((testCase) => {
-                const left = leftResults.find((result) => result.testCaseId === testCase.id) || {
+                const fallbackResult: EvaluationResult = {
                     testCaseId: testCase.id,
                     response: "",
                     similarity: 0,
                     semanticScore: 0,
-                    status: "fail" as const,
+                    status: "fail",
                     metrics: { latencyMs: 0, tokens: { prompt: 0, completion: 0, total: 0 }, costUsd: 0 },
+                    validation: {
+                        type: testCase.outputValidation?.type || "none",
+                        enabled: Boolean(testCase.outputValidation && testCase.outputValidation.type !== "none"),
+                        passed: false,
+                        message: "No evaluation result was returned for this test case.",
+                    },
+                };
+
+                const left = leftResults.find((result) => result.testCaseId === testCase.id) || {
+                    ...fallbackResult,
                 };
 
                 const right = rightResultsMap.get(testCase.id) || {
-                    testCaseId: testCase.id,
-                    response: "",
-                    similarity: 0,
-                    semanticScore: 0,
-                    status: "fail" as const,
-                    metrics: { latencyMs: 0, tokens: { prompt: 0, completion: 0, total: 0 }, costUsd: 0 },
+                    ...fallbackResult,
                 };
 
                 const semanticDelta = left.semanticScore - right.semanticScore;
@@ -415,6 +420,13 @@ function ComparisonScoreBlock({ result }: { result: EvaluationResult }) {
         <div className="space-y-1">
             <div className="font-black text-zinc-900 dark:text-white">{result.semanticScore.toFixed(1)}% semantic</div>
             <div className="text-xs text-zinc-500 dark:text-zinc-400">{result.similarity.toFixed(1)}% similarity</div>
+            <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                {result.validation.enabled
+                    ? result.validation.passed
+                        ? `Format pass • ${result.validation.type}`
+                        : `Format fail • ${result.validation.type}`
+                    : "No format rule"}
+            </div>
             <div className="text-xs text-zinc-500 dark:text-zinc-400">
                 {(result.metrics.latencyMs / 1000).toFixed(2)}s | {formatCost(result.metrics.costUsd)}
             </div>
