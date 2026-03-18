@@ -29,6 +29,16 @@ export interface RubricResult {
     reasoning: string;
 }
 
+export type ReviewDecision = "pending" | "approved" | "rejected";
+
+export interface CaseReview {
+    testCaseId: string;
+    decision: ReviewDecision;
+    note: string;
+    overrideStatus?: "pass" | "fail";
+    reviewedAt: number;
+}
+
 export interface PerformanceMetrics {
     latencyMs: number;
     tokens: {

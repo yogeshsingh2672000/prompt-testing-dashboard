@@ -1,4 +1,4 @@
-import { EvaluationResult, RubricDefinition, TestCase } from "@/shared/types";
+import { CaseReview, EvaluationResult, RubricDefinition, TestCase } from "@/shared/types";
 
 export interface TestCaseSuite {
     id: string;
@@ -35,6 +35,7 @@ export interface TestRun {
     userInput: string;
     testCases: TestCase[];
     results: EvaluationResult[];
+    reviews?: Record<string, CaseReview>;
     config: {
         batchSize: number;
         threshold: number;
