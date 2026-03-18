@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Clock, ChevronRight } from "lucide-react";
+import { Trash2, Clock, ChevronRight, Download } from "lucide-react";
 import { persistence, TestRun } from "@/shared/lib/persistence";
 import { useTranslations } from "next-intl";
 import { cn } from "@/shared/lib/utils";
+import { downloadFile } from "@/shared/lib/export";
+import { buildRunReportHtml, buildRunReportMarkdown } from "@/shared/lib/report";
 
 interface HistorySectionProps {
     onLoadRun: (run: TestRun) => void;
@@ -41,6 +43,18 @@ export function HistorySection({ onLoadRun, activeRunId }: HistorySectionProps) 
         e.stopPropagation();
         await persistence.deleteRun(id);
         window.dispatchEvent(new CustomEvent("promitly:runs-updated"));
+    };
+
+    const exportRunReport = (run: TestRun, format: "html" | "md", e: React.MouseEvent) => {
+        e.stopPropagation();
+        const fileSafeName = run.name.replace(/\s+/g, "-").toLowerCase() || "run-report";
+
+        if (format === "html") {
+            downloadFile(buildRunReportHtml(run), `${fileSafeName}.html`, "text/html;charset=utf-8");
+            return;
+        }
+
+        downloadFile(buildRunReportMarkdown(run), `${fileSafeName}.md`, "text/markdown;charset=utf-8");
     };
 
     if (runs.length === 0 && !loading) return null;
@@ -104,19 +118,31 @@ export function HistorySection({ onLoadRun, activeRunId }: HistorySectionProps) 
                                             <Clock size={10} /> {new Date(run.timestamp).toLocaleString()}
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={(e) => deleteRun(run.id, e)}
-                                        className={cn(
-                                            "p-2 rounded-xl transition-all hover:bg-red-500/10 hover:text-red-500",
-                                            activeRunId === run.id ? "text-zinc-500" : "text-zinc-300"
-                                        )}
-                                    >
-                                        <Trash2 size={14} />
-                                    </button>
+                                    <div className="flex items-center gap-1">
+                                        <button
+                                            onClick={(e) => exportRunReport(run, "html", e)}
+                                            className={cn(
+                                                "p-2 rounded-xl transition-all hover:bg-blue-500/10 hover:text-blue-500",
+                                                activeRunId === run.id ? "text-zinc-500" : "text-zinc-300"
+                                            )}
+                                            title="Export HTML report"
+                                        >
+                                            <Download size={14} />
+                                        </button>
+                                        <button
+                                            onClick={(e) => deleteRun(run.id, e)}
+                                            className={cn(
+                                                "p-2 rounded-xl transition-all hover:bg-red-500/10 hover:text-red-500",
+                                                activeRunId === run.id ? "text-zinc-500" : "text-zinc-300"
+                                            )}
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className={cn(
-                                    "grid grid-cols-2 gap-4 pt-6 border-t",
+                                    "grid grid-cols-3 gap-4 pt-6 border-t",
                                     activeRunId === run.id ? "border-white/10" : "border-zinc-100 dark:border-zinc-800"
                                 )}>
                                     <div>
@@ -132,6 +158,13 @@ export function HistorySection({ onLoadRun, activeRunId }: HistorySectionProps) 
                                             "text-lg font-black font-mono tracking-tighter",
                                             activeRunId === run.id ? "text-emerald-400" : "text-emerald-500"
                                         )}>{run.metrics.passRate.toFixed(0)}%</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-[8px] uppercase font-black opacity-40 mb-1 tracking-widest">reviews</div>
+                                        <div className={cn(
+                                            "text-lg font-black font-mono tracking-tighter",
+                                            activeRunId === run.id ? "text-rose-300" : "text-rose-500"
+                                        )}>{Object.keys(run.reviews || {}).length}</div>
                                     </div>
                                 </div>
 

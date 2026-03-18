@@ -1,12 +1,14 @@
 "use client";
 
-import { CheckCircle2, FileCheck2, MessageSquareText, RotateCcw, Search, ShieldAlert, XCircle } from "lucide-react";
+import { CheckCircle2, Download, FileCheck2, MessageSquareText, RotateCcw, Search, ShieldAlert, XCircle } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "@/i18n/routing";
 import { persistence, TestRun } from "@/shared/lib/persistence";
 import { CaseReview, EvaluationResult, TestCase } from "@/shared/types";
 import { cn } from "@/shared/lib/utils";
+import { downloadFile } from "@/shared/lib/export";
+import { buildRunReportHtml, buildRunReportMarkdown } from "@/shared/lib/report";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
 import { SurfaceCard } from "@/shared/ui/SurfaceCard";
 
@@ -44,6 +46,17 @@ function getEffectiveStatus(result: EvaluationResult, review: CaseReview): "pass
 
 function getTestCase(testCases: TestCase[], testCaseId: string) {
     return testCases.find((testCase) => testCase.id === testCaseId);
+}
+
+function exportReviewReport(run: TestRun, format: "html" | "md") {
+    const fileSafeName = `${run.name.replace(/\s+/g, "-").toLowerCase() || "review-report"}-report`;
+
+    if (format === "html") {
+        downloadFile(buildRunReportHtml(run), `${fileSafeName}.html`, "text/html;charset=utf-8");
+        return;
+    }
+
+    downloadFile(buildRunReportMarkdown(run), `${fileSafeName}.md`, "text/markdown;charset=utf-8");
 }
 
 export function ReviewsManagerView() {
@@ -240,6 +253,20 @@ export function ReviewsManagerView() {
                                 </div>
 
                                 <div className="flex flex-col gap-3 sm:flex-row">
+                                    <button
+                                        onClick={() => exportReviewReport(selectedRun, "html")}
+                                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white/80 px-4 py-2.5 text-xs font-black uppercase tracking-[0.2em] text-zinc-700 transition hover:border-rose-400 hover:text-rose-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200"
+                                    >
+                                        <Download size={14} />
+                                        Export HTML
+                                    </button>
+                                    <button
+                                        onClick={() => exportReviewReport(selectedRun, "md")}
+                                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white/80 px-4 py-2.5 text-xs font-black uppercase tracking-[0.2em] text-zinc-700 transition hover:border-rose-400 hover:text-rose-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200"
+                                    >
+                                        <Download size={14} />
+                                        Export Markdown
+                                    </button>
                                     <div className="relative">
                                         <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                                         <input
