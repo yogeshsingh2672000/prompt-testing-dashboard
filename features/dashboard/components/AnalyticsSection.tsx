@@ -29,9 +29,13 @@ export function AnalyticsSection({ results }: AnalyticsSectionProps) {
     // 2. Score Distribution (Radar Data)
     const avgSimilarity = results.reduce((sum, r) => sum + r.similarity, 0) / results.length;
     const avgSemantic = results.reduce((sum, r) => sum + r.semanticScore, 0) / results.length;
+    const avgRubric = results.reduce((sum, r) => sum + r.rubricScore, 0) / results.length;
+    const avgOverall = results.reduce((sum, r) => sum + r.overallScore, 0) / results.length;
     const radarData = [
         { subject: t('similarity'), A: avgSimilarity, fullMark: 100 },
         { subject: t('semantic'), A: avgSemantic, fullMark: 100 },
+        { subject: 'Rubric', A: avgRubric, fullMark: 100 },
+        { subject: 'Overall', A: avgOverall, fullMark: 100 },
     ];
 
     return (
@@ -132,6 +136,14 @@ export function AnalyticsSection({ results }: AnalyticsSectionProps) {
                     <div className="p-5 bg-teal-500/[0.03] dark:bg-teal-500/[0.08] rounded-3xl border border-dashed border-teal-500/30 text-center transition-all hover:bg-teal-500/10 hover:border-teal-500/50">
                         <div className="text-[10px] uppercase font-black text-teal-500/60 tracking-widest mb-2 italic">{t("semanticFit")}</div>
                         <div className="text-2xl font-black text-teal-500 tracking-tighter">{avgSemantic.toFixed(1)}%</div>
+                    </div>
+                    <div className="p-5 rounded-3xl border border-dashed border-fuchsia-500/30 bg-fuchsia-500/[0.03] text-center transition-all hover:bg-fuchsia-500/10 hover:border-fuchsia-500/50">
+                        <div className="mb-2 text-[10px] uppercase font-black italic tracking-widest text-fuchsia-500/60">Rubric fit</div>
+                        <div className="text-2xl font-black tracking-tighter text-fuchsia-500">{avgRubric.toFixed(1)}%</div>
+                    </div>
+                    <div className="p-5 rounded-3xl border border-dashed border-indigo-500/30 bg-indigo-500/[0.03] text-center transition-all hover:bg-indigo-500/10 hover:border-indigo-500/50">
+                        <div className="mb-2 text-[10px] uppercase font-black italic tracking-widest text-indigo-500/60">Overall quality</div>
+                        <div className="text-2xl font-black tracking-tighter text-indigo-500">{avgOverall.toFixed(1)}%</div>
                     </div>
                 </div>
             </div>

@@ -32,6 +32,12 @@ export function ResultsSection({
     const averageSemantic = results.length > 0
         ? results.reduce((sum, r) => sum + r.semanticScore, 0) / results.length
         : 0;
+    const averageRubric = results.length > 0
+        ? results.reduce((sum, r) => sum + r.rubricScore, 0) / results.length
+        : 0;
+    const averageOverall = results.length > 0
+        ? results.reduce((sum, r) => sum + r.overallScore, 0) / results.length
+        : 0;
 
     const passCount = results.filter(r => r.status === 'pass').length;
     const passPercentage = results.length > 0 ? (passCount / results.length) * 100 : 0;
@@ -110,6 +116,8 @@ export function ResultsSection({
                 {[
                     { label: t("avgSimilarity"), value: `${averageSimilarity.toFixed(1)}%`, color: "blue" },
                     { label: t("avgSemantic"), value: `${averageSemantic.toFixed(1)}%`, color: "teal" },
+                    { label: "Avg rubric", value: `${averageRubric.toFixed(1)}%`, color: "fuchsia" },
+                    { label: "Overall quality", value: `${averageOverall.toFixed(1)}%`, color: "indigo" },
                     { label: t("passRate"), value: `${passPercentage.toFixed(0)}%`, sub: `(${passCount}/${results.length})`, color: "emerald" },
                     { label: "Format pass rate", value: validationEnabledCount > 0 ? `${validationPassRate.toFixed(0)}%` : "N/A", sub: validationEnabledCount > 0 ? `(${validationPassCount}/${validationEnabledCount})` : undefined, color: "violet" },
                     { label: t("avgLatency"), value: `${(avgLatency / 1000).toFixed(2)}s`, color: "purple" },
@@ -119,6 +127,8 @@ export function ResultsSection({
                         "min-w-[180px] flex-1 p-6 rounded-[2rem] border transition-all duration-500 hover:scale-[1.02] bg-white dark:bg-zinc-900 shadow-xl relative overflow-hidden group",
                         stat.color === 'blue' && "border-blue-200 dark:border-blue-900/50 hover:border-blue-400",
                         stat.color === 'teal' && "border-teal-200 dark:border-teal-900/50 hover:border-teal-400",
+                        stat.color === 'fuchsia' && "border-fuchsia-200 dark:border-fuchsia-900/50 hover:border-fuchsia-400",
+                        stat.color === 'indigo' && "border-indigo-200 dark:border-indigo-900/50 hover:border-indigo-400",
                         stat.color === 'emerald' && "border-emerald-200 dark:border-emerald-900/50 hover:border-emerald-400",
                         stat.color === 'violet' && "border-violet-200 dark:border-violet-900/50 hover:border-violet-400",
                         stat.color === 'purple' && "border-purple-200 dark:border-purple-900/50 hover:border-purple-400",
@@ -128,6 +138,8 @@ export function ResultsSection({
                             "absolute top-0 right-0 w-24 h-24 blur-[40px] opacity-10 group-hover:opacity-20 transition-opacity",
                             stat.color === 'blue' && "bg-blue-500",
                             stat.color === 'teal' && "bg-teal-500",
+                            stat.color === 'fuchsia' && "bg-fuchsia-500",
+                            stat.color === 'indigo' && "bg-indigo-500",
                             stat.color === 'emerald' && "bg-emerald-500",
                             stat.color === 'violet' && "bg-violet-500",
                             stat.color === 'purple' && "bg-purple-500",
@@ -139,6 +151,8 @@ export function ResultsSection({
                                 "text-2xl md:text-3xl font-black font-mono tracking-tighter",
                                 stat.color === 'blue' && "text-blue-600 dark:text-blue-400",
                                 stat.color === 'teal' && "text-teal-600 dark:text-teal-400",
+                                stat.color === 'fuchsia' && "text-fuchsia-600 dark:text-fuchsia-400",
+                                stat.color === 'indigo' && "text-indigo-600 dark:text-indigo-400",
                                 stat.color === 'emerald' && "text-emerald-600 dark:text-emerald-400",
                                 stat.color === 'violet' && "text-violet-600 dark:text-violet-400",
                                 stat.color === 'purple' && "text-purple-600 dark:text-purple-400",
@@ -181,6 +195,8 @@ export function ResultsSection({
                                         />
                                     </div>
                                 </th>
+                                <th className="p-6 w-32 whitespace-nowrap">Rubric</th>
+                                <th className="p-6 w-32 whitespace-nowrap">Overall</th>
                                 <th className="p-6 w-32 whitespace-nowrap">{t("latency")}</th>
                                 <th className="p-6 w-32 whitespace-nowrap">{t("cost")}</th>
                                 <th className="p-6 w-48 whitespace-nowrap">Format validation</th>

@@ -1,6 +1,7 @@
 import { generateText } from 'ai';
 import { getModel } from './ai';
-import { clamp } from '@/shared/lib/utils';
+import { extractJson, clamp } from '@/shared/lib/utils';
+import { RubricDefinition, RubricResult } from '@/shared/types';
 
 const model = getModel();
 
@@ -36,5 +37,79 @@ export async function getSemanticScore(responseText: string, expectedOutput: str
     } catch (error) {
         console.error('Semantic scoring error:', error);
         return 0;
+    }
+}
+
+interface RubricEvaluationResponse {
+    rubricResults: Array<{
+        rubricId: string;
+        score: number;
+        reasoning: string;
+    }>;
+}
+
+export async function getRubricScores(
+    responseText: string,
+    expectedOutput: string,
+    rubrics: RubricDefinition[]
+): Promise<RubricResult[]> {
+    const enabledRubrics = rubrics.filter((rubric) => rubric.enabled);
+
+    if (enabledRubrics.length === 0) {
+        return [];
+    }
+
+    const prompt = `
+        Evaluate an LLM response against the expected output using the provided scoring rubrics.
+
+        RESPONSE:
+        """${responseText}"""
+
+        EXPECTED OUTPUT:
+        """${expectedOutput}"""
+
+        RUBRICS:
+        ${enabledRubrics.map((rubric) => `- id: ${rubric.id}\n  name: ${rubric.name}\n  description: ${rubric.description}`).join('\n')}
+
+        Instructions:
+        1. Score each rubric from 0 to 100.
+        2. Be strict about missing requirements, contradictions, and weak compliance.
+        3. Keep each reasoning short and specific.
+        4. Return only valid JSON in this exact shape:
+        {
+          "rubricResults": [
+            { "rubricId": "accuracy", "score": 82, "reasoning": "..." }
+          ]
+        }
+    `;
+
+    try {
+        const { text } = await generateText({
+            model,
+            prompt,
+            temperature: 0,
+        });
+
+        const payload = extractJson<RubricEvaluationResponse>(text);
+        return enabledRubrics.map((rubric) => {
+            const matchedResult = payload.rubricResults.find((item) => item.rubricId === rubric.id);
+
+            return {
+                rubricId: rubric.id,
+                name: rubric.name,
+                weight: rubric.weight,
+                score: clamp(matchedResult?.score ?? 0, 0, 100),
+                reasoning: matchedResult?.reasoning || "No rubric reasoning returned.",
+            };
+        });
+    } catch (error) {
+        console.error('Rubric scoring error:', error);
+        return enabledRubrics.map((rubric) => ({
+            rubricId: rubric.id,
+            name: rubric.name,
+            weight: rubric.weight,
+            score: 0,
+            reasoning: 'Rubric scoring failed.',
+        }));
     }
 }

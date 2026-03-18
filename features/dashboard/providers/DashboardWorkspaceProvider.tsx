@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useEvaluation } from "@/features/evaluation/hooks/useEvaluation";
 import {
     DEFAULT_BATCH_SIZE,
+    DEFAULT_RUBRICS,
     DEFAULT_SYSTEM_PROMPT,
     DEFAULT_THRESHOLD,
     DEFAULT_USER_INPUT,
@@ -11,7 +12,7 @@ import {
 } from "@/shared/constants/defaults";
 import { DEFAULT_MODEL_ID } from "@/shared/constants/models";
 import { persistence, PromptVersion, TestCaseSuite, TestRun } from "@/shared/lib/persistence";
-import { OutputValidationType, TestCase } from "@/shared/types";
+import { OutputValidationType, RubricDefinition, TestCase } from "@/shared/types";
 import { ToastItem } from "@/shared/ui/ToastViewport";
 
 interface DashboardWorkspaceContextValue {
@@ -25,6 +26,9 @@ interface DashboardWorkspaceContextValue {
     setBatchSize: (value: number) => void;
     threshold: number;
     setThreshold: (value: number) => void;
+    rubrics: RubricDefinition[];
+    setRubrics: React.Dispatch<React.SetStateAction<RubricDefinition[]>>;
+    updateRubric: (id: string, updates: Partial<RubricDefinition>) => void;
     modelId: string;
     setModelId: (value: string) => void;
     results: ReturnType<typeof useEvaluation>["results"];
@@ -62,6 +66,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
     const [testCases, setTestCases] = useState<TestCase[]>(INITIAL_TEST_CASES);
     const [batchSize, setBatchSize] = useState(DEFAULT_BATCH_SIZE);
     const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
+    const [rubrics, setRubrics] = useState<RubricDefinition[]>(DEFAULT_RUBRICS);
     const [modelId, setModelId] = useState(DEFAULT_MODEL_ID);
     const [activeRunId, setActiveRunId] = useState<string | undefined>();
     const [activeSuiteId, setActiveSuiteId] = useState<string | undefined>();
@@ -108,8 +113,13 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         batchSize,
         threshold,
         modelId,
+        rubrics,
         (message) => pushToast({ title: "Evaluation failed", message, variant: "error" })
     );
+
+    const updateRubric = (id: string, updates: Partial<RubricDefinition>) => {
+        setRubrics((current) => current.map((rubric) => (rubric.id === id ? { ...rubric, ...updates } : rubric)));
+    };
 
     const addTestCase = () => {
         setTestCases((current) => [...current, { id: crypto.randomUUID(), input: "", expectedOutput: "" }]);
@@ -163,6 +173,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         setTestCases(run.testCases || []);
         setBatchSize(run.config.batchSize);
         setThreshold(run.config.threshold);
+        setRubrics(run.config.rubrics || DEFAULT_RUBRICS);
         setModelId(run.config.modelId || DEFAULT_MODEL_ID);
         setResults(run.results);
         setError(null);
@@ -181,6 +192,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
             systemPrompt,
             userInput,
             testCases,
+            rubrics,
             versionCount: promptVersions.filter((version) => version.suiteId === activeSuiteId).length,
             createdAt: suites.find((suiteItem) => suiteItem.id === activeSuiteId)?.createdAt || timestamp,
             updatedAt: timestamp,
@@ -197,6 +209,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         setSystemPrompt(suite.systemPrompt);
         setUserInput(suite.userInput);
         setTestCases(suite.testCases);
+        setRubrics(suite.rubrics || DEFAULT_RUBRICS);
         setResults([]);
         setError(null);
         pushToast({ title: "Suite loaded", message: `"${suite.name}" has been loaded into the workspace.`, variant: "success" });
@@ -222,6 +235,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
             systemPrompt,
             userInput,
             testCases,
+            rubrics,
             modelId,
             threshold,
             batchSize,
@@ -241,6 +255,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         setSystemPrompt(version.systemPrompt);
         setUserInput(version.userInput);
         setTestCases(version.testCases);
+        setRubrics(version.rubrics || DEFAULT_RUBRICS);
         setModelId(version.modelId || DEFAULT_MODEL_ID);
         setThreshold(version.threshold);
         setBatchSize(version.batchSize);
@@ -270,6 +285,9 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 setBatchSize,
                 threshold,
                 setThreshold,
+                rubrics,
+                setRubrics,
+                updateRubric,
                 modelId,
                 setModelId,
                 results,

@@ -15,6 +15,8 @@ export function WorkspaceView() {
         batchSize,
         threshold,
         setThreshold,
+        rubrics,
+        updateRubric,
         modelId,
         setModelId,
         results,
@@ -45,6 +47,8 @@ export function WorkspaceView() {
                     batchSize={batchSize}
                     threshold={threshold}
                     setThreshold={setThreshold}
+                    rubrics={rubrics}
+                    updateRubric={updateRubric}
                     modelId={modelId}
                     setModelId={setModelId}
                     results={results}

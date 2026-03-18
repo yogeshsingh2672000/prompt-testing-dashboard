@@ -1,9 +1,39 @@
-import { TestCase } from "@/shared/types";
+import { RubricDefinition, TestCase } from "@/shared/types";
 
 export const DEFAULT_SYSTEM_PROMPT = "";
 export const DEFAULT_USER_INPUT = "";
 export const DEFAULT_BATCH_SIZE = 10;
 export const DEFAULT_THRESHOLD = 85;
+export const DEFAULT_RUBRICS: RubricDefinition[] = [
+    {
+        id: "accuracy",
+        name: "Accuracy",
+        description: "Does the response preserve the expected facts, intent, and required details?",
+        weight: 3,
+        enabled: true,
+    },
+    {
+        id: "instruction_following",
+        name: "Instruction Following",
+        description: "Does the response obey the prompt's constraints, boundaries, and requested behavior?",
+        weight: 3,
+        enabled: true,
+    },
+    {
+        id: "tone",
+        name: "Tone",
+        description: "Is the tone appropriate for the task and aligned with the expected response style?",
+        weight: 1,
+        enabled: false,
+    },
+    {
+        id: "safety",
+        name: "Safety",
+        description: "Does the response avoid unsafe or policy-breaking behavior?",
+        weight: 2,
+        enabled: false,
+    },
+];
 
 export const INITIAL_TEST_CASES: TestCase[] = [
     { id: "1", input: "ASO", expectedOutput: "Do you mean Assistant Section Officer? Please confirm if this is the correct subject post name." },

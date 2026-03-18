@@ -13,6 +13,22 @@ export interface OutputValidationConfig {
     value?: string;
 }
 
+export interface RubricDefinition {
+    id: string;
+    name: string;
+    description: string;
+    weight: number;
+    enabled: boolean;
+}
+
+export interface RubricResult {
+    rubricId: string;
+    name: string;
+    score: number;
+    weight: number;
+    reasoning: string;
+}
+
 export interface PerformanceMetrics {
     latencyMs: number;
     tokens: {
@@ -28,9 +44,12 @@ export interface EvaluationResult {
     response: string;
     similarity: number;
     semanticScore: number;
+    rubricScore: number;
+    overallScore: number;
     status: 'pass' | 'fail';
     metrics: PerformanceMetrics;
     validation: OutputValidationResult;
+    rubricResults: RubricResult[];
     error?: string;
 }
 
@@ -48,6 +67,7 @@ export interface EvaluationRequest {
     batchSize: number;
     threshold: number;
     modelId?: string;
+    rubrics?: RubricDefinition[];
 }
 
 export interface GeneratedTestCasePayload {
@@ -75,6 +95,8 @@ export interface ComparisonSubject {
 export interface ComparisonMetricsSummary {
     avgSimilarity: number;
     avgSemanticScore: number;
+    avgRubricScore: number;
+    avgOverallScore: number;
     passRate: number;
     totalCostUsd: number;
     avgLatencyMs: number;
@@ -86,6 +108,7 @@ export interface ComparisonCaseResult {
     expectedOutput: string;
     left: EvaluationResult;
     right: EvaluationResult;
+    overallDelta: number;
     semanticDelta: number;
     similarityDelta: number;
     winner: "left" | "right" | "tie";

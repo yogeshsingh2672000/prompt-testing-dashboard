@@ -30,6 +30,8 @@ function summarizeResults(results: EvaluationResult[]): ComparisonMetricsSummary
         return {
             avgSimilarity: 0,
             avgSemanticScore: 0,
+            avgRubricScore: 0,
+            avgOverallScore: 0,
             passRate: 0,
             totalCostUsd: 0,
             avgLatencyMs: 0,
@@ -41,6 +43,8 @@ function summarizeResults(results: EvaluationResult[]): ComparisonMetricsSummary
     return {
         avgSimilarity: results.reduce((sum, result) => sum + result.similarity, 0) / results.length,
         avgSemanticScore: results.reduce((sum, result) => sum + result.semanticScore, 0) / results.length,
+        avgRubricScore: results.reduce((sum, result) => sum + result.rubricScore, 0) / results.length,
+        avgOverallScore: results.reduce((sum, result) => sum + result.overallScore, 0) / results.length,
         passRate: (passCount / results.length) * 100,
         totalCostUsd: results.reduce((sum, result) => sum + result.metrics.costUsd, 0),
         avgLatencyMs: results.reduce((sum, result) => sum + result.metrics.latencyMs, 0) / results.length,
@@ -111,6 +115,7 @@ export function CompareWorkbench() {
             batchSize: version.batchSize,
             threshold: version.threshold,
             modelId: version.modelId,
+            rubrics: version.rubrics,
         });
 
         setLoading(true);
@@ -150,6 +155,8 @@ export function CompareWorkbench() {
                     response: "",
                     similarity: 0,
                     semanticScore: 0,
+                    rubricScore: 0,
+                    overallScore: 0,
                     status: "fail",
                     metrics: { latencyMs: 0, tokens: { prompt: 0, completion: 0, total: 0 }, costUsd: 0 },
                     validation: {
@@ -158,26 +165,27 @@ export function CompareWorkbench() {
                         passed: false,
                         message: "No evaluation result was returned for this test case.",
                     },
+                    rubricResults: [],
                 };
 
-                const left = leftResults.find((result) => result.testCaseId === testCase.id) || {
-                    ...fallbackResult,
-                };
+                const left = leftResults.find((result) => result.testCaseId === testCase.id) || fallbackResult;
+                const right = rightResultsMap.get(testCase.id) || fallbackResult;
 
-                const right = rightResultsMap.get(testCase.id) || {
-                    ...fallbackResult,
-                };
-
+                const overallDelta = left.overallScore - right.overallScore;
                 const semanticDelta = left.semanticScore - right.semanticScore;
                 const similarityDelta = left.similarity - right.similarity;
                 const winner =
-                    semanticDelta === 0
-                        ? similarityDelta === 0
-                            ? "tie"
-                            : similarityDelta > 0
+                    overallDelta === 0
+                        ? semanticDelta === 0
+                            ? similarityDelta === 0
+                                ? "tie"
+                                : similarityDelta > 0
+                                    ? "left"
+                                    : "right"
+                            : semanticDelta > 0
                                 ? "left"
                                 : "right"
-                        : semanticDelta > 0
+                        : overallDelta > 0
                             ? "left"
                             : "right";
 
@@ -187,6 +195,7 @@ export function CompareWorkbench() {
                     expectedOutput: testCase.expectedOutput,
                     left,
                     right,
+                    overallDelta,
                     semanticDelta,
                     similarityDelta,
                     winner,
@@ -311,7 +320,9 @@ export function CompareWorkbench() {
                                 </div>
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <MetricPill label="Pass Rate" value={`${entry.summary.passRate.toFixed(0)}%`} tone={entry.tone} />
+                                    <MetricPill label="Avg Overall" value={`${entry.summary.avgOverallScore.toFixed(1)}%`} tone={entry.tone} />
                                     <MetricPill label="Avg Semantic" value={`${entry.summary.avgSemanticScore.toFixed(1)}%`} tone={entry.tone} />
+                                    <MetricPill label="Avg Rubric" value={`${entry.summary.avgRubricScore.toFixed(1)}%`} tone={entry.tone} />
                                     <MetricPill label="Avg Similarity" value={`${entry.summary.avgSimilarity.toFixed(1)}%`} tone={entry.tone} />
                                     <MetricPill label="Avg Latency" value={`${(entry.summary.avgLatencyMs / 1000).toFixed(2)}s`} tone={entry.tone} />
                                     <MetricPill label="Total Cost" value={formatCost(entry.summary.totalCostUsd)} tone={entry.tone} />
@@ -326,7 +337,7 @@ export function CompareWorkbench() {
                                 <div className="section-kicker">Case Winners</div>
                                 <h3 className="mt-3 text-xl font-black tracking-tight text-zinc-900 dark:text-white">Per-case comparison</h3>
                                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                                    Semantic score is used as the primary winner signal, with similarity as the tiebreaker.
+                                    Overall quality is used as the primary winner signal, with semantic score and similarity as tiebreakers.
                                 </p>
                             </div>
                         </div>
@@ -371,6 +382,10 @@ export function CompareWorkbench() {
                                             </td>
                                             <td className="px-4 py-4">
                                                 <div className="text-sm font-black text-zinc-900 dark:text-white">
+                                                    {caseResult.overallDelta > 0 ? "+" : ""}
+                                                    {caseResult.overallDelta.toFixed(1)} overall
+                                                </div>
+                                                <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                                                     {caseResult.semanticDelta > 0 ? "+" : ""}
                                                     {caseResult.semanticDelta.toFixed(1)} semantic
                                                 </div>
@@ -418,13 +433,15 @@ function MetricPill({
 function ComparisonScoreBlock({ result }: { result: EvaluationResult }) {
     return (
         <div className="space-y-1">
+            <div className="font-black text-zinc-900 dark:text-white">{result.overallScore.toFixed(1)}% overall</div>
             <div className="font-black text-zinc-900 dark:text-white">{result.semanticScore.toFixed(1)}% semantic</div>
+            <div className="text-xs text-zinc-500 dark:text-zinc-400">{result.rubricScore.toFixed(1)}% rubric</div>
             <div className="text-xs text-zinc-500 dark:text-zinc-400">{result.similarity.toFixed(1)}% similarity</div>
             <div className="text-xs text-zinc-500 dark:text-zinc-400">
                 {result.validation.enabled
                     ? result.validation.passed
-                        ? `Format pass • ${result.validation.type}`
-                        : `Format fail • ${result.validation.type}`
+                        ? `Format pass - ${result.validation.type}`
+                        : `Format fail - ${result.validation.type}`
                     : "No format rule"}
             </div>
             <div className="text-xs text-zinc-500 dark:text-zinc-400">

@@ -2,7 +2,7 @@ import { Sparkles, Wand2, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { SUPPORTED_MODELS } from "@/shared/constants/models";
 import { useState } from "react";
-import { EvaluationResult, PromptOptimizationSuggestion } from "@/shared/types";
+import { EvaluationResult, PromptOptimizationSuggestion, RubricDefinition } from "@/shared/types";
 
 interface ConfigSectionProps {
     systemPrompt: string;
@@ -12,6 +12,8 @@ interface ConfigSectionProps {
     batchSize: number;
     threshold: number;
     setThreshold: (v: number) => void;
+    rubrics: RubricDefinition[];
+    updateRubric: (id: string, updates: Partial<RubricDefinition>) => void;
     modelId: string;
     setModelId: (v: string) => void;
     results: EvaluationResult[];
@@ -26,6 +28,8 @@ export function ConfigSection({
     batchSize,
     threshold,
     setThreshold,
+    rubrics,
+    updateRubric,
     modelId,
     setModelId,
     results,
@@ -113,10 +117,49 @@ export function ConfigSection({
                         </div>
                     </div>
 
+                    <div className="space-y-4">
+                        <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1 italic">2. Rubric scoring</label>
+                        <div className="space-y-3 rounded-[2rem] border border-zinc-200/80 bg-white/70 p-4 shadow-inner dark:border-zinc-800 dark:bg-zinc-950/60">
+                            {rubrics.map((rubric) => (
+                                <div key={rubric.id} className="rounded-[1.5rem] border border-zinc-200/70 bg-white/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/70">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div className="space-y-1">
+                                            <label className="flex items-center gap-3 text-sm font-black text-zinc-900 dark:text-zinc-100">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={rubric.enabled}
+                                                    onChange={(e) => updateRubric(rubric.id, { enabled: e.target.checked })}
+                                                    className="h-4 w-4 rounded border-zinc-300 text-teal-500 focus:ring-teal-500/30"
+                                                />
+                                                {rubric.name}
+                                            </label>
+                                            <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">{rubric.description}</p>
+                                        </div>
+                                        <div className="w-24 space-y-1">
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400">Weight</label>
+                                            <input
+                                                type="number"
+                                                min={1}
+                                                max={5}
+                                                value={rubric.weight}
+                                                onChange={(e) => updateRubric(rubric.id, { weight: Math.max(1, Math.min(5, Number(e.target.value) || 1)) })}
+                                                disabled={!rubric.enabled}
+                                                className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                Enabled rubrics are scored alongside semantic matching and contribute to the overall pass decision.
+                            </p>
+                        </div>
+                    </div>
+
                     {/* section: Prompts */}
                     <div className="space-y-6">
                         <div className="flex justify-between items-center ml-1">
-                            <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest italic">2. {t("promptBlueprints")}</label>
+                            <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest italic">3. {t("promptBlueprints")}</label>
                             <button
                                 onClick={handleOptimize}
                                 disabled={isOptimizing || results.length === 0}

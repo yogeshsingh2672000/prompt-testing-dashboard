@@ -48,6 +48,27 @@ export const ResultRow = React.memo(({ result, testCases }: ResultRowProps) => {
                     {result?.semanticScore?.toFixed(0)}%
                 </div>
             </td>
+            <td className="p-6 text-center">
+                <div
+                    className="mx-auto w-fit rounded-xl border border-fuchsia-200 bg-fuchsia-50 px-3 py-1.5 font-mono text-sm font-black text-fuchsia-600 shadow-xl transition-all group-hover:border-fuchsia-400 dark:border-fuchsia-500/20 dark:bg-fuchsia-500/5 dark:text-fuchsia-300"
+                    data-tooltip-id="main-tooltip"
+                    data-tooltip-html={`
+                        <div class="space-y-3">
+                            <div class="border-b border-zinc-100 pb-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:border-zinc-800 dark:text-zinc-500">Rubric breakdown</div>
+                            ${result.rubricResults.length > 0
+                                ? result.rubricResults.map((rubric) => `<div><div class="font-semibold text-zinc-900 dark:text-zinc-100">${rubric.name}: ${rubric.score.toFixed(0)}%</div><div class="text-xs text-zinc-500 dark:text-zinc-400">${rubric.reasoning}</div></div>`).join("")
+                                : '<div class="text-xs text-zinc-500 dark:text-zinc-400">No rubrics enabled for this run.</div>'}
+                        </div>
+                    `}
+                >
+                    {result.rubricScore.toFixed(0)}%
+                </div>
+            </td>
+            <td className="p-6 text-center">
+                <div className="mx-auto w-fit rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 font-mono text-sm font-black text-indigo-600 shadow-xl transition-all group-hover:border-indigo-400 dark:border-indigo-500/20 dark:bg-indigo-500/5 dark:text-indigo-300">
+                    {result.overallScore.toFixed(0)}%
+                </div>
+            </td>
             <td className="p-6 text-center text-xs font-mono text-zinc-500 dark:text-zinc-400">
                 {(result.metrics?.latencyMs / 1000).toFixed(2)}s
             </td>

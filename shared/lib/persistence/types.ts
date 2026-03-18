@@ -1,4 +1,4 @@
-import { EvaluationResult, TestCase } from "@/shared/types";
+import { EvaluationResult, RubricDefinition, TestCase } from "@/shared/types";
 
 export interface TestCaseSuite {
     id: string;
@@ -6,6 +6,7 @@ export interface TestCaseSuite {
     systemPrompt: string;
     userInput: string;
     testCases: TestCase[];
+    rubrics: RubricDefinition[];
     versionCount?: number;
     createdAt: number;
     updatedAt: number;
@@ -17,6 +18,7 @@ export interface PromptVersion {
     systemPrompt: string;
     userInput: string;
     testCases: TestCase[];
+    rubrics: RubricDefinition[];
     modelId?: string;
     threshold: number;
     batchSize: number;
@@ -37,10 +39,13 @@ export interface TestRun {
         batchSize: number;
         threshold: number;
         modelId?: string;
+        rubrics: RubricDefinition[];
     };
     metrics: {
         avgSimilarity: number;
         avgSemantic: number;
+        avgRubric: number;
+        avgOverall: number;
         passRate: number;
         totalCases: number;
         passedCases: number;

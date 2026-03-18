@@ -1,12 +1,12 @@
 import { getEmbedding, getResponse } from '@/server/lib/ai';
-import { getSemanticScore } from '@/server/lib/evaluator';
+import { getRubricScores, getSemanticScore } from '@/server/lib/evaluator';
 import { validateStructuredOutput } from '@/server/services/output-validation';
 import { DEFAULT_MODEL_ID, SUPPORTED_MODELS } from '@/shared/constants/models';
 import { clamp, chunk, cosineSimilarity, templateReplace } from '@/shared/lib/utils';
 import { EvaluationRequest, EvaluationResult, PerformanceMetrics } from '@/shared/types';
 
 export async function evaluatePrompt(request: EvaluationRequest): Promise<EvaluationResult[]> {
-    const { systemPrompt, userInput, testCases, batchSize, threshold, modelId } = request;
+    const { systemPrompt, userInput, testCases, batchSize, threshold, modelId, rubrics = [] } = request;
 
     if (!systemPrompt?.trim()) {
         throw new Error('System prompt is required');
@@ -53,11 +53,18 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
                 const responseText = llmResult.text;
                 const usage = llmResult.usage;
 
-                const [responseEmbedding, semanticScore] = await Promise.all([
+                const [responseEmbedding, semanticScore, rubricResults] = await Promise.all([
                     getEmbedding(responseText),
                     getSemanticScore(responseText, testCase.expectedOutput),
+                    getRubricScores(responseText, testCase.expectedOutput, rubrics),
                 ]);
                 const validation = validateStructuredOutput(responseText, testCase.outputValidation);
+                const enabledRubricWeight = rubricResults.reduce((sum, rubric) => sum + rubric.weight, 0);
+                const rubricScore =
+                    enabledRubricWeight > 0
+                        ? rubricResults.reduce((sum, rubric) => sum + rubric.score * rubric.weight, 0) / enabledRubricWeight
+                        : semanticScore;
+                const overallScore = rubricResults.length > 0 ? (semanticScore + rubricScore) / 2 : semanticScore;
 
                 const similarity = clamp(cosineSimilarity(responseEmbedding, expectedEmbedding) * 100, 0, 100);
                 const promptTokens = usage?.inputTokens ?? 0;
@@ -81,9 +88,12 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
                     response: responseText,
                     similarity,
                     semanticScore,
-                    status: semanticScore >= safeThreshold && validation.passed ? 'pass' : 'fail',
+                    rubricScore,
+                    overallScore,
+                    status: overallScore >= safeThreshold && validation.passed ? 'pass' : 'fail',
                     metrics,
                     validation,
+                    rubricResults,
                 } satisfies EvaluationResult;
             } catch (error: unknown) {
                 const message = error instanceof Error ? error.message : 'Unknown evaluation error';
@@ -93,6 +103,8 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
                     response: '',
                     similarity: 0,
                     semanticScore: 0,
+                    rubricScore: 0,
+                    overallScore: 0,
                     status: 'fail',
                     metrics: {
                         latencyMs: Date.now() - startTime,
@@ -105,6 +117,7 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
                         passed: false,
                         message,
                     },
+                    rubricResults: [],
                     error: message,
                 } satisfies EvaluationResult;
             }
