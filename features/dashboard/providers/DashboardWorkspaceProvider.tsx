@@ -50,6 +50,7 @@ interface DashboardWorkspaceContextValue {
     removeTestCase: (id: string) => void;
     loadRun: (run: TestRun) => void;
     saveCurrentSuite: (name: string) => Promise<void>;
+    importSuites: (suitesToImport: TestCaseSuite[]) => Promise<number>;
     loadSuite: (suite: TestCaseSuite) => void;
     deleteSuite: (id: string) => Promise<void>;
     savePromptVersion: (name: string) => Promise<void>;
@@ -215,6 +216,15 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         pushToast({ title: "Suite loaded", message: `"${suite.name}" has been loaded into the workspace.`, variant: "success" });
     };
 
+    const importSuites = async (suitesToImport: TestCaseSuite[]) => {
+        for (const suite of suitesToImport) {
+            await persistence.saveSuite(suite);
+        }
+
+        await refreshAssets();
+        return suitesToImport.length;
+    };
+
     const deleteSuiteRecord = async (id: string) => {
         await persistence.deleteSuite(id);
         if (activeSuiteId === id) {
@@ -309,6 +319,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 removeTestCase,
                 loadRun,
                 saveCurrentSuite,
+                importSuites,
                 loadSuite,
                 deleteSuite: deleteSuiteRecord,
                 savePromptVersion,
