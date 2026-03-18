@@ -1,4 +1,4 @@
-import { PersistenceProvider, PromptVersion, TestCaseSuite, TestRun } from "./types";
+import { AppSettings, PersistenceProvider, PromptVersion, TestCaseSuite, TestRun } from "./types";
 import { IndexedDBProvider } from "./IndexedDBProvider";
 
 class PersistenceService {
@@ -57,6 +57,19 @@ class PersistenceService {
 
     async deletePromptVersion(id: string) {
         return this.provider.deletePromptVersion(id);
+    }
+
+    // Settings
+    async saveSettings(settings: AppSettings) {
+        return this.provider.saveSettings(settings);
+    }
+
+    async getSettings() {
+        return this.provider.getSettings();
+    }
+
+    async clearSettings() {
+        return this.provider.clearSettings();
     }
 
     async clearAll() {

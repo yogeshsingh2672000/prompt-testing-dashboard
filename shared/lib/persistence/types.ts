@@ -1,5 +1,15 @@
 import { CaseReview, EvaluationResult, RubricDefinition, TestCase } from "@/shared/types";
 
+export interface AppSettings {
+    id: "app_settings";
+    defaultModelId?: string;
+    defaultBatchSize: number;
+    defaultThreshold: number;
+    defaultRubrics: RubricDefinition[];
+    rubricPresetId?: string;
+    updatedAt: number;
+}
+
 export interface TestCaseSuite {
     id: string;
     name: string;
@@ -71,6 +81,11 @@ export interface PersistenceProvider {
     getPromptVersions(): Promise<PromptVersion[]>;
     getPromptVersion(id: string): Promise<PromptVersion | undefined>;
     deletePromptVersion(id: string): Promise<void>;
+
+    // Settings
+    saveSettings(settings: AppSettings): Promise<void>;
+    getSettings(): Promise<AppSettings | undefined>;
+    clearSettings(): Promise<void>;
 
     // Helpers
     clearAll(): Promise<void>;

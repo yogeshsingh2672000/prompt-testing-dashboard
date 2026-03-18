@@ -1,11 +1,12 @@
-import { PersistenceProvider, PromptVersion, TestRun, TestCaseSuite } from "./types";
+import { AppSettings, PersistenceProvider, PromptVersion, TestRun, TestCaseSuite } from "./types";
 
 const DB_NAME = "PromitlyDB";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORES = {
     RUNS: "evaluation_runs",
     SUITES: "test_case_suites",
-    PROMPT_VERSIONS: "prompt_versions"
+    PROMPT_VERSIONS: "prompt_versions",
+    SETTINGS: "app_settings"
 };
 
 export class IndexedDBProvider implements PersistenceProvider {
@@ -33,6 +34,9 @@ export class IndexedDBProvider implements PersistenceProvider {
                 }
                 if (!db.objectStoreNames.contains(STORES.PROMPT_VERSIONS)) {
                     db.createObjectStore(STORES.PROMPT_VERSIONS, { keyPath: "id" });
+                }
+                if (!db.objectStoreNames.contains(STORES.SETTINGS)) {
+                    db.createObjectStore(STORES.SETTINGS, { keyPath: "id" });
                 }
             };
         });
@@ -112,11 +116,25 @@ export class IndexedDBProvider implements PersistenceProvider {
         await this.perform(STORES.PROMPT_VERSIONS, "readwrite", (store) => store.delete(id));
     }
 
+    // Settings
+    async saveSettings(settings: AppSettings): Promise<void> {
+        await this.perform(STORES.SETTINGS, "readwrite", (store) => store.put(settings));
+    }
+
+    async getSettings(): Promise<AppSettings | undefined> {
+        return this.perform<AppSettings>(STORES.SETTINGS, "readonly", (store) => store.get("app_settings"));
+    }
+
+    async clearSettings(): Promise<void> {
+        await this.perform(STORES.SETTINGS, "readwrite", (store) => store.delete("app_settings"));
+    }
+
     async clearAll(): Promise<void> {
         const db = await this.getDB();
-        const transaction = db.transaction([STORES.RUNS, STORES.SUITES, STORES.PROMPT_VERSIONS], "readwrite");
+        const transaction = db.transaction([STORES.RUNS, STORES.SUITES, STORES.PROMPT_VERSIONS, STORES.SETTINGS], "readwrite");
         transaction.objectStore(STORES.RUNS).clear();
         transaction.objectStore(STORES.SUITES).clear();
         transaction.objectStore(STORES.PROMPT_VERSIONS).clear();
+        transaction.objectStore(STORES.SETTINGS).clear();
     }
 }

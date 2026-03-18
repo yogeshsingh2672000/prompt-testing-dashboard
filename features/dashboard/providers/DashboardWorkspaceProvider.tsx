@@ -9,9 +9,10 @@ import {
     DEFAULT_THRESHOLD,
     DEFAULT_USER_INPUT,
     INITIAL_TEST_CASES,
+    RUBRIC_PRESETS,
 } from "@/shared/constants/defaults";
 import { DEFAULT_MODEL_ID } from "@/shared/constants/models";
-import { persistence, PromptVersion, TestCaseSuite, TestRun } from "@/shared/lib/persistence";
+import { AppSettings, persistence, PromptVersion, TestCaseSuite, TestRun } from "@/shared/lib/persistence";
 import { OutputValidationType, RubricDefinition, TestCase } from "@/shared/types";
 import { ToastItem } from "@/shared/ui/ToastViewport";
 
@@ -29,6 +30,10 @@ interface DashboardWorkspaceContextValue {
     rubrics: RubricDefinition[];
     setRubrics: React.Dispatch<React.SetStateAction<RubricDefinition[]>>;
     updateRubric: (id: string, updates: Partial<RubricDefinition>) => void;
+    settings: AppSettings;
+    saveSettings: (settings: AppSettings) => Promise<void>;
+    resetSettings: () => Promise<void>;
+    applySettingsToWorkspace: (settings?: AppSettings) => void;
     modelId: string;
     setModelId: (value: string) => void;
     results: ReturnType<typeof useEvaluation>["results"];
@@ -61,6 +66,18 @@ interface DashboardWorkspaceContextValue {
 
 const DashboardWorkspaceContext = createContext<DashboardWorkspaceContextValue | null>(null);
 
+function createDefaultAppSettings(): AppSettings {
+    return {
+        id: "app_settings",
+        defaultModelId: DEFAULT_MODEL_ID,
+        defaultBatchSize: DEFAULT_BATCH_SIZE,
+        defaultThreshold: DEFAULT_THRESHOLD,
+        defaultRubrics: DEFAULT_RUBRICS.map((rubric) => ({ ...rubric })),
+        rubricPresetId: RUBRIC_PRESETS[0].id,
+        updatedAt: Date.now(),
+    };
+}
+
 export function DashboardWorkspaceProvider({ children }: { children: React.ReactNode }) {
     const [systemPrompt, setSystemPrompt] = useState(DEFAULT_SYSTEM_PROMPT);
     const [userInput, setUserInput] = useState(DEFAULT_USER_INPUT);
@@ -69,6 +86,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
     const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
     const [rubrics, setRubrics] = useState<RubricDefinition[]>(DEFAULT_RUBRICS);
     const [modelId, setModelId] = useState(DEFAULT_MODEL_ID);
+    const [settings, setSettings] = useState<AppSettings>(() => createDefaultAppSettings());
     const [activeRunId, setActiveRunId] = useState<string | undefined>();
     const [activeSuiteId, setActiveSuiteId] = useState<string | undefined>();
     const [activePromptVersionId, setActivePromptVersionId] = useState<string | undefined>();
@@ -90,13 +108,21 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
     };
 
     const refreshAssets = async () => {
-        const [savedSuites, savedPromptVersions] = await Promise.all([
+        const [savedSuites, savedPromptVersions, savedSettings] = await Promise.all([
             persistence.getSuites(),
             persistence.getPromptVersions(),
+            persistence.getSettings(),
         ]);
 
         setSuites(savedSuites.sort((a, b) => b.updatedAt - a.updatedAt));
         setPromptVersions(savedPromptVersions.sort((a, b) => b.createdAt - a.createdAt));
+        if (savedSettings) {
+            setSettings(savedSettings);
+            setBatchSize(savedSettings.defaultBatchSize);
+            setThreshold(savedSettings.defaultThreshold);
+            setRubrics(savedSettings.defaultRubrics);
+            setModelId(savedSettings.defaultModelId || DEFAULT_MODEL_ID);
+        }
     };
 
     useEffect(() => {
@@ -120,6 +146,25 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
 
     const updateRubric = (id: string, updates: Partial<RubricDefinition>) => {
         setRubrics((current) => current.map((rubric) => (rubric.id === id ? { ...rubric, ...updates } : rubric)));
+    };
+
+    const applySettingsToWorkspace = (nextSettings: AppSettings = settings) => {
+        setBatchSize(nextSettings.defaultBatchSize);
+        setThreshold(nextSettings.defaultThreshold);
+        setRubrics(nextSettings.defaultRubrics);
+        setModelId(nextSettings.defaultModelId || DEFAULT_MODEL_ID);
+    };
+
+    const saveSettings = async (nextSettings: AppSettings) => {
+        await persistence.saveSettings(nextSettings);
+        setSettings(nextSettings);
+    };
+
+    const resetSettings = async () => {
+        await persistence.clearSettings();
+        const defaultSettings = createDefaultAppSettings();
+        setSettings(defaultSettings);
+        applySettingsToWorkspace(defaultSettings);
     };
 
     const addTestCase = () => {
@@ -298,6 +343,10 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 rubrics,
                 setRubrics,
                 updateRubric,
+                settings,
+                saveSettings,
+                resetSettings,
+                applySettingsToWorkspace,
                 modelId,
                 setModelId,
                 results,
