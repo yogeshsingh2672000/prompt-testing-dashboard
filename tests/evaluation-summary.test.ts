@@ -68,4 +68,21 @@ describe("evaluation summary utilities", () => {
         expect(summary.avgLatencyMs).toBe(200);
         expect(summary.totalCostUsd).toBe(0.04);
     });
+
+    it("returns zeroed summaries for empty runs", () => {
+        const summary = summarizeEvaluationResults([]);
+        const comparison = toComparisonMetricsSummary([]);
+
+        expect(summary).toEqual({
+            avgSimilarity: 0,
+            avgSemantic: 0,
+            avgRubric: 0,
+            avgOverall: 0,
+            passRate: 0,
+            totalCases: 0,
+            passedCases: 0,
+        });
+        expect(comparison.avgLatencyMs).toBe(0);
+        expect(comparison.totalCostUsd).toBe(0);
+    });
 });

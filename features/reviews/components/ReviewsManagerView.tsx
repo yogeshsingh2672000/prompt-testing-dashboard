@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useSavedRuns } from "@/features/runs/hooks/useSavedRuns";
 import { persistence, TestRun } from "@/shared/lib/persistence";
+import { createDefaultCaseReview } from "@/shared/lib/evaluation-factories";
 import { CaseReview, EvaluationResult, TestCase } from "@/shared/types";
 import { cn } from "@/shared/lib/utils";
 import { downloadFile } from "@/shared/lib/export";
@@ -20,25 +21,11 @@ function createReviewedTimestamp() {
 }
 
 function getReviewForResult(run: TestRun, result: EvaluationResult): CaseReview {
-    return (
-        run.reviews?.[result.testCaseId] || {
-            testCaseId: result.testCaseId,
-            decision: "pending",
-            note: "",
-            reviewedAt: 0,
-        }
-    );
+    return run.reviews?.[result.testCaseId] || createDefaultCaseReview(result.testCaseId);
 }
 
 function getReviewById(run: TestRun, testCaseId: string): CaseReview {
-    return (
-        run.reviews?.[testCaseId] || {
-            testCaseId,
-            decision: "pending",
-            note: "",
-            reviewedAt: 0,
-        }
-    );
+    return run.reviews?.[testCaseId] || createDefaultCaseReview(testCaseId);
 }
 
 function getEffectiveStatus(result: EvaluationResult, review: CaseReview): "pass" | "fail" {

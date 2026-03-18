@@ -13,15 +13,22 @@ describe("validateStructuredOutput", () => {
     it("validates json output", () => {
         const passResult = validateStructuredOutput('{"ok":true}', { type: "json" });
         const failResult = validateStructuredOutput("{oops", { type: "json" });
+        const emptyResult = validateStructuredOutput("   ", { type: "json" });
 
         expect(passResult.passed).toBe(true);
         expect(failResult.passed).toBe(false);
+        expect(emptyResult.message).toContain("output was empty");
     });
 
     it("validates contains, starts_with, and regex rules", () => {
         expect(validateStructuredOutput("alpha beta", { type: "contains", value: "beta" }).passed).toBe(true);
+        expect(validateStructuredOutput("alpha beta", { type: "contains" }).passed).toBe(true);
         expect(validateStructuredOutput("alpha beta", { type: "starts_with", value: "alpha" }).passed).toBe(true);
+        expect(validateStructuredOutput("alpha beta", { type: "starts_with", value: "beta" }).passed).toBe(false);
+        expect(validateStructuredOutput("alpha beta", { type: "starts_with" }).passed).toBe(true);
         expect(validateStructuredOutput("Case-42", { type: "regex", value: "^Case-\\d+$" }).passed).toBe(true);
         expect(validateStructuredOutput("Case-xx", { type: "regex", value: "^Case-\\d+$" }).passed).toBe(false);
+        expect(validateStructuredOutput("Case-xx", { type: "regex", value: "[" }).message).toContain("invalid");
+        expect(validateStructuredOutput("Case-xx", { type: "regex" }).passed).toBe(true);
     });
 });

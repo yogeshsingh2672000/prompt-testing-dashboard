@@ -1,5 +1,6 @@
 import { getEmbedding, getResponse } from '@/server/lib/ai';
 import { getRubricScores, getSemanticScore } from '@/server/lib/evaluator';
+import { createFallbackEvaluationResult } from '@/shared/lib/evaluation-factories';
 import { validateStructuredOutput } from '@/server/services/output-validation';
 import { DEFAULT_MODEL_ID, SUPPORTED_MODELS } from '@/shared/constants/models';
 import { calculateOverallScore, calculateRubricScore } from '@/shared/lib/evaluation-summary';
@@ -95,28 +96,13 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
             } catch (error: unknown) {
                 const message = error instanceof Error ? error.message : 'Unknown evaluation error';
 
-                return {
+                return createFallbackEvaluationResult({
                     testCaseId: testCase.id,
-                    response: '',
-                    similarity: 0,
-                    semanticScore: 0,
-                    rubricScore: 0,
-                    overallScore: 0,
-                    status: 'fail',
-                    metrics: {
-                        latencyMs: Date.now() - startTime,
-                        tokens: { prompt: 0, completion: 0, total: 0 },
-                        costUsd: 0,
-                    },
-                    validation: {
-                        type: testCase.outputValidation?.type || 'none',
-                        enabled: Boolean(testCase.outputValidation && testCase.outputValidation.type !== 'none'),
-                        passed: false,
-                        message,
-                    },
-                    rubricResults: [],
-                    error: message,
-                } satisfies EvaluationResult;
+                    message,
+                    validationType: testCase.outputValidation?.type || 'none',
+                    validationEnabled: Boolean(testCase.outputValidation && testCase.outputValidation.type !== 'none'),
+                    latencyMs: Date.now() - startTime,
+                });
             }
         }));
 

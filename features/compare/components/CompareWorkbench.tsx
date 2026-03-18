@@ -9,6 +9,7 @@ import {
     EvaluationRequest,
     EvaluationResult,
 } from "@/shared/types";
+import { createFallbackEvaluationResult } from "@/shared/lib/evaluation-factories";
 import { toComparisonMetricsSummary } from "@/shared/lib/evaluation-summary";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
 import { SurfaceCard } from "@/shared/ui/SurfaceCard";
@@ -125,23 +126,11 @@ export function CompareWorkbench() {
             const rightResultsMap = new Map(rightResults.map((result) => [result.testCaseId, result]));
 
             const cases: ComparisonCaseResult[] = selectedDataset.testCases.map((testCase) => {
-                const fallbackResult: EvaluationResult = {
+                const fallbackResult = createFallbackEvaluationResult({
                     testCaseId: testCase.id,
-                    response: "",
-                    similarity: 0,
-                    semanticScore: 0,
-                    rubricScore: 0,
-                    overallScore: 0,
-                    status: "fail",
-                    metrics: { latencyMs: 0, tokens: { prompt: 0, completion: 0, total: 0 }, costUsd: 0 },
-                    validation: {
-                        type: testCase.outputValidation?.type || "none",
-                        enabled: Boolean(testCase.outputValidation && testCase.outputValidation.type !== "none"),
-                        passed: false,
-                        message: "No evaluation result was returned for this test case.",
-                    },
-                    rubricResults: [],
-                };
+                    validationType: testCase.outputValidation?.type || "none",
+                    validationEnabled: Boolean(testCase.outputValidation && testCase.outputValidation.type !== "none"),
+                });
 
                 const left = leftResults.find((result) => result.testCaseId === testCase.id) || fallbackResult;
                 const right = rightResultsMap.get(testCase.id) || fallbackResult;
