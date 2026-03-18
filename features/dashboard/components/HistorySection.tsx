@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Trash2, Clock, ChevronRight, Download } from "lucide-react";
+import { useSavedRuns } from "@/features/runs/hooks/useSavedRuns";
 import { persistence, TestRun } from "@/shared/lib/persistence";
 import { useTranslations } from "next-intl";
 import { cn } from "@/shared/lib/utils";
@@ -15,29 +15,7 @@ interface HistorySectionProps {
 
 export function HistorySection({ onLoadRun, activeRunId }: HistorySectionProps) {
     const t = useTranslations("history");
-    const [runs, setRuns] = useState<TestRun[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const loadHistory = async () => {
-        setLoading(true);
-        const savedRuns = await persistence.getRuns();
-        // Sort by timestamp descending
-        setRuns(savedRuns.sort((a, b) => b.timestamp - a.timestamp));
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        void (async () => {
-            await loadHistory();
-        })();
-
-        const handleRunsUpdated = () => {
-            void loadHistory();
-        };
-
-        window.addEventListener("promitly:runs-updated", handleRunsUpdated);
-        return () => window.removeEventListener("promitly:runs-updated", handleRunsUpdated);
-    }, []);
+    const { runs, loading, loadRuns: loadHistory } = useSavedRuns();
 
     const deleteRun = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();

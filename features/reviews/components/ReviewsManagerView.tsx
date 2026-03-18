@@ -4,6 +4,7 @@ import { CheckCircle2, Download, FileCheck2, MessageSquareText, RotateCcw, Searc
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "@/i18n/routing";
+import { useSavedRuns } from "@/features/runs/hooks/useSavedRuns";
 import { persistence, TestRun } from "@/shared/lib/persistence";
 import { CaseReview, EvaluationResult, TestCase } from "@/shared/types";
 import { cn } from "@/shared/lib/utils";
@@ -61,42 +62,28 @@ function exportReviewReport(run: TestRun, format: "html" | "md") {
 
 export function ReviewsManagerView() {
     const router = useRouter();
-    const [runs, setRuns] = useState<TestRun[]>([]);
+    const { runs, loading, setRuns } = useSavedRuns();
     const [selectedRunId, setSelectedRunId] = useState<string>("");
     const [query, setQuery] = useState("");
     const [filter, setFilter] = useState<ReviewFilter>("all");
-    const [loading, setLoading] = useState(true);
     const [savingReviewId, setSavingReviewId] = useState<string | null>(null);
-
-    const loadRuns = async () => {
-        setLoading(true);
-        const savedRuns = await persistence.getRuns();
-        const sortedRuns = savedRuns.sort((a, b) => b.timestamp - a.timestamp);
-        setRuns(sortedRuns);
-        setSelectedRunId((current) => current || sortedRuns[0]?.id || "");
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        const timeoutId = window.setTimeout(() => {
-            void loadRuns();
-        }, 0);
-
-        const handleRunsUpdated = () => {
-            void loadRuns();
-        };
-
-        window.addEventListener("promitly:runs-updated", handleRunsUpdated);
-        return () => {
-            window.clearTimeout(timeoutId);
-            window.removeEventListener("promitly:runs-updated", handleRunsUpdated);
-        };
-    }, []);
 
     const selectedRun = useMemo(
         () => runs.find((run) => run.id === selectedRunId),
         [runs, selectedRunId]
     );
+
+    useEffect(() => {
+        if (selectedRunId || runs.length === 0) {
+            return;
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            setSelectedRunId(runs[0].id);
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [runs, selectedRunId]);
 
     const reviewedSummary = useMemo(() => {
         if (!selectedRun) {

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getGenerateTestCasesErrorStatus } from '@/server/services/api-errors';
 import { generateTestCases } from '@/server/services/test-case-generator-service';
 
 export async function POST(req: Request) {
@@ -9,7 +10,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ testCases });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to generate test cases';
-    const status = message === 'System prompt is required' ? 400 : message === 'No valid test cases were generated' ? 502 : 500;
+    const status = getGenerateTestCasesErrorStatus(message);
 
     return NextResponse.json({ error: message }, { status });
   }
