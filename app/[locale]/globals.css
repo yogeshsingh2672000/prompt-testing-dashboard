@@ -37,10 +37,8 @@
 
 :root {
   --background: oklch(0.985 0 0);
-  /* Zinc-50 vibe */
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0 / 0.7);
-  /* White/70 for glassmorphism */
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -60,6 +58,14 @@
   --radius: 1rem;
   --glass-border: oklch(1 0 0 / 0.5);
   --shadow-premium: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-strong: rgba(255, 255, 255, 0.9);
+  --surface-subtle: rgba(255, 255, 255, 0.56);
+  --surface-border: rgba(255, 255, 255, 0.7);
+  --shell-gradient:
+    radial-gradient(circle at top left, rgba(20, 184, 166, 0.14), transparent 28%),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 22%),
+    linear-gradient(180deg, rgba(255,255,255,0.96), rgba(244,244,245,0.92));
 }
 
 .dark {
@@ -84,13 +90,76 @@
   --ring: oklch(0.439 0 0);
   --glass-border: oklch(1 0 0 / 0.05);
   --shadow-premium: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+  --surface: rgba(24, 24, 27, 0.68);
+  --surface-strong: rgba(24, 24, 27, 0.86);
+  --surface-subtle: rgba(24, 24, 27, 0.46);
+  --surface-border: rgba(255, 255, 255, 0.06);
+  --shell-gradient:
+    radial-gradient(circle at top left, rgba(20, 184, 166, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 24%),
+    linear-gradient(180deg, rgba(9,9,11,0.98), rgba(20,20,24,0.94));
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(20, 184, 166, 0.08), transparent 28%),
+    radial-gradient(circle at 90% 10%, rgba(59, 130, 246, 0.08), transparent 24%),
+    linear-gradient(180deg, rgba(255,255,255,0.4), transparent 22%),
+    var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Segoe UI Variable", "Segoe UI", "Helvetica Neue", sans-serif;
   transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
+  opacity: 0.35;
+}
+
+.dark body::before {
+  background:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+}
+
+@layer components {
+  .surface-card {
+    @apply rounded-[2.25rem] border p-6 md:p-8 shadow-2xl backdrop-blur-xl;
+    background: var(--surface);
+    border-color: var(--surface-border);
+    box-shadow: var(--shadow-premium);
+  }
+
+  .surface-card-subtle {
+    background: var(--surface-subtle);
+  }
+
+  .surface-card-strong {
+    background: var(--surface-strong);
+  }
+
+  .section-kicker {
+    @apply inline-flex w-fit items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.35em];
+    background: rgba(20, 184, 166, 0.1);
+    color: rgb(13 148 136);
+  }
+
+  .dark .section-kicker {
+    background: rgba(20, 184, 166, 0.12);
+    color: rgb(94 234 212);
+  }
+
+  .shell-panel {
+    background: var(--shell-gradient);
+  }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
