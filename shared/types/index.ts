@@ -49,3 +49,28 @@ export interface PromptOptimizationSuggestion {
     optimizedPrompt: string;
     reasoning: string;
 }
+
+export interface ComparisonSubject {
+    id: string;
+    name: string;
+    modelId?: string;
+}
+
+export interface ComparisonMetricsSummary {
+    avgSimilarity: number;
+    avgSemanticScore: number;
+    passRate: number;
+    totalCostUsd: number;
+    avgLatencyMs: number;
+}
+
+export interface ComparisonCaseResult {
+    testCaseId: string;
+    input: string;
+    expectedOutput: string;
+    left: EvaluationResult;
+    right: EvaluationResult;
+    semanticDelta: number;
+    similarityDelta: number;
+    winner: "left" | "right" | "tie";
+}
