@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, FileSpreadsheet, FlaskConical, FolderKanban, GitCompareArrows, History, LayoutDashboard, Settings, Sparkles } from "lucide-react";
+import { BarChart3, CalendarClock, FileSpreadsheet, FlaskConical, FolderKanban, GitCompareArrows, History, LayoutDashboard, LineChart, Settings, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { cn } from "@/shared/lib/utils";
@@ -13,9 +13,11 @@ import { useDashboardWorkspace } from "@/features/dashboard/providers/DashboardW
 const navItems = [
     { href: "/workspace", label: "Workspace", icon: LayoutDashboard, accent: "teal" },
     { href: "/results", label: "Results", icon: BarChart3, accent: "blue" },
+    { href: "/analytics", label: "Analytics", icon: LineChart, accent: "indigo" },
     { href: "/history", label: "History", icon: History, accent: "amber" },
     { href: "/compare", label: "Compare", icon: GitCompareArrows, accent: "emerald" },
     { href: "/datasets", label: "Datasets", icon: FolderKanban, accent: "orange" },
+    { href: "/schedules", label: "Schedules", icon: CalendarClock, accent: "cyan" },
     { href: "/reviews", label: "Reviews", icon: FileSpreadsheet, accent: "rose" },
     { href: "/settings", label: "Settings", icon: Settings, accent: "zinc" },
 ] as const;
@@ -36,7 +38,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ToastViewport toasts={toasts} onDismiss={dismissToast} />
             <div className="mx-auto flex min-h-screen w-full max-w-[1700px] gap-6 px-4 py-4 md:px-6 lg:px-8">
                 <aside className="hidden w-[280px] shrink-0 xl:flex">
-                    <SurfaceCard className="shell-panel sticky top-4 flex h-[calc(100vh-2rem)] w-full flex-col p-6">
+                    <SurfaceCard className="shell-panel sticky top-4 flex h-[calc(100vh-2rem)] w-full flex-col overflow-hidden p-6">
                         <div className="space-y-3 border-b border-zinc-200 pb-6 dark:border-zinc-800">
                             <div className="inline-flex w-fit items-center gap-3 rounded-2xl bg-zinc-900 px-4 py-2 text-white shadow-xl dark:bg-white dark:text-zinc-900">
                                 <Sparkles size={16} />
@@ -48,7 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             </div>
                         </div>
 
-                        <nav className="mt-6 flex flex-1 flex-col gap-2">
+                        <nav className="mt-6 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar">
                             {navItems.map((item) => {
                                 const isActive = pathname === item.href;
                                 const Icon = item.icon;
@@ -76,7 +78,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             })}
                         </nav>
 
-                        <div className="flex items-center gap-3 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+                        <div className="mt-6 flex shrink-0 items-center gap-3 border-t border-zinc-200 pt-6 dark:border-zinc-800">
                             <ThemeToggle />
                             <LanguageToggle />
                         </div>
@@ -95,9 +97,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                     <p className="mt-3 text-lg font-black tracking-tight text-zinc-900 dark:text-white">
                                         {pathname === "/workspace" && "Build and refine your prompt workspace"}
                                         {pathname === "/results" && "Review evaluation quality, latency, and cost"}
+                                        {pathname === "/analytics" && "Track quality trends, rubrics, and regressions over time"}
                                         {pathname === "/history" && "Load and inspect previous evaluation runs"}
                                         {pathname === "/compare" && "Compare prompt versions and models"}
                                         {pathname === "/datasets" && "Manage reusable prompt test suites"}
+                                        {pathname === "/schedules" && "Create recurring evaluation checks from saved prompt versions"}
                                         {pathname === "/reviews" && "Review failures and annotate runs"}
                                         {pathname === "/settings" && "Tune models, defaults, and workspace behavior"}
                                     </p>

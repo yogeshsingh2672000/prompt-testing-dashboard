@@ -10,6 +10,9 @@ interface TestCasesSectionProps {
     updateTestCase: (id: string, field: keyof TestCase, value: string) => void;
     updateVariable: (id: string, key: string, value: string) => void;
     updateOutputValidation: (id: string, type: OutputValidationType, value?: string) => void;
+    addConversationTurn: (id: string) => void;
+    updateConversationTurn: (id: string, turnId: string, field: "role" | "content", value: string) => void;
+    removeConversationTurn: (id: string, turnId: string) => void;
     removeTestCase: (id: string) => void;
     setTestCases: React.Dispatch<React.SetStateAction<TestCase[]>>;
     systemPrompt: string;
@@ -23,6 +26,9 @@ export function TestCasesSection({
     updateTestCase,
     updateVariable,
     updateOutputValidation,
+    addConversationTurn,
+    updateConversationTurn,
+    removeConversationTurn,
     removeTestCase,
     setTestCases,
     systemPrompt,
@@ -111,6 +117,9 @@ export function TestCasesSection({
                                 updateTestCase={updateTestCase}
                                 updateVariable={updateVariable}
                                 updateOutputValidation={updateOutputValidation}
+                                addConversationTurn={addConversationTurn}
+                                updateConversationTurn={updateConversationTurn}
+                                removeConversationTurn={removeConversationTurn}
                                 removeTestCase={removeTestCase}
                                 systemPrompt={systemPrompt}
                                 userInputTemplate={userInputTemplate}

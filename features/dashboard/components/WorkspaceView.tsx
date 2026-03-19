@@ -25,6 +25,9 @@ export function WorkspaceView() {
         updateTestCase,
         updateVariable,
         updateOutputValidation,
+        addConversationTurn,
+        updateConversationTurn,
+        removeConversationTurn,
         removeTestCase,
         setTestCases,
         pushToast,
@@ -60,6 +63,9 @@ export function WorkspaceView() {
                     updateTestCase={updateTestCase}
                     updateVariable={updateVariable}
                     updateOutputValidation={updateOutputValidation}
+                    addConversationTurn={addConversationTurn}
+                    updateConversationTurn={updateConversationTurn}
+                    removeConversationTurn={removeConversationTurn}
                     removeTestCase={removeTestCase}
                     setTestCases={setTestCases}
                     systemPrompt={systemPrompt}

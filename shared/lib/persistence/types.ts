@@ -7,6 +7,8 @@ export interface AppSettings {
     defaultThreshold: number;
     defaultRubrics: RubricDefinition[];
     rubricPresetId?: string;
+    globalBaselinePromptVersionId?: string;
+    baselinePromptVersionIdsBySuite: Record<string, string>;
     updatedAt: number;
 }
 
@@ -36,9 +38,12 @@ export interface PromptVersion {
     createdAt: number;
 }
 
+export type RunTriggerSource = "workspace" | "compare" | "schedule" | "api";
+
 export interface TestRun {
     id: string;
     suiteId?: string;
+    promptVersionId?: string;
     name: string;
     timestamp: number;
     systemPrompt: string;
@@ -46,6 +51,13 @@ export interface TestRun {
     testCases: TestCase[];
     results: EvaluationResult[];
     reviews?: Record<string, CaseReview>;
+    triggerSource?: RunTriggerSource;
+    scheduleId?: string;
+    baselinePromptVersionId?: string;
+    metadata?: {
+        suiteName?: string;
+        promptVersionName?: string;
+    };
     config: {
         batchSize: number;
         threshold: number;
@@ -60,7 +72,25 @@ export interface TestRun {
         passRate: number;
         totalCases: number;
         passedCases: number;
+        validationPassRate?: number;
     };
+}
+
+export interface ScheduledEvaluation {
+    id: string;
+    name: string;
+    suiteId?: string;
+    promptVersionId?: string;
+    modelId?: string;
+    batchSize: number;
+    threshold: number;
+    rubrics: RubricDefinition[];
+    cadenceHours: number;
+    enabled: boolean;
+    createdAt: number;
+    updatedAt: number;
+    lastRunAt?: number;
+    nextRunAt?: number;
 }
 
 export interface PersistenceProvider {
@@ -81,6 +111,12 @@ export interface PersistenceProvider {
     getPromptVersions(): Promise<PromptVersion[]>;
     getPromptVersion(id: string): Promise<PromptVersion | undefined>;
     deletePromptVersion(id: string): Promise<void>;
+
+    // Schedules
+    saveSchedule(schedule: ScheduledEvaluation): Promise<void>;
+    getSchedules(): Promise<ScheduledEvaluation[]>;
+    getSchedule(id: string): Promise<ScheduledEvaluation | undefined>;
+    deleteSchedule(id: string): Promise<void>;
 
     // Settings
     saveSettings(settings: AppSettings): Promise<void>;

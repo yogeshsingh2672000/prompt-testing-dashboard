@@ -16,6 +16,9 @@ describe("request validation", () => {
                     input: "hello",
                     expectedOutput: "hi",
                     outputValidation: { type: "contains", value: "hi" },
+                    conversation: [
+                        { id: "turn-1", role: "user", content: "hello" },
+                    ],
                 },
             ],
             batchSize: 3,
@@ -33,6 +36,7 @@ describe("request validation", () => {
 
         expect(request.batchSize).toBe(3);
         expect(request.testCases[0].outputValidation?.type).toBe("contains");
+        expect(request.testCases[0].conversation?.[0].role).toBe("user");
         expect(request.rubrics?.[0].id).toBe("accuracy");
     });
 
@@ -134,5 +138,10 @@ describe("request validation", () => {
             currentPrompt: "Prompt",
             results: [null],
         })).toThrow("Evaluation result 1 is invalid");
+        expect(() => parseEvaluationRequest({
+            systemPrompt: "x",
+            userInput: "y",
+            testCases: [{ id: "1", input: "ok", expectedOutput: "z", conversation: [{ id: "turn-1", role: "bogus", content: "x" }] }],
+        })).toThrow("Conversation turn 1 is invalid");
     });
 });

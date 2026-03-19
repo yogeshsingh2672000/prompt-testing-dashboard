@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Trash2 } from "lucide-react";
+import { MessageSquarePlus, Trash2 } from "lucide-react";
 import { OutputValidationType, TestCase } from "@/shared/types";
 import { useTranslations } from "next-intl";
 import { extractVariables } from "@/shared/lib/utils";
@@ -12,6 +12,9 @@ interface TestCaseItemProps {
     updateTestCase: (id: string, field: keyof TestCase, value: string) => void;
     updateVariable: (id: string, key: string, value: string) => void;
     updateOutputValidation: (id: string, type: OutputValidationType, value?: string) => void;
+    addConversationTurn: (id: string) => void;
+    updateConversationTurn: (id: string, turnId: string, field: "role" | "content", value: string) => void;
+    removeConversationTurn: (id: string, turnId: string) => void;
     removeTestCase: (id: string) => void;
     systemPrompt: string;
     userInputTemplate: string;
@@ -23,6 +26,9 @@ export const TestCaseItem = React.memo(({
     updateTestCase,
     updateVariable,
     updateOutputValidation,
+    addConversationTurn,
+    updateConversationTurn,
+    removeConversationTurn,
     removeTestCase,
     systemPrompt,
     userInputTemplate
@@ -70,6 +76,66 @@ export const TestCaseItem = React.memo(({
                             className="w-full bg-zinc-100/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 min-h-[100px] text-sm transition-all resize-none shadow-inner"
                             placeholder="Enter test scenario..."
                         />
+                    </div>
+
+                    <div className="space-y-3 rounded-2xl border border-zinc-200/70 bg-white/70 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/70">
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <label className="block text-[10px] uppercase font-black text-zinc-400 dark:text-zinc-500 tracking-wider">Conversation Mode</label>
+                                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                    Add a transcript when this case should evaluate multi-turn behavior instead of a single prompt response.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => addConversationTurn(tc.id)}
+                                className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-700 transition hover:border-teal-400 hover:text-teal-600 dark:border-zinc-700 dark:text-zinc-300"
+                            >
+                                <MessageSquarePlus size={14} />
+                                Add turn
+                            </button>
+                        </div>
+
+                        {tc.conversation && tc.conversation.length > 0 ? (
+                            <div className="space-y-3">
+                                {tc.conversation.map((turn, turnIndex) => (
+                                    <div key={turn.id} className="rounded-2xl border border-zinc-200 bg-white/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+                                        <div className="mb-3 flex items-center justify-between gap-3">
+                                            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+                                                Turn {turnIndex + 1}
+                                            </div>
+                                            <button
+                                                onClick={() => removeConversationTurn(tc.id, turn.id)}
+                                                className="rounded-lg p-1 text-zinc-400 transition hover:bg-rose-500/10 hover:text-rose-500"
+                                                title="Remove turn"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <select
+                                                value={turn.role}
+                                                onChange={(event) => updateConversationTurn(tc.id, turn.id, "role", event.target.value)}
+                                                className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm transition-all focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                                            >
+                                                <option value="user">User</option>
+                                                <option value="assistant">Assistant</option>
+                                                <option value="tool">Tool</option>
+                                            </select>
+                                            <textarea
+                                                value={turn.content}
+                                                onChange={(event) => updateConversationTurn(tc.id, turn.id, "content", event.target.value)}
+                                                className="min-h-[84px] w-full resize-none rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm transition-all focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                                                placeholder="Turn content..."
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="rounded-xl border border-dashed border-zinc-200 px-3 py-4 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+                                No multi-turn transcript yet. This test will run in single-turn mode until you add conversation turns.
+                            </div>
+                        )}
                     </div>
 
                     {/* Dynamic Variables Grid */}

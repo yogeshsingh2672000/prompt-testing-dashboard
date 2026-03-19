@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useEvaluation } from "@/features/evaluation/hooks/useEvaluation";
 import {
     DEFAULT_BATCH_SIZE,
@@ -12,8 +12,11 @@ import {
     RUBRIC_PRESETS,
 } from "@/shared/constants/defaults";
 import { DEFAULT_MODEL_ID } from "@/shared/constants/models";
-import { AppSettings, persistence, PromptVersion, TestCaseSuite, TestRun } from "@/shared/lib/persistence";
-import { OutputValidationType, RubricDefinition, TestCase } from "@/shared/types";
+import { buildTestRun } from "@/shared/lib/run-records";
+import { resolveBaselinePromptVersionId } from "@/shared/lib/run-analytics";
+import { getNextRunAt, isScheduleDue } from "@/shared/lib/schedule-utils";
+import { AppSettings, persistence, PromptVersion, ScheduledEvaluation, TestCaseSuite, TestRun } from "@/shared/lib/persistence";
+import { ConversationTurnRole, EvaluationRequest, EvaluationResult, OutputValidationType, RubricDefinition, TestCase } from "@/shared/types";
 import { ToastItem } from "@/shared/ui/ToastViewport";
 
 interface DashboardWorkspaceContextValue {
@@ -34,6 +37,8 @@ interface DashboardWorkspaceContextValue {
     saveSettings: (settings: AppSettings) => Promise<void>;
     resetSettings: () => Promise<void>;
     applySettingsToWorkspace: (settings?: AppSettings) => void;
+    setGlobalBaselinePromptVersionId: (versionId?: string) => Promise<void>;
+    setSuiteBaselinePromptVersionId: (suiteId: string, versionId?: string) => Promise<void>;
     modelId: string;
     setModelId: (value: string) => void;
     results: ReturnType<typeof useEvaluation>["results"];
@@ -42,6 +47,7 @@ interface DashboardWorkspaceContextValue {
     activeRunId?: string;
     suites: TestCaseSuite[];
     promptVersions: PromptVersion[];
+    schedules: ScheduledEvaluation[];
     activeSuiteId?: string;
     activePromptVersionId?: string;
     toasts: ToastItem[];
@@ -52,6 +58,9 @@ interface DashboardWorkspaceContextValue {
     updateTestCase: (id: string, field: keyof TestCase, value: string) => void;
     updateVariable: (id: string, key: string, value: string) => void;
     updateOutputValidation: (id: string, type: OutputValidationType, value?: string) => void;
+    addConversationTurn: (id: string, role?: ConversationTurnRole) => void;
+    updateConversationTurn: (id: string, turnId: string, field: "role" | "content", value: string) => void;
+    removeConversationTurn: (id: string, turnId: string) => void;
     removeTestCase: (id: string) => void;
     loadRun: (run: TestRun) => void;
     saveCurrentSuite: (name: string) => Promise<void>;
@@ -61,6 +70,9 @@ interface DashboardWorkspaceContextValue {
     savePromptVersion: (name: string) => Promise<void>;
     loadPromptVersion: (version: PromptVersion) => void;
     deletePromptVersion: (id: string) => Promise<void>;
+    saveSchedule: (schedule: ScheduledEvaluation) => Promise<void>;
+    deleteSchedule: (id: string) => Promise<void>;
+    runScheduleNow: (id: string) => Promise<void>;
     refreshAssets: () => Promise<void>;
 }
 
@@ -74,6 +86,7 @@ function createDefaultAppSettings(): AppSettings {
         defaultThreshold: DEFAULT_THRESHOLD,
         defaultRubrics: DEFAULT_RUBRICS.map((rubric) => ({ ...rubric })),
         rubricPresetId: RUBRIC_PRESETS[0].id,
+        baselinePromptVersionIdsBySuite: {},
         updatedAt: Date.now(),
     };
 }
@@ -92,38 +105,132 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
     const [activePromptVersionId, setActivePromptVersionId] = useState<string | undefined>();
     const [suites, setSuites] = useState<TestCaseSuite[]>([]);
     const [promptVersions, setPromptVersions] = useState<PromptVersion[]>([]);
+    const [schedules, setSchedules] = useState<ScheduledEvaluation[]>([]);
     const [toasts, setToasts] = useState<ToastItem[]>([]);
+    const runningScheduleIds = useRef<Set<string>>(new Set());
 
-    const pushToast = (toast: Omit<ToastItem, "id">) => {
+    const pushToast = useCallback((toast: Omit<ToastItem, "id">) => {
         const id = crypto.randomUUID();
         setToasts((current) => [...current, { id, ...toast }]);
 
         window.setTimeout(() => {
             setToasts((current) => current.filter((item) => item.id !== id));
         }, 5000);
-    };
+    }, []);
 
-    const dismissToast = (id: string) => {
+    const dismissToast = useCallback((id: string) => {
         setToasts((current) => current.filter((item) => item.id !== id));
-    };
+    }, []);
 
-    const refreshAssets = async () => {
-        const [savedSuites, savedPromptVersions, savedSettings] = await Promise.all([
+    const refreshAssets = useCallback(async () => {
+        const [savedSuites, savedPromptVersions, savedSettings, savedSchedules] = await Promise.all([
             persistence.getSuites(),
             persistence.getPromptVersions(),
             persistence.getSettings(),
+            persistence.getSchedules(),
         ]);
 
         setSuites(savedSuites.sort((a, b) => b.updatedAt - a.updatedAt));
         setPromptVersions(savedPromptVersions.sort((a, b) => b.createdAt - a.createdAt));
+        setSchedules(savedSchedules.sort((a, b) => b.updatedAt - a.updatedAt));
         if (savedSettings) {
-            setSettings(savedSettings);
-            setBatchSize(savedSettings.defaultBatchSize);
-            setThreshold(savedSettings.defaultThreshold);
-            setRubrics(savedSettings.defaultRubrics);
-            setModelId(savedSettings.defaultModelId || DEFAULT_MODEL_ID);
+            const normalizedSettings: AppSettings = {
+                ...savedSettings,
+                baselinePromptVersionIdsBySuite: savedSettings.baselinePromptVersionIdsBySuite || {},
+            };
+            setSettings(normalizedSettings);
+            setBatchSize(normalizedSettings.defaultBatchSize);
+            setThreshold(normalizedSettings.defaultThreshold);
+            setRubrics(normalizedSettings.defaultRubrics);
+            setModelId(normalizedSettings.defaultModelId || DEFAULT_MODEL_ID);
         }
-    };
+    }, []);
+
+    const executeSchedule = useCallback(async (schedule: ScheduledEvaluation, source: "schedule" | "api" = "schedule") => {
+        if (runningScheduleIds.current.has(schedule.id)) {
+            return;
+        }
+
+        const promptVersion = promptVersions.find((version) => version.id === schedule.promptVersionId);
+        const suite = schedule.suiteId ? suites.find((entry) => entry.id === schedule.suiteId) : undefined;
+
+        if (!promptVersion) {
+            throw new Error("Scheduled evaluation is missing a prompt version.");
+        }
+
+        const testCases = suite?.testCases || promptVersion.testCases;
+        if (!testCases || testCases.length === 0) {
+            throw new Error("Scheduled evaluation does not have any test cases.");
+        }
+
+        runningScheduleIds.current.add(schedule.id);
+        try {
+            const payload: EvaluationRequest = {
+                systemPrompt: promptVersion.systemPrompt,
+                userInput: promptVersion.userInput,
+                testCases,
+                batchSize: schedule.batchSize,
+                threshold: schedule.threshold,
+                modelId: schedule.modelId || promptVersion.modelId,
+                rubrics: schedule.rubrics,
+            };
+
+            const response = await fetch("/api/evaluate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(typeof data?.error === "string" ? data.error : "Scheduled evaluation failed");
+            }
+
+            const results = data as EvaluationResult[];
+            const baselinePromptVersionId = resolveBaselinePromptVersionId(
+                suite?.id,
+                promptVersions,
+                settings.globalBaselinePromptVersionId,
+                settings.baselinePromptVersionIdsBySuite
+            );
+
+            const run = buildTestRun({
+                name: `${schedule.name} - ${new Date().toLocaleString()}`,
+                systemPrompt: promptVersion.systemPrompt,
+                userInput: promptVersion.userInput,
+                testCases,
+                results,
+                batchSize: schedule.batchSize,
+                threshold: schedule.threshold,
+                modelId: schedule.modelId || promptVersion.modelId,
+                rubrics: schedule.rubrics,
+                suiteId: suite?.id || promptVersion.suiteId,
+                promptVersionId: promptVersion.id,
+                scheduleId: schedule.id,
+                triggerSource: source,
+                baselinePromptVersionId,
+                metadata: {
+                    suiteName: suite?.name,
+                    promptVersionName: promptVersion.name,
+                },
+            });
+
+            await persistence.saveRun(run);
+
+            const now = Date.now();
+            await persistence.saveSchedule({
+                ...schedule,
+                lastRunAt: now,
+                nextRunAt: getNextRunAt(now, schedule.cadenceHours),
+                updatedAt: now,
+            });
+
+            window.dispatchEvent(new CustomEvent("promitly:runs-updated"));
+            await refreshAssets();
+        } finally {
+            runningScheduleIds.current.delete(schedule.id);
+        }
+    }, [promptVersions, refreshAssets, settings, suites]);
 
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
@@ -131,7 +238,29 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         }, 0);
 
         return () => window.clearTimeout(timeoutId);
-    }, []);
+    }, [refreshAssets]);
+
+    useEffect(() => {
+        const checkDueSchedules = () => {
+            const dueSchedules = schedules.filter((schedule) => isScheduleDue(schedule));
+            dueSchedules.forEach((schedule) => {
+                void executeSchedule(schedule).catch((error) => {
+                    pushToast({
+                        title: "Scheduled run failed",
+                        message: error instanceof Error ? error.message : "Unable to complete scheduled evaluation.",
+                        variant: "error",
+                    });
+                });
+            });
+        };
+
+        checkDueSchedules();
+        const intervalId = window.setInterval(() => {
+            checkDueSchedules();
+        }, 60_000);
+
+        return () => window.clearInterval(intervalId);
+    }, [executeSchedule, pushToast, schedules]);
 
     const { results, loading, error, runEvaluation, setResults, setError } = useEvaluation(
         testCases,
@@ -141,7 +270,21 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         threshold,
         modelId,
         rubrics,
-        (message) => pushToast({ title: "Evaluation failed", message, variant: "error" })
+        (message) => pushToast({ title: "Evaluation failed", message, variant: "error" }),
+        {
+            suiteId: activeSuiteId,
+            promptVersionId: activePromptVersionId,
+            baselinePromptVersionId: resolveBaselinePromptVersionId(
+                activeSuiteId,
+                promptVersions,
+                settings.globalBaselinePromptVersionId,
+                settings.baselinePromptVersionIdsBySuite
+            ),
+            metadata: {
+                suiteName: suites.find((suite) => suite.id === activeSuiteId)?.name,
+                promptVersionName: promptVersions.find((version) => version.id === activePromptVersionId)?.name,
+            },
+        }
     );
 
     const updateRubric = (id: string, updates: Partial<RubricDefinition>) => {
@@ -158,6 +301,30 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
     const saveSettings = async (nextSettings: AppSettings) => {
         await persistence.saveSettings(nextSettings);
         setSettings(nextSettings);
+    };
+
+    const setGlobalBaselinePromptVersionId = async (versionId?: string) => {
+        const nextSettings: AppSettings = {
+            ...settings,
+            globalBaselinePromptVersionId: versionId,
+            updatedAt: Date.now(),
+        };
+        await saveSettings(nextSettings);
+    };
+
+    const setSuiteBaselinePromptVersionId = async (suiteId: string, versionId?: string) => {
+        const nextMap = { ...settings.baselinePromptVersionIdsBySuite };
+        if (versionId) {
+            nextMap[suiteId] = versionId;
+        } else {
+            delete nextMap[suiteId];
+        }
+        const nextSettings: AppSettings = {
+            ...settings,
+            baselinePromptVersionIdsBySuite: nextMap,
+            updatedAt: Date.now(),
+        };
+        await saveSettings(nextSettings);
     };
 
     const resetSettings = async () => {
@@ -204,6 +371,50 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                     },
                 };
             })
+        );
+    };
+
+    const addConversationTurn = (id: string, role: ConversationTurnRole = "user") => {
+        setTestCases((current) =>
+            current.map((testCase) =>
+                testCase.id === id
+                    ? {
+                        ...testCase,
+                        conversation: [
+                            ...(testCase.conversation || []),
+                            { id: crypto.randomUUID(), role, content: "" },
+                        ],
+                    }
+                    : testCase
+            )
+        );
+    };
+
+    const updateConversationTurn = (id: string, turnId: string, field: "role" | "content", value: string) => {
+        setTestCases((current) =>
+            current.map((testCase) =>
+                testCase.id === id
+                    ? {
+                        ...testCase,
+                        conversation: (testCase.conversation || []).map((turn) =>
+                            turn.id === turnId ? { ...turn, [field]: value } : turn
+                        ),
+                    }
+                    : testCase
+            )
+        );
+    };
+
+    const removeConversationTurn = (id: string, turnId: string) => {
+        setTestCases((current) =>
+            current.map((testCase) =>
+                testCase.id === id
+                    ? {
+                        ...testCase,
+                        conversation: (testCase.conversation || []).filter((turn) => turn.id !== turnId),
+                    }
+                    : testCase
+            )
         );
     };
 
@@ -327,6 +538,25 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         await refreshAssets();
     };
 
+    const saveSchedule = async (schedule: ScheduledEvaluation) => {
+        await persistence.saveSchedule(schedule);
+        await refreshAssets();
+    };
+
+    const deleteSchedule = async (id: string) => {
+        await persistence.deleteSchedule(id);
+        await refreshAssets();
+    };
+
+    const runScheduleNow = async (id: string) => {
+        const schedule = schedules.find((entry) => entry.id === id);
+        if (!schedule) {
+            throw new Error("Scheduled evaluation not found.");
+        }
+
+        await executeSchedule(schedule);
+    };
+
     return (
         <DashboardWorkspaceContext.Provider
             value={{
@@ -347,6 +577,8 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 saveSettings,
                 resetSettings,
                 applySettingsToWorkspace,
+                setGlobalBaselinePromptVersionId,
+                setSuiteBaselinePromptVersionId,
                 modelId,
                 setModelId,
                 results,
@@ -355,6 +587,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 activeRunId,
                 suites,
                 promptVersions,
+                schedules,
                 activeSuiteId,
                 activePromptVersionId,
                 toasts,
@@ -365,6 +598,9 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 updateTestCase,
                 updateVariable,
                 updateOutputValidation,
+                addConversationTurn,
+                updateConversationTurn,
+                removeConversationTurn,
                 removeTestCase,
                 loadRun,
                 saveCurrentSuite,
@@ -374,6 +610,9 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 savePromptVersion,
                 loadPromptVersion,
                 deletePromptVersion: deletePromptVersionRecord,
+                saveSchedule,
+                deleteSchedule,
+                runScheduleNow,
                 refreshAssets,
             }}
         >

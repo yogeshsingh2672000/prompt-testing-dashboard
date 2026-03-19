@@ -4,6 +4,15 @@ export interface TestCase {
     expectedOutput: string;
     variables?: Record<string, string>;
     outputValidation?: OutputValidationConfig;
+    conversation?: ConversationTurn[];
+}
+
+export type ConversationTurnRole = "user" | "assistant" | "tool";
+
+export interface ConversationTurn {
+    id: string;
+    role: ConversationTurnRole;
+    content: string;
 }
 
 export type OutputValidationType = "none" | "json" | "contains" | "starts_with" | "regex";
@@ -122,4 +131,40 @@ export interface ComparisonCaseResult {
     semanticDelta: number;
     similarityDelta: number;
     winner: "left" | "right" | "tie";
+}
+
+export interface TrendPoint {
+    label: string;
+    timestamp: number;
+    passRate: number;
+    avgOverall: number;
+    avgSemantic: number;
+    avgRubric: number;
+    avgLatencyMs: number;
+    totalCostUsd: number;
+}
+
+export interface RubricAnalyticsPoint {
+    rubricId: string;
+    name: string;
+    averageScore: number;
+    sampleCount: number;
+}
+
+export interface ModelLeaderboardEntry {
+    modelId: string;
+    runCount: number;
+    avgOverall: number;
+    passRate: number;
+    avgLatencyMs: number;
+    totalCostUsd: number;
+}
+
+export interface RegressionSummary {
+    hasBaseline: boolean;
+    passRateDelta: number;
+    avgOverallDelta: number;
+    avgLatencyDelta: number;
+    totalCostDelta: number;
+    newlyFailingCases: string[];
 }

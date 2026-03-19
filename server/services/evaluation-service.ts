@@ -7,6 +7,28 @@ import { calculateOverallScore, calculateRubricScore } from '@/shared/lib/evalua
 import { clamp, chunk, cosineSimilarity, templateReplace } from '@/shared/lib/utils';
 import { EvaluationRequest, EvaluationResult, PerformanceMetrics } from '@/shared/types';
 
+function buildEvaluationPrompt(userInputTemplate: string, testCase: EvaluationRequest["testCases"][number]) {
+    const finalUserInput = templateReplace(userInputTemplate, testCase.variables || {});
+
+    if (testCase.conversation && testCase.conversation.length > 0) {
+        const transcript = testCase.conversation
+            .map((turn, index) => `${index + 1}. ${turn.role.toUpperCase()}: ${turn.content}`)
+            .join("\n");
+
+        return [
+            finalUserInput,
+            "",
+            "Conversation Transcript:",
+            transcript,
+            testCase.input ? `Final Scenario Goal: ${testCase.input}` : "",
+        ]
+            .filter(Boolean)
+            .join("\n");
+    }
+
+    return `${finalUserInput}\n\nContext: ${testCase.input}`;
+}
+
 export async function evaluatePrompt(request: EvaluationRequest): Promise<EvaluationResult[]> {
     const { systemPrompt, userInput, testCases, batchSize, threshold, modelId, rubrics = [] } = request;
 
@@ -44,10 +66,10 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
 
             try {
                 const finalSystemPrompt = templateReplace(systemPrompt, testCase.variables || {});
-                const finalUserInput = templateReplace(userInput, testCase.variables || {});
+                const finalUserInput = buildEvaluationPrompt(userInput, testCase);
 
                 const [llmResult, expectedEmbedding] = await Promise.all([
-                    getResponse(finalSystemPrompt, `${finalUserInput}\n\nContext: ${testCase.input}`, selectedModelId),
+                    getResponse(finalSystemPrompt, finalUserInput, selectedModelId),
                     getEmbedding(testCase.expectedOutput),
                 ]);
 

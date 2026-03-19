@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const evaluatePromptMock = vi.fn();
 const generateTestCasesMock = vi.fn();
 const optimizePromptMock = vi.fn();
+const compareEvaluationRequestsMock = vi.fn();
 
 vi.mock("@/server/services/evaluation-service", () => ({
     evaluatePrompt: evaluatePromptMock,
@@ -14,6 +15,10 @@ vi.mock("@/server/services/test-case-generator-service", () => ({
 
 vi.mock("@/server/services/prompt-optimizer-service", () => ({
     optimizePrompt: optimizePromptMock,
+}));
+
+vi.mock("@/server/services/compare-service", () => ({
+    compareEvaluationRequests: compareEvaluationRequestsMock,
 }));
 
 describe("API routes", () => {
@@ -131,6 +136,44 @@ describe("API routes", () => {
         expect(response.status).toBe(400);
         await expect(response.json()).resolves.toEqual({
             error: "Current prompt is required",
+        });
+    });
+
+    it("returns comparison payloads from the compare route", async () => {
+        const { POST } = await import("@/app/api/compare/route");
+        compareEvaluationRequestsMock.mockResolvedValue({
+            leftResults: [],
+            rightResults: [],
+            summary: { left: { passRate: 100 }, right: { passRate: 50 } },
+            cases: [],
+        });
+
+        const response = await POST(new Request("http://localhost/api/compare", {
+            method: "POST",
+            body: JSON.stringify({
+                left: {
+                    systemPrompt: "Prompt",
+                    userInput: "{{input}}",
+                    testCases: [{ id: "tc-1", input: "hello", expectedOutput: "hi" }],
+                    batchSize: 1,
+                    threshold: 80,
+                },
+                right: {
+                    systemPrompt: "Prompt",
+                    userInput: "{{input}}",
+                    testCases: [{ id: "tc-1", input: "hello", expectedOutput: "hi" }],
+                    batchSize: 1,
+                    threshold: 80,
+                },
+            }),
+        }));
+
+        expect(response.status).toBe(200);
+        await expect(response.json()).resolves.toEqual({
+            leftResults: [],
+            rightResults: [],
+            summary: { left: { passRate: 100 }, right: { passRate: 50 } },
+            cases: [],
         });
     });
 });

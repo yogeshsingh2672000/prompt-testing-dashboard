@@ -1,12 +1,13 @@
-import { AppSettings, PersistenceProvider, PromptVersion, TestRun, TestCaseSuite } from "./types";
+import { AppSettings, PersistenceProvider, PromptVersion, ScheduledEvaluation, TestRun, TestCaseSuite } from "./types";
 
 const DB_NAME = "PromitlyDB";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const STORES = {
     RUNS: "evaluation_runs",
     SUITES: "test_case_suites",
     PROMPT_VERSIONS: "prompt_versions",
-    SETTINGS: "app_settings"
+    SETTINGS: "app_settings",
+    SCHEDULES: "scheduled_evaluations",
 };
 
 export class IndexedDBProvider implements PersistenceProvider {
@@ -37,6 +38,9 @@ export class IndexedDBProvider implements PersistenceProvider {
                 }
                 if (!db.objectStoreNames.contains(STORES.SETTINGS)) {
                     db.createObjectStore(STORES.SETTINGS, { keyPath: "id" });
+                }
+                if (!db.objectStoreNames.contains(STORES.SCHEDULES)) {
+                    db.createObjectStore(STORES.SCHEDULES, { keyPath: "id" });
                 }
             };
         });
@@ -116,6 +120,23 @@ export class IndexedDBProvider implements PersistenceProvider {
         await this.perform(STORES.PROMPT_VERSIONS, "readwrite", (store) => store.delete(id));
     }
 
+    // Schedules
+    async saveSchedule(schedule: ScheduledEvaluation): Promise<void> {
+        await this.perform(STORES.SCHEDULES, "readwrite", (store) => store.put(schedule));
+    }
+
+    async getSchedules(): Promise<ScheduledEvaluation[]> {
+        return this.perform<ScheduledEvaluation[]>(STORES.SCHEDULES, "readonly", (store) => store.getAll());
+    }
+
+    async getSchedule(id: string): Promise<ScheduledEvaluation | undefined> {
+        return this.perform<ScheduledEvaluation>(STORES.SCHEDULES, "readonly", (store) => store.get(id));
+    }
+
+    async deleteSchedule(id: string): Promise<void> {
+        await this.perform(STORES.SCHEDULES, "readwrite", (store) => store.delete(id));
+    }
+
     // Settings
     async saveSettings(settings: AppSettings): Promise<void> {
         await this.perform(STORES.SETTINGS, "readwrite", (store) => store.put(settings));
@@ -131,10 +152,11 @@ export class IndexedDBProvider implements PersistenceProvider {
 
     async clearAll(): Promise<void> {
         const db = await this.getDB();
-        const transaction = db.transaction([STORES.RUNS, STORES.SUITES, STORES.PROMPT_VERSIONS, STORES.SETTINGS], "readwrite");
+        const transaction = db.transaction([STORES.RUNS, STORES.SUITES, STORES.PROMPT_VERSIONS, STORES.SETTINGS, STORES.SCHEDULES], "readwrite");
         transaction.objectStore(STORES.RUNS).clear();
         transaction.objectStore(STORES.SUITES).clear();
         transaction.objectStore(STORES.PROMPT_VERSIONS).clear();
         transaction.objectStore(STORES.SETTINGS).clear();
+        transaction.objectStore(STORES.SCHEDULES).clear();
     }
 }

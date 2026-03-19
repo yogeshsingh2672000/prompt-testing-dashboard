@@ -1,4 +1,5 @@
 import {
+    ConversationTurn,
     EvaluationRequest,
     EvaluationResult,
     OptimizePromptRequest,
@@ -28,6 +29,22 @@ function parseOutputValidation(value: unknown): OutputValidationConfig | undefin
     };
 }
 
+function parseConversationTurn(value: unknown, index: number): ConversationTurn {
+    if (!isObject(value) || typeof value.id !== "string" || typeof value.content !== "string" || typeof value.role !== "string") {
+        throw new Error(`Conversation turn ${index + 1} is invalid`);
+    }
+
+    if (!["user", "assistant", "tool"].includes(value.role)) {
+        throw new Error(`Conversation turn ${index + 1} is invalid`);
+    }
+
+    return {
+        id: value.id,
+        content: value.content,
+        role: value.role as ConversationTurn["role"],
+    };
+}
+
 function parseTestCase(value: unknown, index: number): TestCase {
     if (!isObject(value)) {
         throw new Error(`Test case ${index + 1} must be an object`);
@@ -47,6 +64,7 @@ function parseTestCase(value: unknown, index: number): TestCase {
         expectedOutput: value.expectedOutput,
         variables,
         outputValidation: parseOutputValidation(value.outputValidation),
+        conversation: Array.isArray(value.conversation) ? value.conversation.map(parseConversationTurn) : undefined,
     };
 }
 

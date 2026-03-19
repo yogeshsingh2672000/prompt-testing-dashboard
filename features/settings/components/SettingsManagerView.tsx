@@ -20,6 +20,10 @@ export function SettingsManagerView() {
         saveSettings,
         resetSettings,
         applySettingsToWorkspace,
+        promptVersions,
+        suites,
+        setGlobalBaselinePromptVersionId,
+        setSuiteBaselinePromptVersionId,
         pushToast,
     } = useDashboardWorkspace();
 
@@ -210,6 +214,60 @@ export function SettingsManagerView() {
                             ))}
                         </div>
                     </div>
+
+                    <div className="space-y-4 rounded-[1.75rem] border border-zinc-200 bg-white/70 p-5 dark:border-zinc-800 dark:bg-zinc-900/60">
+                        <div className="space-y-2">
+                            <div className="section-kicker">Baselines</div>
+                            <h3 className="text-lg font-black tracking-tight text-zinc-900 dark:text-white">Regression reference versions</h3>
+                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                Assign approved prompt versions that future analytics should compare against globally or per suite.
+                            </p>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Global baseline</label>
+                            <select
+                                value={settings.globalBaselinePromptVersionId || ""}
+                                onChange={(event) => void setGlobalBaselinePromptVersionId(event.target.value || undefined)}
+                                className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-teal-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                            >
+                                <option value="">No global baseline</option>
+                                {promptVersions.map((version) => (
+                                    <option key={version.id} value={version.id}>
+                                        {version.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="space-y-3">
+                            {suites.map((suite) => {
+                                const suiteVersions = promptVersions.filter((version) => version.suiteId === suite.id);
+                                return (
+                                    <div key={suite.id} className="rounded-[1.5rem] border border-zinc-200 bg-white/80 p-4 dark:border-zinc-800 dark:bg-zinc-950/50">
+                                        <div className="mb-3">
+                                            <div className="text-sm font-black text-zinc-900 dark:text-white">{suite.name}</div>
+                                            <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                                {suiteVersions.length} saved versions available
+                                            </div>
+                                        </div>
+                                        <select
+                                            value={settings.baselinePromptVersionIdsBySuite[suite.id] || ""}
+                                            onChange={(event) => void setSuiteBaselinePromptVersionId(suite.id, event.target.value || undefined)}
+                                            className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-teal-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                                        >
+                                            <option value="">Use global baseline</option>
+                                            {suiteVersions.map((version) => (
+                                                <option key={version.id} value={version.id}>
+                                                    {version.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </SurfaceCard>
 
                 <SurfaceCard className="space-y-6">
@@ -253,6 +311,7 @@ export function SettingsManagerView() {
                             <div>Threshold: {settings.defaultThreshold}%</div>
                             <div>Batch size: {settings.defaultBatchSize}</div>
                             <div>Enabled rubrics: {settings.defaultRubrics.filter((rubric) => rubric.enabled).length}</div>
+                            <div>Global baseline: {promptVersions.find((version) => version.id === settings.globalBaselinePromptVersionId)?.name || "Not set"}</div>
                             <div>Updated: {new Date(settings.updatedAt).toLocaleString()}</div>
                         </div>
                     </div>

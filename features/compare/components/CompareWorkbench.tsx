@@ -9,8 +9,7 @@ import {
     EvaluationRequest,
     EvaluationResult,
 } from "@/shared/types";
-import { createFallbackEvaluationResult } from "@/shared/lib/evaluation-factories";
-import { toComparisonMetricsSummary } from "@/shared/lib/evaluation-summary";
+import { comparePromptVersions } from "@/shared/lib/prompt-diff";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
 import { SurfaceCard } from "@/shared/ui/SurfaceCard";
 import { cn, formatCost } from "@/shared/lib/utils";
@@ -56,6 +55,14 @@ export function CompareWorkbench() {
         return suites.find((suite) => suite.id === datasetId) || null;
     }, [datasetId, suites, testCases]);
 
+    const promptDiff = useMemo(() => {
+        if (!leftVersion || !rightVersion) {
+            return null;
+        }
+
+        return comparePromptVersions(leftVersion, rightVersion);
+    }, [leftVersion, rightVersion]);
+
     const runComparison = async () => {
         if (!leftVersion || !rightVersion) {
             pushToast({
@@ -98,81 +105,27 @@ export function CompareWorkbench() {
         setComparison(null);
 
         try {
-            const [leftResponse, rightResponse] = await Promise.all([
-                fetch("/api/evaluate", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(makeRequest(leftVersion)),
+            const response = await fetch("/api/compare", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    left: makeRequest(leftVersion),
+                    right: makeRequest(rightVersion),
                 }),
-                fetch("/api/evaluate", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(makeRequest(rightVersion)),
-                }),
-            ]);
-
-            const [leftPayload, rightPayload] = await Promise.all([leftResponse.json(), rightResponse.json()]);
-
-            if (!leftResponse.ok) {
-                throw new Error(typeof leftPayload?.error === "string" ? leftPayload.error : "Left comparison run failed");
-            }
-
-            if (!rightResponse.ok) {
-                throw new Error(typeof rightPayload?.error === "string" ? rightPayload.error : "Right comparison run failed");
-            }
-
-            const leftResults = leftPayload as EvaluationResult[];
-            const rightResults = rightPayload as EvaluationResult[];
-            const rightResultsMap = new Map(rightResults.map((result) => [result.testCaseId, result]));
-
-            const cases: ComparisonCaseResult[] = selectedDataset.testCases.map((testCase) => {
-                const fallbackResult = createFallbackEvaluationResult({
-                    testCaseId: testCase.id,
-                    validationType: testCase.outputValidation?.type || "none",
-                    validationEnabled: Boolean(testCase.outputValidation && testCase.outputValidation.type !== "none"),
-                });
-
-                const left = leftResults.find((result) => result.testCaseId === testCase.id) || fallbackResult;
-                const right = rightResultsMap.get(testCase.id) || fallbackResult;
-
-                const overallDelta = left.overallScore - right.overallScore;
-                const semanticDelta = left.semanticScore - right.semanticScore;
-                const similarityDelta = left.similarity - right.similarity;
-                const winner =
-                    overallDelta === 0
-                        ? semanticDelta === 0
-                            ? similarityDelta === 0
-                                ? "tie"
-                                : similarityDelta > 0
-                                    ? "left"
-                                    : "right"
-                            : semanticDelta > 0
-                                ? "left"
-                                : "right"
-                        : overallDelta > 0
-                            ? "left"
-                            : "right";
-
-                return {
-                    testCaseId: testCase.id,
-                    input: testCase.input,
-                    expectedOutput: testCase.expectedOutput,
-                    left,
-                    right,
-                    overallDelta,
-                    semanticDelta,
-                    similarityDelta,
-                    winner,
-                };
             });
+
+            const payload = await response.json();
+
+            if (!response.ok) {
+                throw new Error(typeof payload?.error === "string" ? payload.error : "Comparison run failed");
+            }
+
+            const { leftResults, rightResults, summary, cases } = payload as ComparisonRunState;
 
             setComparison({
                 leftResults,
                 rightResults,
-                summary: {
-                    left: toComparisonMetricsSummary(leftResults),
-                    right: toComparisonMetricsSummary(rightResults),
-                },
+                summary,
                 cases,
             });
 
@@ -266,6 +219,44 @@ export function CompareWorkbench() {
                     </div>
                 )}
             </SurfaceCard>
+
+            {promptDiff && leftVersion && rightVersion && (
+                <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+                    <SurfaceCard className="space-y-5">
+                        <div>
+                            <div className="section-kicker">Prompt Diff</div>
+                            <h3 className="mt-3 text-xl font-black tracking-tight text-zinc-900 dark:text-white">What changed between these versions</h3>
+                        </div>
+                        <div className="grid gap-4 xl:grid-cols-2">
+                            <DiffPanel title={`${leftVersion.name} -> ${rightVersion.name} system prompt`} lines={promptDiff.systemPrompt} />
+                            <DiffPanel title="User input template" lines={promptDiff.userInput} />
+                        </div>
+                    </SurfaceCard>
+
+                    <SurfaceCard className="space-y-5">
+                        <div>
+                            <div className="section-kicker">Config Delta</div>
+                            <h3 className="mt-3 text-xl font-black tracking-tight text-zinc-900 dark:text-white">Evaluator and rubric changes</h3>
+                        </div>
+                        <div className="space-y-3 text-sm text-zinc-600 dark:text-zinc-300">
+                            <div className="rounded-[1.5rem] border border-zinc-200 bg-white/70 p-4 dark:border-zinc-800 dark:bg-zinc-950/50">
+                                Test case delta: {promptDiff.testCaseDelta > 0 ? "+" : ""}
+                                {promptDiff.testCaseDelta}
+                            </div>
+                            {(promptDiff.configChanges.length > 0 ? promptDiff.configChanges : ["No model, threshold, or batch-size changes detected."]).map((line) => (
+                                <div key={line} className="rounded-[1.5rem] border border-zinc-200 bg-white/70 p-4 dark:border-zinc-800 dark:bg-zinc-950/50">
+                                    {line}
+                                </div>
+                            ))}
+                            {(promptDiff.rubricChanges.length > 0 ? promptDiff.rubricChanges : ["No rubric changes detected."]).map((line) => (
+                                <div key={line} className="rounded-[1.5rem] border border-zinc-200 bg-white/70 p-4 dark:border-zinc-800 dark:bg-zinc-950/50">
+                                    {line}
+                                </div>
+                            ))}
+                        </div>
+                    </SurfaceCard>
+                </div>
+            )}
 
             {comparison && leftVersion && rightVersion && (
                 <>
@@ -366,6 +357,30 @@ export function CompareWorkbench() {
                     </SurfaceCard>
                 </>
             )}
+        </div>
+    );
+}
+
+function DiffPanel({ title, lines }: { title: string; lines: ReturnType<typeof comparePromptVersions>["systemPrompt"] }) {
+    return (
+        <div className="rounded-[1.5rem] border border-zinc-200 bg-white/70 p-4 dark:border-zinc-800 dark:bg-zinc-950/50">
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">{title}</div>
+            <div className="mt-4 space-y-2">
+                {lines.map((line, index) => (
+                    <div
+                        key={`${line.type}-${index}-${line.value}`}
+                        className={cn(
+                            "rounded-xl px-3 py-2 text-xs leading-relaxed",
+                            line.type === "unchanged" && "bg-zinc-100 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400",
+                            line.type === "added" && "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+                            line.type === "removed" && "bg-rose-500/10 text-rose-700 dark:text-rose-300"
+                        )}
+                    >
+                        <span className="mr-2 font-black uppercase">{line.type === "unchanged" ? "=" : line.type === "added" ? "+" : "-"}</span>
+                        {line.value || "(empty line)"}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

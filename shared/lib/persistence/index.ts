@@ -1,4 +1,4 @@
-import { AppSettings, PersistenceProvider, PromptVersion, TestCaseSuite, TestRun } from "./types";
+import { AppSettings, PersistenceProvider, PromptVersion, ScheduledEvaluation, TestCaseSuite, TestRun } from "./types";
 import { IndexedDBProvider } from "./IndexedDBProvider";
 
 class PersistenceService {
@@ -57,6 +57,23 @@ class PersistenceService {
 
     async deletePromptVersion(id: string) {
         return this.provider.deletePromptVersion(id);
+    }
+
+    // Schedules
+    async saveSchedule(schedule: ScheduledEvaluation) {
+        return this.provider.saveSchedule(schedule);
+    }
+
+    async getSchedules() {
+        return this.provider.getSchedules();
+    }
+
+    async getSchedule(id: string) {
+        return this.provider.getSchedule(id);
+    }
+
+    async deleteSchedule(id: string) {
+        return this.provider.deleteSchedule(id);
     }
 
     // Settings

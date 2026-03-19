@@ -3,7 +3,16 @@
 import { useState } from "react";
 import { RubricDefinition, TestCase, EvaluationResult, EvaluationRequest } from "@/shared/types";
 import { persistence, TestRun } from "@/shared/lib/persistence";
-import { summarizeEvaluationResults } from "@/shared/lib/evaluation-summary";
+import { buildTestRun } from "@/shared/lib/run-records";
+
+interface EvaluationRunMetadata {
+    suiteId?: string;
+    promptVersionId?: string;
+    triggerSource?: TestRun["triggerSource"];
+    baselinePromptVersionId?: string;
+    runName?: string;
+    metadata?: TestRun["metadata"];
+}
 
 export function useEvaluation(
     testCases: TestCase[],
@@ -13,7 +22,8 @@ export function useEvaluation(
     threshold: number,
     modelId?: string,
     rubrics: RubricDefinition[] = [],
-    onError?: (message: string) => void
+    onError?: (message: string) => void,
+    runMetadata?: EvaluationRunMetadata
 ) {
     const [results, setResults] = useState<EvaluationResult[]>([]);
     const [loading, setLoading] = useState(false);
@@ -66,27 +76,22 @@ export function useEvaluation(
 
             // Save to persistence
             if (data.length > 0) {
-                const summary = summarizeEvaluationResults(data);
-
-                const run: TestRun = {
-                    id: crypto.randomUUID(),
-                    timestamp: Date.now(),
-                    name: `Run ${new Date().toLocaleString()}`,
+                const run: TestRun = buildTestRun({
+                    name: runMetadata?.runName || `Run ${new Date().toLocaleString()}`,
+                    suiteId: runMetadata?.suiteId,
+                    promptVersionId: runMetadata?.promptVersionId,
                     systemPrompt,
                     userInput,
                     testCases,
                     results: data,
-                    config: { batchSize, threshold, modelId, rubrics },
-                    metrics: {
-                        avgSimilarity: summary.avgSimilarity,
-                        avgSemantic: summary.avgSemantic,
-                        avgRubric: summary.avgRubric,
-                        avgOverall: summary.avgOverall,
-                        passRate: summary.passRate,
-                        totalCases: summary.totalCases,
-                        passedCases: summary.passedCases,
-                    }
-                };
+                    batchSize,
+                    threshold,
+                    modelId,
+                    rubrics,
+                    triggerSource: runMetadata?.triggerSource,
+                    baselinePromptVersionId: runMetadata?.baselinePromptVersionId,
+                    metadata: runMetadata?.metadata,
+                });
                 await persistence.saveRun(run);
                 window.dispatchEvent(new CustomEvent("promitly:runs-updated"));
             }
