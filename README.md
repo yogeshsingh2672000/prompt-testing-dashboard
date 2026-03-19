@@ -1,18 +1,49 @@
 # Promitly
 
-Promitly is a prompt QA platform for evaluating, comparing, reviewing, and reporting on prompt behavior against curated test suites. It combines automated scoring with human review so prompt changes can be treated more like a real quality workflow instead of one-off experimentation.
+Promitly is an open-source, local-first prompt evaluation platform for prompt testing, prompt comparison, prompt regression tracking, structured output validation, and human review workflows. It was built for developers who want to test prompts privately in their own environment instead of exposing prompt logic to a third-party hosted prompt testing platform.
+
+## Why Promitly
+
+- Keep prompt logic inside your own local environment
+- Test prompts against reusable suites before shipping
+- Compare prompt versions side by side
+- Validate JSON and other structured output formats
+- Track prompt quality trends, regressions, and reviewer decisions
+- Run an open-source prompt QA workflow in a modern Next.js app
+
+If you are searching for a prompt testing dashboard, prompt evaluation tool, private prompt testing platform, or open-source LLM QA platform, Promitly is designed for exactly that use case.
+
+## The story behind Promitly
+
+Promitly started from a simple problem: developers needed a way to evaluate prompts locally without exposing sensitive prompt logic to the world through another hosted platform.
+
+That is the real USP of this project.
+
+Promitly gives developers a secluded, local-first prompt QA environment where they can:
+
+- test prompts privately
+- compare prompt versions
+- run prompt regression checks
+- validate structured outputs
+- review model behavior before release
+
+The goal is not just better prompt evaluation. The goal is private prompt evaluation with full control.
 
 ## Core capabilities
 
+- Local-first prompt testing workflow for private prompt evaluation
 - Workspace for prompt authoring, rubric tuning, and test-case design
 - Automated evaluation with semantic score, rubric score, overall score, latency, token usage, and cost
 - Structured output validation for JSON, prefix, substring, and regex constraints
 - Prompt versioning and saved datasets
 - A/B comparison across prompt versions on the same dataset
+- Trend analytics, regression summaries, and model leaderboards
+- Scheduled evaluation configs for recurring prompt checks
 - Human review workflow with reviewer notes and pass/fail overrides
 - Shared HTML and Markdown run reports
 - Dataset import/export in JSON and CSV
 - Local app settings for evaluator defaults and rubric presets
+- Public marketing landing page, sitemap, robots, manifest, and structured SEO metadata
 
 ## Stack
 
@@ -35,12 +66,13 @@ npm install
 2. Create a local environment file:
 
 ```bash
-.env.local
+cp .env.example .env.local
 ```
 
 3. Add the AWS / Bedrock credentials your environment expects.
+4. Set `NEXT_PUBLIC_SITE_URL` in `.env.local` before deploying so canonical URLs, sitemap entries, and social metadata point to your real domain.
 
-4. Start the app:
+5. Start the app:
 
 ```bash
 npm run dev
@@ -56,15 +88,19 @@ npm run build
 npm run start
 npm run lint
 npm run test
+npm run test:coverage
 ```
 
 ## Product routes
 
+- `/`: public landing page for search engines, social sharing, and contributor discovery
 - `/workspace`: author prompts, manage rubrics, and build test cases
 - `/results`: inspect evaluation metrics and row-level outputs
+- `/analytics`: track trends, regressions, rubric analytics, and model comparisons
 - `/history`: browse saved runs and export reports
 - `/compare`: run prompt version A/B comparisons
 - `/datasets`: manage reusable suites and import/export them
+- `/schedules`: create recurring prompt checks from saved prompt versions
 - `/reviews`: add reviewer decisions, notes, and overrides
 - `/settings`: manage default evaluator configuration and rubric presets
 
@@ -111,9 +147,28 @@ shared/
 ## Persistence model
 
 - Saved runs, datasets, prompt versions, and app settings are stored in IndexedDB.
-- Persistence is browser-local by design right now.
+- Scheduled evaluations are also stored locally in IndexedDB.
+- Persistence is browser-local by design right now, which supports the product's local-first and privacy-focused workflow.
 - Reviews are attached to saved runs, so human QA context stays with the experiment it belongs to.
 - Settings store evaluator defaults such as model, threshold, batch size, and default rubric preset.
+- Because persistence is local, scheduled runs execute while the app is open rather than from a remote job runner.
+
+## SEO and discoverability
+
+Promitly now includes:
+
+- localized metadata and route titles
+- a public landing page with search-friendly copy
+- `robots.txt`, `sitemap.xml`, and `manifest.webmanifest`
+- JSON-LD structured data for `WebSite` and `SoftwareApplication`
+- social preview assets for Open Graph and Twitter cards
+- contributor-facing GitHub templates and community files
+
+For production SEO, set:
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+```
 
 ## Testing strategy
 
@@ -142,6 +197,18 @@ Note: in some restricted Windows sandbox environments, the test runner may requi
 - Shared math or repeated object construction should live in `shared/lib` instead of being duplicated across UI and service layers.
 - When adding new evaluator behavior, prefer testing pure utilities directly and mocking the AI boundary in service tests.
 - Persistence changes that affect IndexedDB must keep store version upgrades in sync.
+- Metadata, sitemap, and public discoverability changes should stay consistent with `shared/constants/site.ts`.
+
+## Open-source files
+
+The repository now includes:
+
+- `CONTRIBUTING.md`
+- `CODE_OF_CONDUCT.md`
+- `SECURITY.md`
+- `LICENSE`
+- GitHub issue templates
+- a pull request template
 
 ## Current limitations
 
@@ -149,3 +216,4 @@ Note: in some restricted Windows sandbox environments, the test runner may requi
 - Persistence is local to the browser because runs are stored in IndexedDB.
 - There is still no backend multi-user storage or auth layer.
 - Reports are exportable artifacts, but there is not yet a hosted share-link workflow.
+- Scheduled evaluations are browser-local rather than server-cron based.

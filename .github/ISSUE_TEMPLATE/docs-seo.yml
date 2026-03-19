@@ -1,0 +1,17 @@
+name: Docs or SEO improvement
+description: Suggest documentation, copy, discoverability, or onboarding improvements
+title: "[Docs/SEO]: "
+labels: ["documentation", "seo"]
+body:
+  - type: textarea
+    id: gap
+    attributes:
+      label: What is missing or unclear?
+      description: Describe the content gap, ranking issue, or contributor confusion.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Suggested improvement
+      description: Share the copy, structure, metadata, or doc improvement you want to propose.

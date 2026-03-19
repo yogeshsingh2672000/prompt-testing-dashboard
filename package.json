@@ -2,6 +2,22 @@
   "name": "promitly",
   "version": "0.1.0",
   "private": true,
+  "description": "Open-source, local-first prompt evaluation platform for private prompt testing, prompt comparison, structured output validation, and LLM QA workflows.",
+  "author": "Promitly Contributors",
+  "license": "MIT",
+  "keywords": [
+    "prompt-evaluation",
+    "prompt-testing",
+    "local-prompt-testing",
+    "private-prompt-testing",
+    "prompt-engineering",
+    "llm-evaluation",
+    "ai-testing",
+    "prompt-regression",
+    "nextjs",
+    "bedrock",
+    "open-source"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
