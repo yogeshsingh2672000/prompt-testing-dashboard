@@ -1,6 +1,6 @@
 import { summarizeEvaluationResults } from "@/shared/lib/evaluation-summary";
 import { TestRun } from "@/shared/lib/persistence";
-import { EvaluationResult, RubricDefinition, TestCase } from "@/shared/types";
+import { EvaluationResult, LLMProviderId, RubricDefinition, TestCase } from "@/shared/types";
 
 interface BuildTestRunInput {
     name: string;
@@ -10,6 +10,7 @@ interface BuildTestRunInput {
     results: EvaluationResult[];
     batchSize: number;
     threshold: number;
+    providerId?: LLMProviderId;
     modelId?: string;
     rubrics: RubricDefinition[];
     suiteId?: string;
@@ -40,6 +41,7 @@ export function buildTestRun(input: BuildTestRunInput): TestRun {
         config: {
             batchSize: input.batchSize,
             threshold: input.threshold,
+            providerId: input.providerId,
             modelId: input.modelId,
             rubrics: input.rubrics,
         },

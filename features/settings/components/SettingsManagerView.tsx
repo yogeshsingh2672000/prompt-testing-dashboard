@@ -4,9 +4,9 @@ import { RotateCcw, Save, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDashboardWorkspace } from "@/features/dashboard/providers/DashboardWorkspaceProvider";
 import { RUBRIC_PRESETS } from "@/shared/constants/defaults";
-import { SUPPORTED_MODELS } from "@/shared/constants/models";
+import { getModelDisplayName, getModelsByProvider, SUPPORTED_PROVIDERS } from "@/shared/constants/models";
 import { AppSettings } from "@/shared/lib/persistence";
-import { RubricDefinition } from "@/shared/types";
+import { LLMProviderId, RubricDefinition } from "@/shared/types";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
 import { SurfaceCard } from "@/shared/ui/SurfaceCard";
 
@@ -29,6 +29,7 @@ export function SettingsManagerView() {
 
     const [draft, setDraft] = useState<AppSettings>(settings);
     const [isSaving, setIsSaving] = useState(false);
+    const modelsForDraftProvider = getModelsByProvider(draft.defaultProviderId || "bedrock");
 
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
@@ -121,7 +122,33 @@ export function SettingsManagerView() {
                         </p>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-3">
+                    <div className="grid gap-4 md:grid-cols-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Default provider</label>
+                            <select
+                                value={draft.defaultProviderId || "bedrock"}
+                                onChange={(event) =>
+                                    setDraft((current) => {
+                                        const nextProviderId = event.target.value as LLMProviderId;
+                                        const nextModelId = getModelsByProvider(nextProviderId)[0]?.id || current.defaultModelId;
+
+                                        return {
+                                            ...current,
+                                            defaultProviderId: nextProviderId,
+                                            defaultModelId: nextModelId,
+                                        };
+                                    })
+                                }
+                                className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-teal-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                            >
+                                {SUPPORTED_PROVIDERS.map((provider) => (
+                                    <option key={provider.id} value={provider.id}>
+                                        {provider.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Default model</label>
                             <select
@@ -129,7 +156,7 @@ export function SettingsManagerView() {
                                 onChange={(event) => setDraft((current) => ({ ...current, defaultModelId: event.target.value }))}
                                 className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-teal-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
                             >
-                                {SUPPORTED_MODELS.map((model) => (
+                                {modelsForDraftProvider.map((model) => (
                                     <option key={model.id} value={model.id}>
                                         {model.name}
                                     </option>
@@ -307,7 +334,8 @@ export function SettingsManagerView() {
                     <div className="rounded-[1.75rem] border border-zinc-200 bg-white/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/60">
                         <div className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Current saved state</div>
                         <div className="mt-3 space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
-                            <div>Model: {SUPPORTED_MODELS.find((model) => model.id === settings.defaultModelId)?.name || "Default model"}</div>
+                            <div>Provider: {SUPPORTED_PROVIDERS.find((provider) => provider.id === settings.defaultProviderId)?.name || "Default provider"}</div>
+                            <div>Model: {getModelDisplayName(settings.defaultModelId)}</div>
                             <div>Threshold: {settings.defaultThreshold}%</div>
                             <div>Batch size: {settings.defaultBatchSize}</div>
                             <div>Enabled rubrics: {settings.defaultRubrics.filter((rubric) => rubric.enabled).length}</div>

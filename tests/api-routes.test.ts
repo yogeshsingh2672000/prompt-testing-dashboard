@@ -96,7 +96,10 @@ describe("API routes", () => {
         await expect(response.json()).resolves.toEqual({
             testCases: [{ input: "hello", expectedOutput: "hi" }],
         });
-        expect(generateTestCasesMock).toHaveBeenCalledWith("Prompt", "Hello", 2);
+        expect(generateTestCasesMock).toHaveBeenCalledWith("Prompt", "Hello", 2, {
+            providerId: undefined,
+            modelId: undefined,
+        });
     });
 
     it("returns prompt optimization suggestions when the payload is valid", async () => {

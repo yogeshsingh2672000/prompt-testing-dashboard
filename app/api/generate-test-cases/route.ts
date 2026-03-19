@@ -5,8 +5,8 @@ import { generateTestCases } from '@/server/services/test-case-generator-service
 
 export async function POST(req: Request) {
   try {
-    const { sampleInput, systemPrompt, count } = parseGenerateTestCasesRequest(await req.json());
-    const testCases = await generateTestCases(systemPrompt, sampleInput, count);
+    const { sampleInput, systemPrompt, count, providerId, modelId } = parseGenerateTestCasesRequest(await req.json());
+    const testCases = await generateTestCases(systemPrompt, sampleInput, count, { providerId, modelId });
 
     return NextResponse.json({ testCases });
   } catch (error) {

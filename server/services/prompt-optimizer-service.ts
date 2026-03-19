@@ -3,7 +3,12 @@ import { getModel } from '@/server/lib/ai';
 import { extractJson } from '@/shared/lib/utils';
 import { OptimizePromptRequest, PromptOptimizationSuggestion } from '@/shared/types';
 
-export async function optimizePrompt({ currentPrompt, results, modelId }: OptimizePromptRequest): Promise<PromptOptimizationSuggestion> {
+export async function optimizePrompt({
+    currentPrompt,
+    results,
+    providerId,
+    modelId,
+}: OptimizePromptRequest): Promise<PromptOptimizationSuggestion> {
     if (!currentPrompt?.trim()) {
         throw new Error('Current prompt is required');
     }
@@ -12,7 +17,7 @@ export async function optimizePrompt({ currentPrompt, results, modelId }: Optimi
         throw new Error('Evaluation results are required');
     }
 
-    const model = getModel(modelId);
+    const model = getModel({ providerId, modelId });
     const sortedResults = [...results].sort((a, b) => b.semanticScore - a.semanticScore);
     const bestExamples = sortedResults.slice(0, 2);
     const worstExamples = sortedResults.slice(-2);

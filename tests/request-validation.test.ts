@@ -10,6 +10,8 @@ describe("request validation", () => {
         const request = parseEvaluationRequest({
             systemPrompt: "You are helpful",
             userInput: "{{input}}",
+            providerId: "openai",
+            modelId: "gpt-4.1-mini",
             testCases: [
                 {
                     id: "tc-1",
@@ -35,6 +37,8 @@ describe("request validation", () => {
         });
 
         expect(request.batchSize).toBe(3);
+        expect(request.providerId).toBe("openai");
+        expect(request.modelId).toBe("gpt-4.1-mini");
         expect(request.testCases[0].outputValidation?.type).toBe("contains");
         expect(request.testCases[0].conversation?.[0].role).toBe("user");
         expect(request.rubrics?.[0].id).toBe("accuracy");
@@ -106,11 +110,17 @@ describe("request validation", () => {
             systemPrompt: "Prompt",
             sampleInput: "hello",
             count: "6",
+            providerId: "google",
+            modelId: "gemini-2.5-flash",
         });
         expect(generation.count).toBe(6);
+        expect(generation.providerId).toBe("google");
+        expect(generation.modelId).toBe("gemini-2.5-flash");
 
         const optimization = parseOptimizePromptRequest({
             currentPrompt: "Prompt",
+            providerId: "anthropic",
+            modelId: "claude-3-5-sonnet-20241022",
             results: [
                 {
                     testCaseId: "tc-1",
@@ -122,6 +132,8 @@ describe("request validation", () => {
             ],
         });
         expect(optimization.currentPrompt).toBe("Prompt");
+        expect(optimization.providerId).toBe("anthropic");
+        expect(optimization.modelId).toBe("claude-3-5-sonnet-20241022");
         expect(optimization.results).toHaveLength(1);
         expect(optimization.results[0].status).toBe("pass");
         expect(optimization.results[0].metrics.tokens.total).toBe(0);

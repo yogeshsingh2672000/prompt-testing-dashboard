@@ -11,12 +11,12 @@ import {
     INITIAL_TEST_CASES,
     RUBRIC_PRESETS,
 } from "@/shared/constants/defaults";
-import { DEFAULT_MODEL_ID } from "@/shared/constants/models";
+import { DEFAULT_MODEL_ID, DEFAULT_PROVIDER_ID, getModelsByProvider, resolveProviderId } from "@/shared/constants/models";
 import { buildTestRun } from "@/shared/lib/run-records";
 import { resolveBaselinePromptVersionId } from "@/shared/lib/run-analytics";
 import { getNextRunAt, isScheduleDue } from "@/shared/lib/schedule-utils";
 import { AppSettings, persistence, PromptVersion, ScheduledEvaluation, TestCaseSuite, TestRun } from "@/shared/lib/persistence";
-import { ConversationTurnRole, EvaluationRequest, EvaluationResult, OutputValidationType, RubricDefinition, TestCase } from "@/shared/types";
+import { ConversationTurnRole, EvaluationRequest, EvaluationResult, LLMProviderId, OutputValidationType, RubricDefinition, TestCase } from "@/shared/types";
 import { ToastItem } from "@/shared/ui/ToastViewport";
 
 interface DashboardWorkspaceContextValue {
@@ -39,6 +39,8 @@ interface DashboardWorkspaceContextValue {
     applySettingsToWorkspace: (settings?: AppSettings) => void;
     setGlobalBaselinePromptVersionId: (versionId?: string) => Promise<void>;
     setSuiteBaselinePromptVersionId: (suiteId: string, versionId?: string) => Promise<void>;
+    providerId: LLMProviderId;
+    setProviderId: (value: LLMProviderId) => void;
     modelId: string;
     setModelId: (value: string) => void;
     results: ReturnType<typeof useEvaluation>["results"];
@@ -81,6 +83,7 @@ const DashboardWorkspaceContext = createContext<DashboardWorkspaceContextValue |
 function createDefaultAppSettings(): AppSettings {
     return {
         id: "app_settings",
+        defaultProviderId: DEFAULT_PROVIDER_ID,
         defaultModelId: DEFAULT_MODEL_ID,
         defaultBatchSize: DEFAULT_BATCH_SIZE,
         defaultThreshold: DEFAULT_THRESHOLD,
@@ -98,7 +101,8 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
     const [batchSize, setBatchSize] = useState(DEFAULT_BATCH_SIZE);
     const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
     const [rubrics, setRubrics] = useState<RubricDefinition[]>(DEFAULT_RUBRICS);
-    const [modelId, setModelId] = useState(DEFAULT_MODEL_ID);
+    const [providerId, setProviderIdState] = useState<LLMProviderId>(DEFAULT_PROVIDER_ID);
+    const [modelId, setModelIdState] = useState(DEFAULT_MODEL_ID);
     const [settings, setSettings] = useState<AppSettings>(() => createDefaultAppSettings());
     const [activeRunId, setActiveRunId] = useState<string | undefined>();
     const [activeSuiteId, setActiveSuiteId] = useState<string | undefined>();
@@ -142,7 +146,8 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
             setBatchSize(normalizedSettings.defaultBatchSize);
             setThreshold(normalizedSettings.defaultThreshold);
             setRubrics(normalizedSettings.defaultRubrics);
-            setModelId(normalizedSettings.defaultModelId || DEFAULT_MODEL_ID);
+            setProviderIdState(normalizedSettings.defaultProviderId || resolveProviderId(normalizedSettings.defaultModelId));
+            setModelIdState(normalizedSettings.defaultModelId || DEFAULT_MODEL_ID);
         }
     }, []);
 
@@ -171,6 +176,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 testCases,
                 batchSize: schedule.batchSize,
                 threshold: schedule.threshold,
+                providerId: schedule.providerId || promptVersion.providerId,
                 modelId: schedule.modelId || promptVersion.modelId,
                 rubrics: schedule.rubrics,
             };
@@ -202,6 +208,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 results,
                 batchSize: schedule.batchSize,
                 threshold: schedule.threshold,
+                providerId: schedule.providerId || promptVersion.providerId,
                 modelId: schedule.modelId || promptVersion.modelId,
                 rubrics: schedule.rubrics,
                 suiteId: suite?.id || promptVersion.suiteId,
@@ -268,6 +275,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         userInput,
         batchSize,
         threshold,
+        providerId,
         modelId,
         rubrics,
         (message) => pushToast({ title: "Evaluation failed", message, variant: "error" }),
@@ -291,11 +299,25 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         setRubrics((current) => current.map((rubric) => (rubric.id === id ? { ...rubric, ...updates } : rubric)));
     };
 
+    const setProviderId = (value: LLMProviderId) => {
+        setProviderIdState(value);
+        const nextModelId = getModelsByProvider(value)[0]?.id;
+        if (nextModelId) {
+            setModelIdState(nextModelId);
+        }
+    };
+
+    const setModelId = (value: string) => {
+        setProviderIdState(resolveProviderId(value, providerId));
+        setModelIdState(value);
+    };
+
     const applySettingsToWorkspace = (nextSettings: AppSettings = settings) => {
         setBatchSize(nextSettings.defaultBatchSize);
         setThreshold(nextSettings.defaultThreshold);
         setRubrics(nextSettings.defaultRubrics);
-        setModelId(nextSettings.defaultModelId || DEFAULT_MODEL_ID);
+        setProviderIdState(nextSettings.defaultProviderId || resolveProviderId(nextSettings.defaultModelId));
+        setModelIdState(nextSettings.defaultModelId || DEFAULT_MODEL_ID);
     };
 
     const saveSettings = async (nextSettings: AppSettings) => {
@@ -431,7 +453,8 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         setBatchSize(run.config.batchSize);
         setThreshold(run.config.threshold);
         setRubrics(run.config.rubrics || DEFAULT_RUBRICS);
-        setModelId(run.config.modelId || DEFAULT_MODEL_ID);
+        setProviderIdState(run.config.providerId || resolveProviderId(run.config.modelId));
+        setModelIdState(run.config.modelId || DEFAULT_MODEL_ID);
         setResults(run.results);
         setError(null);
     };
@@ -502,6 +525,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
             userInput,
             testCases,
             rubrics,
+            providerId,
             modelId,
             threshold,
             batchSize,
@@ -522,7 +546,8 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         setUserInput(version.userInput);
         setTestCases(version.testCases);
         setRubrics(version.rubrics || DEFAULT_RUBRICS);
-        setModelId(version.modelId || DEFAULT_MODEL_ID);
+        setProviderIdState(version.providerId || resolveProviderId(version.modelId));
+        setModelIdState(version.modelId || DEFAULT_MODEL_ID);
         setThreshold(version.threshold);
         setBatchSize(version.batchSize);
         setResults([]);
@@ -579,6 +604,8 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 applySettingsToWorkspace,
                 setGlobalBaselinePromptVersionId,
                 setSuiteBaselinePromptVersionId,
+                providerId,
+                setProviderId,
                 modelId,
                 setModelId,
                 results,

@@ -1,7 +1,8 @@
-import { CaseReview, EvaluationResult, RubricDefinition, TestCase } from "@/shared/types";
+import { CaseReview, EvaluationResult, LLMProviderId, RubricDefinition, TestCase } from "@/shared/types";
 
 export interface AppSettings {
     id: "app_settings";
+    defaultProviderId?: LLMProviderId;
     defaultModelId?: string;
     defaultBatchSize: number;
     defaultThreshold: number;
@@ -31,6 +32,7 @@ export interface PromptVersion {
     userInput: string;
     testCases: TestCase[];
     rubrics: RubricDefinition[];
+    providerId?: LLMProviderId;
     modelId?: string;
     threshold: number;
     batchSize: number;
@@ -61,6 +63,7 @@ export interface TestRun {
     config: {
         batchSize: number;
         threshold: number;
+        providerId?: LLMProviderId;
         modelId?: string;
         rubrics: RubricDefinition[];
     };
@@ -81,6 +84,7 @@ export interface ScheduledEvaluation {
     name: string;
     suiteId?: string;
     promptVersionId?: string;
+    providerId?: LLMProviderId;
     modelId?: string;
     batchSize: number;
     threshold: number;

@@ -12,6 +12,7 @@ import {
     findBaselineRun,
     resolveBaselinePromptVersionId,
 } from "@/shared/lib/run-analytics";
+import { getModelDisplayName } from "@/shared/constants/models";
 import { formatCost } from "@/shared/lib/utils";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
 import { SurfaceCard } from "@/shared/ui/SurfaceCard";
@@ -127,7 +128,7 @@ export function AnalyticsHubView() {
                                         <div className="flex items-start justify-between gap-4">
                                             <div>
                                                 <div className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Rank #{index + 1}</div>
-                                                <div className="mt-2 text-sm font-black text-zinc-900 dark:text-white">{entry.modelId}</div>
+                                                <div className="mt-2 text-sm font-black text-zinc-900 dark:text-white">{getModelDisplayName(entry.modelId)}</div>
                                                 <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{entry.runCount} runs compared</div>
                                             </div>
                                             <div className="text-right">

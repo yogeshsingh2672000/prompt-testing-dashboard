@@ -47,6 +47,7 @@ export function SchedulesManagerView() {
             name: createScheduleName(name || `${selectedVersion.name} schedule`),
             suiteId: suiteId || selectedVersion.suiteId,
             promptVersionId: selectedVersion.id,
+            providerId: selectedVersion.providerId,
             modelId: selectedVersion.modelId,
             batchSize: selectedVersion.batchSize,
             threshold: selectedVersion.threshold,

@@ -51,7 +51,11 @@ The goal is not just better prompt evaluation. The goal is private prompt evalua
 - React 19
 - Tailwind CSS 4
 - `next-intl` for localization
-- AWS Bedrock via the Vercel AI SDK
+- Multi-provider LLM support through the Vercel AI SDK
+  - AWS Bedrock
+  - OpenAI
+  - Anthropic
+  - Google Gemini
 - IndexedDB for local persistence
 - Vitest for automated tests
 
@@ -69,7 +73,19 @@ npm install
 cp .env.example .env.local
 ```
 
-3. Add the AWS / Bedrock credentials your environment expects.
+3. Add credentials for at least one provider in `.env.local`.
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+
+AWS_REGION=us-east-1
+AWS_MODEL_ID=anthropic.claude-3-sonnet-20240229-v1:0
+
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+GOOGLE_GENERATIVE_AI_API_KEY=
+```
+
 4. Set `NEXT_PUBLIC_SITE_URL` in `.env.local` before deploying so canonical URLs, sitemap entries, and social metadata point to your real domain.
 
 5. Start the app:
@@ -78,7 +94,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-5. Open `http://localhost:3000`
+6. Open `http://localhost:3000`
 
 ## Scripts
 
@@ -138,7 +154,7 @@ server/
   services/                 Validation, evaluation, optimization, generation
 
 shared/
-  constants/                Models, defaults, rubric presets
+  constants/                Provider catalogs, models, defaults, rubric presets
   lib/                      Persistence, exports, reports, summaries, factories
   types/                    Shared domain types
   ui/                       Reusable UI primitives
@@ -194,6 +210,7 @@ Note: in some restricted Windows sandbox environments, the test runner may requi
 ## Contributor notes
 
 - API routes should stay thin and delegate parsing plus business logic to `server/services`.
+- New LLM providers should be added through the shared provider registry and model catalog instead of branching provider logic across routes or UI components.
 - Shared math or repeated object construction should live in `shared/lib` instead of being duplicated across UI and service layers.
 - When adding new evaluator behavior, prefer testing pure utilities directly and mocking the AI boundary in service tests.
 - Persistence changes that affect IndexedDB must keep store version upgrades in sync.

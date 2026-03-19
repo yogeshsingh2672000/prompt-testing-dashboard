@@ -1,5 +1,5 @@
 import { Plus, CheckCircle2, Sparkles, Loader2 } from "lucide-react";
-import { GeneratedTestCasePayload, OutputValidationType, TestCase } from "@/shared/types";
+import { GeneratedTestCasePayload, LLMProviderId, OutputValidationType, TestCase } from "@/shared/types";
 import { TestCaseItem } from "./TestCaseItem";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -17,6 +17,8 @@ interface TestCasesSectionProps {
     setTestCases: React.Dispatch<React.SetStateAction<TestCase[]>>;
     systemPrompt: string;
     userInputTemplate: string;
+    providerId: LLMProviderId;
+    modelId: string;
     onError?: (message: string) => void;
 }
 
@@ -33,6 +35,8 @@ export function TestCasesSection({
     setTestCases,
     systemPrompt,
     userInputTemplate,
+    providerId,
+    modelId,
     onError
 }: TestCasesSectionProps) {
     const t = useTranslations("testCases");
@@ -51,7 +55,7 @@ export function TestCasesSection({
             const response = await fetch("/api/generate-test-cases", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sampleInput, systemPrompt }),
+                body: JSON.stringify({ sampleInput, systemPrompt, providerId, modelId }),
             });
             const data = await response.json();
             if (!response.ok) {

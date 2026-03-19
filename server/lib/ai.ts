@@ -1,28 +1,38 @@
-import { bedrock } from '@ai-sdk/amazon-bedrock';
-import { generateText, embed } from 'ai';
-import { DEFAULT_MODEL_ID } from '@/shared/constants/models';
+import { embed, generateText } from "ai";
+import { resolveEmbeddingSelection, resolveLanguageSelection, ProviderModelSelection } from "@/server/lib/provider-registry";
+import { getProviderAdapter } from "@/server/lib/provider-registry";
 
-export function getModel(modelId?: string) {
-  return bedrock(modelId || DEFAULT_MODEL_ID);
+export function getModel(selection?: ProviderModelSelection) {
+    const resolved = resolveLanguageSelection(selection);
+    return getProviderAdapter(resolved.providerId).languageModel(resolved.modelId);
 }
 
+export async function getResponse(
+    systemPrompt: string,
+    userInput: string,
+    selection?: ProviderModelSelection
+) {
+    const model = getModel(selection);
 
-export async function getResponse(systemPrompt: string, userInput: string, modelId?: string) {
-  const selectedModelId = modelId || DEFAULT_MODEL_ID;
-  const model = bedrock(selectedModelId);
-
-  return generateText({
-    model,
-    system: systemPrompt,
-    prompt: userInput,
-  });
+    return generateText({
+        model,
+        system: systemPrompt,
+        prompt: userInput,
+    });
 }
 
-export async function getEmbedding(text: string) {
-  const embeddingModel = bedrock.embedding('amazon.titan-embed-text-v2:0');
-  const { embedding } = await embed({
-    model: embeddingModel,
-    value: text,
-  });
-  return embedding;
+export async function getEmbedding(text: string, selection?: ProviderModelSelection) {
+    const resolved = resolveEmbeddingSelection(selection);
+    const adapter = getProviderAdapter(resolved.providerId);
+
+    if (!adapter.embeddingModel) {
+        throw new Error(`Provider "${resolved.providerId}" does not support embeddings.`);
+    }
+
+    const { embedding } = await embed({
+        model: adapter.embeddingModel(resolved.modelId),
+        value: text,
+    });
+
+    return embedding;
 }

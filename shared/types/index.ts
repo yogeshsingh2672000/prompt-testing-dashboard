@@ -1,3 +1,11 @@
+export type LLMProviderId = "bedrock" | "openai" | "anthropic" | "google";
+
+export interface LLMProviderOption {
+    id: LLMProviderId;
+    name: string;
+    description: string;
+}
+
 export interface TestCase {
     id: string;
     input: string;
@@ -85,6 +93,7 @@ export interface EvaluationRequest {
     testCases: TestCase[];
     batchSize: number;
     threshold: number;
+    providerId?: LLMProviderId;
     modelId?: string;
     rubrics?: RubricDefinition[];
 }
@@ -97,6 +106,7 @@ export interface GeneratedTestCasePayload {
 export interface OptimizePromptRequest {
     currentPrompt: string;
     results: EvaluationResult[];
+    providerId?: LLMProviderId;
     modelId?: string;
 }
 
@@ -108,6 +118,7 @@ export interface PromptOptimizationSuggestion {
 export interface ComparisonSubject {
     id: string;
     name: string;
+    providerId?: LLMProviderId;
     modelId?: string;
 }
 

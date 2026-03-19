@@ -1,4 +1,5 @@
 import { PromptVersion } from "@/shared/lib/persistence";
+import { getModelDisplayName } from "@/shared/constants/models";
 
 export interface PromptDiffLine {
     value: string;
@@ -42,8 +43,11 @@ function diffText(leftText: string, rightText: string): PromptDiffLine[] {
 
 export function comparePromptVersions(left: PromptVersion, right: PromptVersion): PromptVersionDiff {
     const configChanges: string[] = [];
+    if ((left.providerId || "default") !== (right.providerId || "default")) {
+        configChanges.push(`Provider changed from ${left.providerId || "default"} to ${right.providerId || "default"}.`);
+    }
     if (left.modelId !== right.modelId) {
-        configChanges.push(`Model changed from ${left.modelId || "default"} to ${right.modelId || "default"}.`);
+        configChanges.push(`Model changed from ${getModelDisplayName(left.modelId)} to ${getModelDisplayName(right.modelId)}.`);
     }
     if (left.threshold !== right.threshold) {
         configChanges.push(`Threshold changed from ${left.threshold}% to ${right.threshold}%.`);

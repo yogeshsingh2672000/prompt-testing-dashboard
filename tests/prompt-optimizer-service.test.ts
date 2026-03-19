@@ -77,7 +77,10 @@ describe("optimizePrompt", () => {
             modelId: "anthropic.custom",
         });
 
-        expect(getModelMock).toHaveBeenCalledWith("anthropic.custom");
+        expect(getModelMock).toHaveBeenCalledWith({
+            providerId: undefined,
+            modelId: "anthropic.custom",
+        });
         expect(generateTextMock).toHaveBeenCalledWith(
             expect.objectContaining({
                 model: { id: "optimizer-model" },

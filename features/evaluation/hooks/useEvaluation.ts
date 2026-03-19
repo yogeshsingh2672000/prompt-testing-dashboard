@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RubricDefinition, TestCase, EvaluationResult, EvaluationRequest } from "@/shared/types";
+import { RubricDefinition, TestCase, EvaluationResult, EvaluationRequest, LLMProviderId } from "@/shared/types";
 import { persistence, TestRun } from "@/shared/lib/persistence";
 import { buildTestRun } from "@/shared/lib/run-records";
 
@@ -20,6 +20,7 @@ export function useEvaluation(
     userInput: string,
     batchSize: number,
     threshold: number,
+    providerId?: LLMProviderId,
     modelId?: string,
     rubrics: RubricDefinition[] = [],
     onError?: (message: string) => void,
@@ -61,6 +62,7 @@ export function useEvaluation(
                     testCases,
                     batchSize,
                     threshold,
+                    providerId,
                     modelId,
                     rubrics,
                 } as EvaluationRequest),
@@ -86,6 +88,7 @@ export function useEvaluation(
                     results: data,
                     batchSize,
                     threshold,
+                    providerId,
                     modelId,
                     rubrics,
                     triggerSource: runMetadata?.triggerSource,

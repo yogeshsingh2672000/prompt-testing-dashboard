@@ -1,16 +1,21 @@
 import { generateText } from 'ai';
 import { getModel } from '@/server/lib/ai';
 import { extractJson } from '@/shared/lib/utils';
-import { GeneratedTestCasePayload } from '@/shared/types';
+import { GeneratedTestCasePayload, LLMProviderId } from '@/shared/types';
 
-export async function generateTestCases(systemPrompt: string, sampleInput: string, count = 5): Promise<GeneratedTestCasePayload[]> {
+export async function generateTestCases(
+    systemPrompt: string,
+    sampleInput: string,
+    count = 5,
+    selection?: { providerId?: LLMProviderId; modelId?: string }
+): Promise<GeneratedTestCasePayload[]> {
     const requestedCount = Number.isFinite(count) ? Math.min(Math.max(Number(count), 1), 20) : 5;
 
     if (!systemPrompt?.trim()) {
         throw new Error('System prompt is required');
     }
 
-    const model = getModel();
+    const model = getModel(selection);
     const prompt = `
       You are an expert QA and Prompt Engineer.
       Given the following System Prompt and a Sample Input, generate ${requestedCount} diverse and challenging test cases.

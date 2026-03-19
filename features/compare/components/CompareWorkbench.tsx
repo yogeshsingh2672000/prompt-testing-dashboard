@@ -97,6 +97,7 @@ export function CompareWorkbench() {
             testCases: selectedDataset.testCases,
             batchSize: version.batchSize,
             threshold: version.threshold,
+            providerId: version.providerId,
             modelId: version.modelId,
             rubrics: version.rubrics,
         });

@@ -14,8 +14,11 @@
     "llm-evaluation",
     "ai-testing",
     "prompt-regression",
-    "nextjs",
+    "openai",
+    "anthropic",
+    "gemini",
     "bedrock",
+    "nextjs",
     "open-source"
   ],
   "scripts": {
@@ -28,6 +31,9 @@
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^4.0.77",
+    "@ai-sdk/anthropic": "^3.0.58",
+    "@ai-sdk/google": "^3.0.43",
+    "@ai-sdk/openai": "^3.0.41",
     "@aws-sdk/client-bedrock-runtime": "^3.1006.0",
     "ai": "^6.0.116",
     "clsx": "^2.1.1",

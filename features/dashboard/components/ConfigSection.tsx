@@ -1,8 +1,8 @@
 import { Sparkles, Wand2, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { SUPPORTED_MODELS } from "@/shared/constants/models";
+import { getModelsByProvider, SUPPORTED_PROVIDERS } from "@/shared/constants/models";
 import { useState } from "react";
-import { EvaluationResult, PromptOptimizationSuggestion, RubricDefinition } from "@/shared/types";
+import { EvaluationResult, LLMProviderId, PromptOptimizationSuggestion, RubricDefinition } from "@/shared/types";
 
 interface ConfigSectionProps {
     systemPrompt: string;
@@ -14,6 +14,8 @@ interface ConfigSectionProps {
     setThreshold: (v: number) => void;
     rubrics: RubricDefinition[];
     updateRubric: (id: string, updates: Partial<RubricDefinition>) => void;
+    providerId: LLMProviderId;
+    setProviderId: (v: LLMProviderId) => void;
     modelId: string;
     setModelId: (v: string) => void;
     results: EvaluationResult[];
@@ -30,6 +32,8 @@ export function ConfigSection({
     setThreshold,
     rubrics,
     updateRubric,
+    providerId,
+    setProviderId,
     modelId,
     setModelId,
     results,
@@ -46,7 +50,7 @@ export function ConfigSection({
             const response = await fetch("/api/optimize-prompt", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ currentPrompt: systemPrompt, results, modelId }),
+                body: JSON.stringify({ currentPrompt: systemPrompt, results, providerId, modelId }),
             });
             const data = await response.json();
             if (!response.ok) {
@@ -68,6 +72,8 @@ export function ConfigSection({
         }
     };
 
+    const modelsForProvider = getModelsByProvider(providerId);
+
     return (
         <div className="w-full xl:w-[28rem] xl:min-w-[24rem] xl:max-w-[32rem] space-y-8">
             <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-6 md:p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group transition-all duration-500 h-full">
@@ -83,14 +89,30 @@ export function ConfigSection({
                         <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1 italic">1. {t("engineConfiguration")}</label>
                         <div className="grid grid-cols-1 gap-4">
                             <div className="space-y-2">
+                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">Provider</label>
+                                <select
+                                    value={providerId}
+                                    onChange={(e) => setProviderId(e.target.value as LLMProviderId)}
+                                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
+                                >
+                                    {SUPPORTED_PROVIDERS.map((provider) => (
+                                        <option key={provider.id} value={provider.id}>
+                                            {provider.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
                                 <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("aiModelProvider")}</label>
                                 <select
                                     value={modelId}
                                     onChange={(e) => setModelId(e.target.value)}
                                     className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
                                 >
-                                    {SUPPORTED_MODELS.map(m => (
-                                        <option key={m.id} value={m.id}>{m.name}</option>
+                                    {modelsForProvider.map((model) => (
+                                        <option key={model.id} value={model.id}>
+                                            {model.name}
+                                        </option>
                                     ))}
                                 </select>
                             </div>

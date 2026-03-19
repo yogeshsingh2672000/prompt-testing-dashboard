@@ -3,6 +3,7 @@
 import { FolderPlus, GitBranchPlus, Layers3, Upload } from "lucide-react";
 import { useState } from "react";
 import { useDashboardWorkspace } from "@/features/dashboard/providers/DashboardWorkspaceProvider";
+import { getModelDisplayName } from "@/shared/constants/models";
 import { SurfaceCard } from "@/shared/ui/SurfaceCard";
 import { cn } from "@/shared/lib/utils";
 
@@ -105,7 +106,7 @@ export function WorkspaceAssetsPanel() {
                                 <div className="min-w-0">
                                     <div className="truncate text-sm font-black text-zinc-900 dark:text-white">{suite.name}</div>
                                     <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                        {suite.testCases.length} cases • updated {new Date(suite.updatedAt).toLocaleDateString()}
+                                        {suite.testCases.length} cases - updated {new Date(suite.updatedAt).toLocaleDateString()}
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -174,7 +175,7 @@ export function WorkspaceAssetsPanel() {
                                 <div className="min-w-0">
                                     <div className="truncate text-sm font-black text-zinc-900 dark:text-white">{version.name}</div>
                                     <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                        {version.modelId || "Default model"} • threshold {version.threshold}% • {new Date(version.createdAt).toLocaleDateString()}
+                                        {getModelDisplayName(version.modelId)} - threshold {version.threshold}% - {new Date(version.createdAt).toLocaleDateString()}
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">

@@ -17,6 +17,8 @@ export function WorkspaceView() {
         setThreshold,
         rubrics,
         updateRubric,
+        providerId,
+        setProviderId,
         modelId,
         setModelId,
         results,
@@ -52,6 +54,8 @@ export function WorkspaceView() {
                     setThreshold={setThreshold}
                     rubrics={rubrics}
                     updateRubric={updateRubric}
+                    providerId={providerId}
+                    setProviderId={setProviderId}
                     modelId={modelId}
                     setModelId={setModelId}
                     results={results}
@@ -70,6 +74,8 @@ export function WorkspaceView() {
                     setTestCases={setTestCases}
                     systemPrompt={systemPrompt}
                     userInputTemplate={userInput}
+                    providerId={providerId}
+                    modelId={modelId}
                     onError={(message) => pushToast({ title: "Case generation failed", message, variant: "error" })}
                 />
             </div>

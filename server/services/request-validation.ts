@@ -2,6 +2,7 @@ import {
     ConversationTurn,
     EvaluationRequest,
     EvaluationResult,
+    LLMProviderId,
     OptimizePromptRequest,
     OutputValidationConfig,
     OutputValidationType,
@@ -11,6 +12,18 @@ import {
 
 function isObject(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null;
+}
+
+function parseProviderId(value: unknown): LLMProviderId | undefined {
+    if (typeof value !== "string") {
+        return undefined;
+    }
+
+    if (["bedrock", "openai", "anthropic", "google"].includes(value)) {
+        return value as LLMProviderId;
+    }
+
+    return undefined;
 }
 
 function parseOutputValidation(value: unknown): OutputValidationConfig | undefined {
@@ -155,6 +168,7 @@ export function parseEvaluationRequest(payload: unknown): EvaluationRequest {
         testCases: payload.testCases.map(parseTestCase),
         batchSize: typeof payload.batchSize === "number" ? payload.batchSize : Number(payload.batchSize) || 1,
         threshold: typeof payload.threshold === "number" ? payload.threshold : Number(payload.threshold) || 0,
+        providerId: parseProviderId(payload.providerId),
         modelId: typeof payload.modelId === "string" ? payload.modelId : undefined,
         rubrics: Array.isArray(payload.rubrics) ? payload.rubrics.map(parseRubric) : undefined,
     };
@@ -164,6 +178,8 @@ export function parseGenerateTestCasesRequest(payload: unknown): {
     systemPrompt: string;
     sampleInput: string;
     count: number;
+    providerId?: LLMProviderId;
+    modelId?: string;
 } {
     if (!isObject(payload)) {
         throw new Error("Test case generation payload must be an object");
@@ -177,6 +193,8 @@ export function parseGenerateTestCasesRequest(payload: unknown): {
         systemPrompt: payload.systemPrompt,
         sampleInput: typeof payload.sampleInput === "string" ? payload.sampleInput : "",
         count: typeof payload.count === "number" ? payload.count : Number(payload.count) || 5,
+        providerId: parseProviderId(payload.providerId),
+        modelId: typeof payload.modelId === "string" ? payload.modelId : undefined,
     };
 }
 
@@ -192,6 +210,7 @@ export function parseOptimizePromptRequest(payload: unknown): OptimizePromptRequ
     return {
         currentPrompt: payload.currentPrompt,
         results: payload.results.map(parseEvaluationResult),
+        providerId: parseProviderId(payload.providerId),
         modelId: typeof payload.modelId === "string" ? payload.modelId : undefined,
     };
 }
