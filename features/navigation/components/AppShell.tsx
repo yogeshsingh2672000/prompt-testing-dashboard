@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { BarChart3, CalendarClock, FileSpreadsheet, FlaskConical, FolderKanban, GitCompareArrows, History, LayoutDashboard, LineChart, Settings, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
@@ -27,15 +28,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
     const { toasts, dismissToast, loading, runEvaluation, results } = useDashboardWorkspace();
+    const [pendingPath, setPendingPath] = useState<string | null>(null);
+    const isNavigating = useMemo(
+        () => Boolean(pendingPath && pendingPath !== pathname),
+        [pathname, pendingPath]
+    );
+
+    useEffect(() => {
+        navItems.forEach((item) => {
+            router.prefetch(item.href);
+        });
+    }, [router]);
 
     const handleRun = async () => {
         await runEvaluation();
         router.push("/results");
     };
 
+    const handleNavigate = (href: string) => {
+        if (href !== pathname) {
+            setPendingPath(href);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-transparent">
             <ToastViewport toasts={toasts} onDismiss={dismissToast} />
+            <div
+                className={cn(
+                    "pointer-events-none fixed inset-x-0 top-0 z-[70] h-1 origin-left bg-gradient-to-r from-teal-500 via-blue-500 to-indigo-500 transition-transform duration-300",
+                    isNavigating ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0"
+                )}
+            />
             <div className="mx-auto flex min-h-screen w-full max-w-[1700px] gap-6 px-4 py-4 md:px-6 lg:px-8">
                 <aside className="hidden w-[280px] shrink-0 xl:flex">
                     <SurfaceCard className="shell-panel sticky top-4 flex h-[calc(100vh-2rem)] w-full flex-col overflow-hidden p-6">
@@ -59,11 +83,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                     <Link
                                         key={item.href}
                                         href={item.href}
+                                        prefetch
+                                        onMouseEnter={() => router.prefetch(item.href)}
+                                        onFocus={() => router.prefetch(item.href)}
+                                        onClick={() => handleNavigate(item.href)}
                                         className={cn(
                                             "group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all",
                                             isActive
                                                 ? "bg-zinc-900 text-white shadow-xl dark:bg-white dark:text-zinc-900"
-                                                : "text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900/70 dark:hover:text-white"
+                                                : "text-zinc-600 hover:bg-white/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900/70 dark:hover:text-white",
+                                            pendingPath === item.href && isNavigating && "scale-[0.99] opacity-70"
                                         )}
                                     >
                                         <Icon size={18} className={cn("transition-transform group-hover:scale-110", isActive && "scale-110")} />
@@ -121,11 +150,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                         <Link
                                             key={item.href}
                                             href={item.href}
+                                            prefetch
+                                            onMouseEnter={() => router.prefetch(item.href)}
+                                            onFocus={() => router.prefetch(item.href)}
+                                            onClick={() => handleNavigate(item.href)}
                                             className={cn(
                                                 "whitespace-nowrap rounded-2xl border px-4 py-2 text-xs font-black uppercase tracking-[0.2em] transition-all shadow-sm",
                                                 isActive
                                                     ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-zinc-900"
-                                                    : "border-zinc-200 bg-white/80 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400"
+                                                    : "border-zinc-200 bg-white/80 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400",
+                                                pendingPath === item.href && isNavigating && "scale-[0.99] opacity-70"
                                             )}
                                         >
                                             {item.label}
@@ -150,7 +184,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         </div>
                     </SurfaceCard>
 
-                    <main>{children}</main>
+                    <main
+                        className={cn(
+                            "transition-opacity duration-200",
+                            isNavigating && "opacity-80"
+                        )}
+                        aria-busy={isNavigating ? "true" : "false"}
+                    >
+                        {children}
+                    </main>
                 </div>
             </div>
         </div>
