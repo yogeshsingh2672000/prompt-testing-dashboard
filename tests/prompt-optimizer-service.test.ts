@@ -80,6 +80,8 @@ describe("optimizePrompt", () => {
         expect(getModelMock).toHaveBeenCalledWith({
             providerId: undefined,
             modelId: "anthropic.custom",
+            apiKey: undefined,
+            bedrockCredentials: undefined,
         });
         expect(generateTextMock).toHaveBeenCalledWith(
             expect.objectContaining({

@@ -1,241 +1,407 @@
 import { Sparkles, Wand2, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { getModelsByProvider, SUPPORTED_PROVIDERS } from "@/shared/constants/models";
+import {
+  getModelsByProvider,
+  SUPPORTED_PROVIDERS,
+} from "@/shared/constants/models";
 import { useState } from "react";
-import { EvaluationResult, LLMProviderId, PromptOptimizationSuggestion, RubricDefinition } from "@/shared/types";
+import {
+  BedrockRuntimeCredentials,
+  EvaluationResult,
+  LLMProviderId,
+  PromptOptimizationSuggestion,
+  RubricDefinition,
+} from "@/shared/types";
 
 interface ConfigSectionProps {
-    systemPrompt: string;
-    setSystemPrompt: (v: string) => void;
-    userInput: string;
-    setUserInput: (v: string) => void;
-    batchSize: number;
-    threshold: number;
-    setThreshold: (v: number) => void;
-    rubrics: RubricDefinition[];
-    updateRubric: (id: string, updates: Partial<RubricDefinition>) => void;
-    providerId: LLMProviderId;
-    setProviderId: (v: LLMProviderId) => void;
-    modelId: string;
-    setModelId: (v: string) => void;
-    results: EvaluationResult[];
-    onError?: (message: string) => void;
+  systemPrompt: string;
+  setSystemPrompt: (v: string) => void;
+  userInput: string;
+  setUserInput: (v: string) => void;
+  batchSize: number;
+  threshold: number;
+  setThreshold: (v: number) => void;
+  rubrics: RubricDefinition[];
+  updateRubric: (id: string, updates: Partial<RubricDefinition>) => void;
+  providerId: LLMProviderId;
+  setProviderId: (v: LLMProviderId) => void;
+  providerApiKey?: string;
+  setProviderApiKey: (providerId: LLMProviderId, value: string) => void;
+  bedrockCredentials: BedrockRuntimeCredentials;
+  setBedrockCredential: (
+    field: keyof BedrockRuntimeCredentials,
+    value: string,
+  ) => void;
+  modelId: string;
+  setModelId: (v: string) => void;
+  results: EvaluationResult[];
+  onError?: (message: string) => void;
 }
 
 export function ConfigSection({
-    systemPrompt,
-    setSystemPrompt,
-    userInput,
-    setUserInput,
-    batchSize,
-    threshold,
-    setThreshold,
-    rubrics,
-    updateRubric,
-    providerId,
-    setProviderId,
-    modelId,
-    setModelId,
-    results,
-    onError
+  systemPrompt,
+  setSystemPrompt,
+  userInput,
+  setUserInput,
+  batchSize,
+  threshold,
+  setThreshold,
+  rubrics,
+  updateRubric,
+  providerId,
+  setProviderId,
+  providerApiKey,
+  setProviderApiKey,
+  bedrockCredentials,
+  setBedrockCredential,
+  modelId,
+  setModelId,
+  results,
+  onError,
 }: ConfigSectionProps) {
-    const t = useTranslations("config");
-    const [isOptimizing, setIsOptimizing] = useState(false);
-    const [suggestion, setSuggestion] = useState<PromptOptimizationSuggestion | null>(null);
+  const t = useTranslations("config");
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [suggestion, setSuggestion] =
+    useState<PromptOptimizationSuggestion | null>(null);
 
-    const handleOptimize = async () => {
-        if (results.length === 0) return;
-        setIsOptimizing(true);
-        try {
-            const response = await fetch("/api/optimize-prompt", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ currentPrompt: systemPrompt, results, providerId, modelId }),
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(typeof data?.error === "string" ? data.error : "Failed to optimize prompt");
-            }
-            setSuggestion(data);
-        } catch (error) {
-            console.error("Failed to optimize prompt", error);
-            onError?.(error instanceof Error ? error.message : "Failed to optimize prompt");
-        } finally {
-            setIsOptimizing(false);
-        }
-    };
+  const handleOptimize = async () => {
+    if (results.length === 0) return;
+    setIsOptimizing(true);
+    try {
+      const response = await fetch("/api/optimize-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPrompt: systemPrompt,
+          results,
+          providerId,
+          modelId,
+          providerApiKey,
+          bedrockCredentials,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          typeof data?.error === "string"
+            ? data.error
+            : "Failed to optimize prompt",
+        );
+      }
+      setSuggestion(data);
+    } catch (error) {
+      console.error("Failed to optimize prompt", error);
+      onError?.(
+        error instanceof Error ? error.message : "Failed to optimize prompt",
+      );
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
 
-    const applySuggestion = () => {
-        if (suggestion) {
-            setSystemPrompt(suggestion.optimizedPrompt);
-            setSuggestion(null);
-        }
-    };
+  const applySuggestion = () => {
+    if (suggestion) {
+      setSystemPrompt(suggestion.optimizedPrompt);
+      setSuggestion(null);
+    }
+  };
 
-    const modelsForProvider = getModelsByProvider(providerId);
+  const modelsForProvider = getModelsByProvider(providerId);
 
-    return (
-        <div className="w-full xl:w-[28rem] xl:min-w-[24rem] xl:max-w-[32rem] space-y-8">
-            <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-6 md:p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group transition-all duration-500 h-full">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 via-blue-500 to-transparent opacity-50" />
-                
-                <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 mb-10 flex items-center gap-3">
-                    <Wand2 size={16} className="text-teal-500" /> {t("workspaceConfig")}
-                </h2>
+  return (
+    <div className="w-full xl:w-[28rem] xl:min-w-[24rem] xl:max-w-[32rem] space-y-8">
+      <div className="bg-white/40 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 p-6 md:p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden group transition-all duration-500 h-full">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 via-blue-500 to-transparent opacity-50" />
 
-                <div className="space-y-10">
-                    {/* section: Engine */}
-                    <div className="space-y-4">
-                        <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1 italic">1. {t("engineConfiguration")}</label>
-                        <div className="grid grid-cols-1 gap-4">
-                            <div className="space-y-2">
-                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">Provider</label>
-                                <select
-                                    value={providerId}
-                                    onChange={(e) => setProviderId(e.target.value as LLMProviderId)}
-                                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
-                                >
-                                    {SUPPORTED_PROVIDERS.map((provider) => (
-                                        <option key={provider.id} value={provider.id}>
-                                            {provider.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("aiModelProvider")}</label>
-                                <select
-                                    value={modelId}
-                                    onChange={(e) => setModelId(e.target.value)}
-                                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
-                                >
-                                    {modelsForProvider.map((model) => (
-                                        <option key={model.id} value={model.id}>
-                                            {model.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("batchSize")}</label>
-                                    <input
-                                        type="number"
-                                        value={batchSize}
-                                        disabled
-                                        className="opacity-50 cursor-not-allowed w-full bg-zinc-900/5 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("passThreshold")}</label>
-                                    <input
-                                        type="number"
-                                        value={threshold}
-                                        onChange={(e) => setThreshold(Number(e.target.value))}
-                                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500 mb-10 flex items-center gap-3">
+          <Wand2 size={16} className="text-teal-500" /> {t("workspaceConfig")}
+        </h2>
 
-                    <div className="space-y-4">
-                        <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1 italic">2. Rubric scoring</label>
-                        <div className="space-y-3 rounded-[2rem] border border-zinc-200/80 bg-white/70 p-4 shadow-inner dark:border-zinc-800 dark:bg-zinc-950/60">
-                            {rubrics.map((rubric) => (
-                                <div key={rubric.id} className="rounded-[1.5rem] border border-zinc-200/70 bg-white/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/70">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="space-y-1">
-                                            <label className="flex items-center gap-3 text-sm font-black text-zinc-900 dark:text-zinc-100">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={rubric.enabled}
-                                                    onChange={(e) => updateRubric(rubric.id, { enabled: e.target.checked })}
-                                                    className="h-4 w-4 rounded border-zinc-300 text-teal-500 focus:ring-teal-500/30"
-                                                />
-                                                {rubric.name}
-                                            </label>
-                                            <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">{rubric.description}</p>
-                                        </div>
-                                        <div className="w-24 space-y-1">
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400">Weight</label>
-                                            <input
-                                                type="number"
-                                                min={1}
-                                                max={5}
-                                                value={rubric.weight}
-                                                onChange={(e) => updateRubric(rubric.id, { weight: Math.max(1, Math.min(5, Number(e.target.value) || 1)) })}
-                                                disabled={!rubric.enabled}
-                                                className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                Enabled rubrics are scored alongside semantic matching and contribute to the overall pass decision.
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* section: Prompts */}
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-center ml-1">
-                            <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest italic">3. {t("promptBlueprints")}</label>
-                            <button
-                                onClick={handleOptimize}
-                                disabled={isOptimizing || results.length === 0}
-                                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:grayscale group shadow-xl"
-                            >
-                                {isOptimizing ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} className="group-hover:rotate-12 transition-transform" />}
-                                {t("aiOptimize")}
-                            </button>
-                        </div>
-
-                        {suggestion && (
-                            <div className="relative bg-zinc-900 dark:bg-white p-6 rounded-[2rem] border border-zinc-800 dark:border-zinc-200 shadow-2xl animate-in zoom-in-95 duration-300">
-                                <button onClick={() => setSuggestion(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-red-500 transition-colors">
-                                    <X size={16} />
-                                </button>
-                                <div className="flex items-center gap-2 mb-3">
-                                    <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-teal-500">{t("suggestionReady")}</span>
-                                </div>
-                                <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium mb-4 pr-6 leading-relaxed">
-                                    &quot;{suggestion.reasoning}&quot;
-                                </p>
-                                <button 
-                                    onClick={applySuggestion}
-                                    className="w-full py-3 bg-teal-500 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl hover:bg-teal-400 transition-all shadow-lg shadow-teal-500/20"
-                                >
-                                    {t("applyOptimization")}
-                                </button>
-                            </div>
-                        )}
-
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("systemInstructions")}</label>
-                                <textarea
-                                    value={systemPrompt}
-                                    onChange={(e) => setSystemPrompt(e.target.value)}
-                                    className="custom-scrollbar w-full h-48 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm resize-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 font-medium leading-relaxed"
-                                    placeholder="Enter system prompt instructions..."
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="block text-[10px] font-bold text-zinc-500 ml-1">{t("userInputBlueprint")}</label>
-                                <textarea
-                                    value={userInput}
-                                    onChange={(e) => setUserInput(e.target.value)}
-                                    className="custom-scrollbar w-full h-32 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm resize-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 font-medium leading-relaxed"
-                                    placeholder="e.g. Please analyze this text: {{input}}"
-                                />
-                            </div>
-                        </div>
-                    </div>
+        <div className="space-y-10 overflow-y-auto">
+          {/* section: Engine */}
+          <div className="space-y-4">
+            <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1 italic">
+              1. {t("engineConfiguration")}
+            </label>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-zinc-500 ml-1">
+                  Provider
+                </label>
+                <select
+                  value={providerId}
+                  onChange={(e) =>
+                    setProviderId(e.target.value as LLMProviderId)
+                  }
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
+                >
+                  {SUPPORTED_PROVIDERS.map((provider) => (
+                    <option key={provider.id} value={provider.id}>
+                      {provider.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-zinc-500 ml-1">
+                  {providerId === "bedrock" ? "Credentials" : "API key"}
+                </label>
+                {providerId === "bedrock" ? (
+                  <div className="space-y-3 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950">
+                    <input
+                      type="text"
+                      value={bedrockCredentials.region || ""}
+                      onChange={(e) =>
+                        setBedrockCredential("region", e.target.value)
+                      }
+                      autoComplete="off"
+                      spellCheck={false}
+                      placeholder="AWS region, e.g. us-east-1"
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
+                    />
+                    <input
+                      type="password"
+                      value={bedrockCredentials.accessKeyId || ""}
+                      onChange={(e) =>
+                        setBedrockCredential("accessKeyId", e.target.value)
+                      }
+                      autoComplete="new-password"
+                      spellCheck={false}
+                      placeholder="AWS access key ID"
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
+                    />
+                    <input
+                      type="password"
+                      value={bedrockCredentials.secretAccessKey || ""}
+                      onChange={(e) =>
+                        setBedrockCredential("secretAccessKey", e.target.value)
+                      }
+                      autoComplete="new-password"
+                      spellCheck={false}
+                      placeholder="AWS secret access key"
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
+                    />
+                    <input
+                      type="password"
+                      value={bedrockCredentials.sessionToken || ""}
+                      onChange={(e) =>
+                        setBedrockCredential("sessionToken", e.target.value)
+                      }
+                      autoComplete="new-password"
+                      spellCheck={false}
+                      placeholder="AWS session token (optional)"
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
+                    />
+                    <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+                      These AWS credentials are used only for the current local
+                      session. Promitly does not save them to IndexedDB, attach
+                      them to runs, or log them anywhere in the app. If you
+                      leave them empty, Promitly falls back to your local AWS
+                      credential chain and environment variables.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      type="password"
+                      value={providerApiKey || ""}
+                      onChange={(e) =>
+                        setProviderApiKey(providerId, e.target.value)
+                      }
+                      autoComplete="new-password"
+                      spellCheck={false}
+                      placeholder={`Enter your ${SUPPORTED_PROVIDERS.find((provider) => provider.id === providerId)?.name || "provider"} API key`}
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
+                    />
+                    <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+                      This key is used only for the current local session.
+                      Promitly does not save it to IndexedDB, attach it to runs,
+                      or log it anywhere in the app. If you leave it empty,
+                      Promitly falls back to any matching key already available
+                      in your local environment.
+                    </p>
+                  </>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-zinc-500 ml-1">
+                  {t("aiModelProvider")}
+                </label>
+                <select
+                  value={modelId}
+                  onChange={(e) => setModelId(e.target.value)}
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-zinc-900 dark:text-zinc-100 transition-all font-medium"
+                >
+                  {modelsForProvider.map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold text-zinc-500 ml-1">
+                    {t("batchSize")}
+                  </label>
+                  <input
+                    type="number"
+                    value={batchSize}
+                    disabled
+                    className="opacity-50 cursor-not-allowed w-full bg-zinc-900/5 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100"
+                  />
                 </div>
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold text-zinc-500 ml-1">
+                    {t("passThreshold")}
+                  </label>
+                  <input
+                    type="number"
+                    value={threshold}
+                    onChange={(e) => setThreshold(Number(e.target.value))}
+                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                  />
+                </div>
+              </div>
             </div>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1 italic">
+              2. Rubric scoring
+            </label>
+            <div className="space-y-3 rounded-[2rem] border border-zinc-200/80 bg-white/70 p-4 shadow-inner dark:border-zinc-800 dark:bg-zinc-950/60">
+              {rubrics.map((rubric) => (
+                <div
+                  key={rubric.id}
+                  className="rounded-[1.5rem] border border-zinc-200/70 bg-white/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/70"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <label className="flex items-center gap-3 text-sm font-black text-zinc-900 dark:text-zinc-100">
+                        <input
+                          type="checkbox"
+                          checked={rubric.enabled}
+                          onChange={(e) =>
+                            updateRubric(rubric.id, {
+                              enabled: e.target.checked,
+                            })
+                          }
+                          className="h-4 w-4 rounded border-zinc-300 text-teal-500 focus:ring-teal-500/30"
+                        />
+                        {rubric.name}
+                      </label>
+                      <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+                        {rubric.description}
+                      </p>
+                    </div>
+                    <div className="w-24 space-y-1">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                        Weight
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={5}
+                        value={rubric.weight}
+                        onChange={(e) =>
+                          updateRubric(rubric.id, {
+                            weight: Math.max(
+                              1,
+                              Math.min(5, Number(e.target.value) || 1),
+                            ),
+                          })
+                        }
+                        disabled={!rubric.enabled}
+                        className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Enabled rubrics are scored alongside semantic matching and
+                contribute to the overall pass decision.
+              </p>
+            </div>
+          </div>
+
+          {/* section: Prompts */}
+          <div className="space-y-6">
+            <div className="flex justify-between items-center ml-1">
+              <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest italic">
+                3. {t("promptBlueprints")}
+              </label>
+              <button
+                onClick={handleOptimize}
+                disabled={isOptimizing || results.length === 0}
+                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:grayscale group shadow-xl"
+              >
+                {isOptimizing ? (
+                  <Loader2 size={12} className="animate-spin" />
+                ) : (
+                  <Sparkles
+                    size={12}
+                    className="group-hover:rotate-12 transition-transform"
+                  />
+                )}
+                {t("aiOptimize")}
+              </button>
+            </div>
+
+            {suggestion && (
+              <div className="relative bg-zinc-900 dark:bg-white p-6 rounded-[2rem] border border-zinc-800 dark:border-zinc-200 shadow-2xl animate-in zoom-in-95 duration-300">
+                <button
+                  onClick={() => setSuggestion(null)}
+                  className="absolute top-4 right-4 text-zinc-500 hover:text-red-500 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-teal-500">
+                    {t("suggestionReady")}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium mb-4 pr-6 leading-relaxed">
+                  &quot;{suggestion.reasoning}&quot;
+                </p>
+                <button
+                  onClick={applySuggestion}
+                  className="w-full py-3 bg-teal-500 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl hover:bg-teal-400 transition-all shadow-lg shadow-teal-500/20"
+                >
+                  {t("applyOptimization")}
+                </button>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-zinc-500 ml-1">
+                  {t("systemInstructions")}
+                </label>
+                <textarea
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  className="custom-scrollbar w-full h-48 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm resize-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 font-medium leading-relaxed"
+                  placeholder="Enter system prompt instructions..."
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-zinc-500 ml-1">
+                  {t("userInputBlueprint")}
+                </label>
+                <textarea
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  className="custom-scrollbar w-full h-32 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm resize-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 font-medium leading-relaxed"
+                  placeholder="e.g. Please analyze this text: {{input}}"
+                />
+              </div>
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

@@ -16,7 +16,7 @@ import { buildTestRun } from "@/shared/lib/run-records";
 import { resolveBaselinePromptVersionId } from "@/shared/lib/run-analytics";
 import { getNextRunAt, isScheduleDue } from "@/shared/lib/schedule-utils";
 import { AppSettings, persistence, PromptVersion, ScheduledEvaluation, TestCaseSuite, TestRun } from "@/shared/lib/persistence";
-import { ConversationTurnRole, EvaluationRequest, EvaluationResult, LLMProviderId, OutputValidationType, RubricDefinition, TestCase } from "@/shared/types";
+import { BedrockRuntimeCredentials, ConversationTurnRole, EvaluationRequest, EvaluationResult, LLMProviderId, OutputValidationType, RubricDefinition, TestCase } from "@/shared/types";
 import { ToastItem } from "@/shared/ui/ToastViewport";
 
 interface DashboardWorkspaceContextValue {
@@ -41,6 +41,10 @@ interface DashboardWorkspaceContextValue {
     setSuiteBaselinePromptVersionId: (suiteId: string, versionId?: string) => Promise<void>;
     providerId: LLMProviderId;
     setProviderId: (value: LLMProviderId) => void;
+    providerApiKeys: Partial<Record<LLMProviderId, string>>;
+    setProviderApiKey: (providerId: LLMProviderId, value: string) => void;
+    bedrockCredentials: BedrockRuntimeCredentials;
+    setBedrockCredential: (field: keyof BedrockRuntimeCredentials, value: string) => void;
     modelId: string;
     setModelId: (value: string) => void;
     results: ReturnType<typeof useEvaluation>["results"];
@@ -102,6 +106,8 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
     const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
     const [rubrics, setRubrics] = useState<RubricDefinition[]>(DEFAULT_RUBRICS);
     const [providerId, setProviderIdState] = useState<LLMProviderId>(DEFAULT_PROVIDER_ID);
+    const [providerApiKeys, setProviderApiKeys] = useState<Partial<Record<LLMProviderId, string>>>({});
+    const [bedrockCredentials, setBedrockCredentials] = useState<BedrockRuntimeCredentials>({});
     const [modelId, setModelIdState] = useState(DEFAULT_MODEL_ID);
     const [settings, setSettings] = useState<AppSettings>(() => createDefaultAppSettings());
     const [activeRunId, setActiveRunId] = useState<string | undefined>();
@@ -178,6 +184,8 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 threshold: schedule.threshold,
                 providerId: schedule.providerId || promptVersion.providerId,
                 modelId: schedule.modelId || promptVersion.modelId,
+                providerApiKey: providerApiKeys[(schedule.providerId || promptVersion.providerId || DEFAULT_PROVIDER_ID)],
+                bedrockCredentials: (schedule.providerId || promptVersion.providerId) === "bedrock" ? bedrockCredentials : undefined,
                 rubrics: schedule.rubrics,
             };
 
@@ -237,7 +245,7 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         } finally {
             runningScheduleIds.current.delete(schedule.id);
         }
-    }, [promptVersions, refreshAssets, settings, suites]);
+    }, [bedrockCredentials, promptVersions, providerApiKeys, refreshAssets, settings, suites]);
 
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
@@ -277,6 +285,8 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
         threshold,
         providerId,
         modelId,
+        providerApiKeys[providerId],
+        providerId === "bedrock" ? bedrockCredentials : undefined,
         rubrics,
         (message) => pushToast({ title: "Evaluation failed", message, variant: "error" }),
         {
@@ -310,6 +320,20 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
     const setModelId = (value: string) => {
         setProviderIdState(resolveProviderId(value, providerId));
         setModelIdState(value);
+    };
+
+    const setProviderApiKey = (targetProviderId: LLMProviderId, value: string) => {
+        setProviderApiKeys((current) => ({
+            ...current,
+            [targetProviderId]: value,
+        }));
+    };
+
+    const setBedrockCredential = (field: keyof BedrockRuntimeCredentials, value: string) => {
+        setBedrockCredentials((current) => ({
+            ...current,
+            [field]: value,
+        }));
     };
 
     const applySettingsToWorkspace = (nextSettings: AppSettings = settings) => {
@@ -606,6 +630,10 @@ export function DashboardWorkspaceProvider({ children }: { children: React.React
                 setSuiteBaselinePromptVersionId,
                 providerId,
                 setProviderId,
+                providerApiKeys,
+                setProviderApiKey,
+                bedrockCredentials,
+                setBedrockCredential,
                 modelId,
                 setModelId,
                 results,

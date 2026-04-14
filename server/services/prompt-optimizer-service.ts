@@ -8,6 +8,8 @@ export async function optimizePrompt({
     results,
     providerId,
     modelId,
+    providerApiKey,
+    bedrockCredentials,
 }: OptimizePromptRequest): Promise<PromptOptimizationSuggestion> {
     if (!currentPrompt?.trim()) {
         throw new Error('Current prompt is required');
@@ -17,7 +19,7 @@ export async function optimizePrompt({
         throw new Error('Evaluation results are required');
     }
 
-    const model = getModel({ providerId, modelId });
+    const model = getModel({ providerId, modelId, apiKey: providerApiKey, bedrockCredentials });
     const sortedResults = [...results].sort((a, b) => b.semanticScore - a.semanticScore);
     const bestExamples = sortedResults.slice(0, 2);
     const worstExamples = sortedResults.slice(-2);

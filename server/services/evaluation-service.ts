@@ -30,7 +30,7 @@ function buildEvaluationPrompt(userInputTemplate: string, testCase: EvaluationRe
 }
 
 export async function evaluatePrompt(request: EvaluationRequest): Promise<EvaluationResult[]> {
-    const { systemPrompt, userInput, testCases, batchSize, threshold, modelId, providerId, rubrics = [] } = request;
+    const { systemPrompt, userInput, testCases, batchSize, threshold, modelId, providerId, providerApiKey, bedrockCredentials, rubrics = [] } = request;
 
     if (!systemPrompt?.trim()) {
         throw new Error('System prompt is required');
@@ -55,7 +55,11 @@ export async function evaluatePrompt(request: EvaluationRequest): Promise<Evalua
         throw new Error('No valid test cases were provided');
     }
 
-    const selection = resolveProviderModelSelection(modelId, providerId);
+    const selection = {
+        ...resolveProviderModelSelection(modelId, providerId),
+        apiKey: providerApiKey,
+        bedrockCredentials,
+    };
     const modelMetadata = getModelDefinition(selection.modelId);
     const batches = chunk(sanitizedTestCases, safeBatchSize);
     const allResults: EvaluationResult[] = [];

@@ -34,6 +34,39 @@ describe("provider registry", () => {
         });
     });
 
+    it("treats a runtime api key as a valid provider configuration for the selected provider", () => {
+        expect(resolveLanguageSelection({
+            providerId: "openai",
+            modelId: "gpt-4.1-mini",
+            apiKey: "sk-runtime-only",
+        })).toEqual({
+            providerId: "openai",
+            modelId: "gpt-4.1-mini",
+            apiKey: "sk-runtime-only",
+        });
+    });
+
+    it("treats Bedrock runtime credentials as a valid provider configuration", () => {
+        expect(resolveLanguageSelection({
+            providerId: "bedrock",
+            modelId: "anthropic.claude-3-sonnet-20240229-v1:0",
+            bedrockCredentials: {
+                region: "us-east-1",
+                accessKeyId: "AKIA_RUNTIME",
+                secretAccessKey: "runtime-secret",
+            },
+        })).toEqual({
+            providerId: "bedrock",
+            modelId: "anthropic.claude-3-sonnet-20240229-v1:0",
+            apiKey: undefined,
+            bedrockCredentials: {
+                region: "us-east-1",
+                accessKeyId: "AKIA_RUNTIME",
+                secretAccessKey: "runtime-secret",
+            },
+        });
+    });
+
     it("uses the selected provider for embeddings when that provider supports them", () => {
         vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
 

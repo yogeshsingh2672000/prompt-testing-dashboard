@@ -2,6 +2,7 @@ import {
     ConversationTurn,
     EvaluationRequest,
     EvaluationResult,
+    BedrockRuntimeCredentials,
     LLMProviderId,
     OptimizePromptRequest,
     OutputValidationConfig,
@@ -24,6 +25,23 @@ function parseProviderId(value: unknown): LLMProviderId | undefined {
     }
 
     return undefined;
+}
+
+function parseBedrockCredentials(value: unknown): BedrockRuntimeCredentials | undefined {
+    if (!isObject(value)) {
+        return undefined;
+    }
+
+    const credentials: BedrockRuntimeCredentials = {
+        region: typeof value.region === "string" ? value.region : undefined,
+        accessKeyId: typeof value.accessKeyId === "string" ? value.accessKeyId : undefined,
+        secretAccessKey: typeof value.secretAccessKey === "string" ? value.secretAccessKey : undefined,
+        sessionToken: typeof value.sessionToken === "string" ? value.sessionToken : undefined,
+    };
+
+    return Object.values(credentials).some((entry) => typeof entry === "string" && entry.length > 0)
+        ? credentials
+        : undefined;
 }
 
 function parseOutputValidation(value: unknown): OutputValidationConfig | undefined {
@@ -170,6 +188,8 @@ export function parseEvaluationRequest(payload: unknown): EvaluationRequest {
         threshold: typeof payload.threshold === "number" ? payload.threshold : Number(payload.threshold) || 0,
         providerId: parseProviderId(payload.providerId),
         modelId: typeof payload.modelId === "string" ? payload.modelId : undefined,
+        providerApiKey: typeof payload.providerApiKey === "string" ? payload.providerApiKey : undefined,
+        bedrockCredentials: parseBedrockCredentials(payload.bedrockCredentials),
         rubrics: Array.isArray(payload.rubrics) ? payload.rubrics.map(parseRubric) : undefined,
     };
 }
@@ -180,6 +200,8 @@ export function parseGenerateTestCasesRequest(payload: unknown): {
     count: number;
     providerId?: LLMProviderId;
     modelId?: string;
+    providerApiKey?: string;
+    bedrockCredentials?: BedrockRuntimeCredentials;
 } {
     if (!isObject(payload)) {
         throw new Error("Test case generation payload must be an object");
@@ -195,6 +217,8 @@ export function parseGenerateTestCasesRequest(payload: unknown): {
         count: typeof payload.count === "number" ? payload.count : Number(payload.count) || 5,
         providerId: parseProviderId(payload.providerId),
         modelId: typeof payload.modelId === "string" ? payload.modelId : undefined,
+        providerApiKey: typeof payload.providerApiKey === "string" ? payload.providerApiKey : undefined,
+        bedrockCredentials: parseBedrockCredentials(payload.bedrockCredentials),
     };
 }
 
@@ -212,5 +236,7 @@ export function parseOptimizePromptRequest(payload: unknown): OptimizePromptRequ
         results: payload.results.map(parseEvaluationResult),
         providerId: parseProviderId(payload.providerId),
         modelId: typeof payload.modelId === "string" ? payload.modelId : undefined,
+        providerApiKey: typeof payload.providerApiKey === "string" ? payload.providerApiKey : undefined,
+        bedrockCredentials: parseBedrockCredentials(payload.bedrockCredentials),
     };
 }

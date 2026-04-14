@@ -27,7 +27,7 @@ interface ComparisonRunState {
 const CURRENT_WORKSPACE_DATASET_ID = "__current_workspace__";
 
 export function CompareWorkbench() {
-    const { promptVersions, suites, testCases, pushToast } = useDashboardWorkspace();
+    const { promptVersions, suites, testCases, providerApiKeys, bedrockCredentials, pushToast } = useDashboardWorkspace();
     const [leftVersionId, setLeftVersionId] = useState<string>("");
     const [rightVersionId, setRightVersionId] = useState<string>("");
     const [datasetId, setDatasetId] = useState<string>(CURRENT_WORKSPACE_DATASET_ID);
@@ -99,6 +99,8 @@ export function CompareWorkbench() {
             threshold: version.threshold,
             providerId: version.providerId,
             modelId: version.modelId,
+            providerApiKey: providerApiKeys[version.providerId || "bedrock"],
+            bedrockCredentials: version.providerId === "bedrock" ? bedrockCredentials : undefined,
             rubrics: version.rubrics,
         });
 

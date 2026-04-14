@@ -4,7 +4,11 @@ import { getProviderAdapter } from "@/server/lib/provider-registry";
 
 export function getModel(selection?: ProviderModelSelection) {
     const resolved = resolveLanguageSelection(selection);
-    return getProviderAdapter(resolved.providerId).languageModel(resolved.modelId);
+    return getProviderAdapter(resolved.providerId).languageModel(
+        resolved.modelId,
+        resolved.apiKey,
+        resolved.bedrockCredentials
+    );
 }
 
 export async function getResponse(
@@ -30,7 +34,7 @@ export async function getEmbedding(text: string, selection?: ProviderModelSelect
     }
 
     const { embedding } = await embed({
-        model: adapter.embeddingModel(resolved.modelId),
+        model: adapter.embeddingModel(resolved.modelId, resolved.apiKey, resolved.bedrockCredentials),
         value: text,
     });
 

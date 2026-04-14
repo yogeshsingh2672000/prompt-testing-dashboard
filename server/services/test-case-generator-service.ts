@@ -1,13 +1,13 @@
 import { generateText } from 'ai';
 import { getModel } from '@/server/lib/ai';
 import { extractJson } from '@/shared/lib/utils';
-import { GeneratedTestCasePayload, LLMProviderId } from '@/shared/types';
+import { BedrockRuntimeCredentials, GeneratedTestCasePayload, LLMProviderId } from '@/shared/types';
 
 export async function generateTestCases(
     systemPrompt: string,
     sampleInput: string,
     count = 5,
-    selection?: { providerId?: LLMProviderId; modelId?: string }
+    selection?: { providerId?: LLMProviderId; modelId?: string; apiKey?: string; bedrockCredentials?: BedrockRuntimeCredentials }
 ): Promise<GeneratedTestCasePayload[]> {
     const requestedCount = Number.isFinite(count) ? Math.min(Math.max(Number(count), 1), 20) : 5;
 

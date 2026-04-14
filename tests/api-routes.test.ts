@@ -99,6 +99,8 @@ describe("API routes", () => {
         expect(generateTestCasesMock).toHaveBeenCalledWith("Prompt", "Hello", 2, {
             providerId: undefined,
             modelId: undefined,
+            apiKey: undefined,
+            bedrockCredentials: undefined,
         });
     });
 

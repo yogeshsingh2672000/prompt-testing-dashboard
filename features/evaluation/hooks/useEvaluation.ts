@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RubricDefinition, TestCase, EvaluationResult, EvaluationRequest, LLMProviderId } from "@/shared/types";
+import { BedrockRuntimeCredentials, RubricDefinition, TestCase, EvaluationResult, EvaluationRequest, LLMProviderId } from "@/shared/types";
 import { persistence, TestRun } from "@/shared/lib/persistence";
 import { buildTestRun } from "@/shared/lib/run-records";
 
@@ -22,6 +22,8 @@ export function useEvaluation(
     threshold: number,
     providerId?: LLMProviderId,
     modelId?: string,
+    providerApiKey?: string,
+    bedrockCredentials?: BedrockRuntimeCredentials,
     rubrics: RubricDefinition[] = [],
     onError?: (message: string) => void,
     runMetadata?: EvaluationRunMetadata
@@ -64,6 +66,8 @@ export function useEvaluation(
                     threshold,
                     providerId,
                     modelId,
+                    providerApiKey,
+                    bedrockCredentials,
                     rubrics,
                 } as EvaluationRequest),
             });

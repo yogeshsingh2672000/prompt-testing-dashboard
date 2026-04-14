@@ -5,8 +5,13 @@ import { generateTestCases } from '@/server/services/test-case-generator-service
 
 export async function POST(req: Request) {
   try {
-    const { sampleInput, systemPrompt, count, providerId, modelId } = parseGenerateTestCasesRequest(await req.json());
-    const testCases = await generateTestCases(systemPrompt, sampleInput, count, { providerId, modelId });
+    const { sampleInput, systemPrompt, count, providerId, modelId, providerApiKey, bedrockCredentials } = parseGenerateTestCasesRequest(await req.json());
+    const testCases = await generateTestCases(systemPrompt, sampleInput, count, {
+      providerId,
+      modelId,
+      apiKey: providerApiKey,
+      bedrockCredentials,
+    });
 
     return NextResponse.json({ testCases });
   } catch (error) {

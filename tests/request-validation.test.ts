@@ -12,6 +12,13 @@ describe("request validation", () => {
             userInput: "{{input}}",
             providerId: "openai",
             modelId: "gpt-4.1-mini",
+            providerApiKey: "sk-local-test",
+            bedrockCredentials: {
+                region: "us-east-1",
+                accessKeyId: "AKIA_TEST",
+                secretAccessKey: "secret-test",
+                sessionToken: "session-test",
+            },
             testCases: [
                 {
                     id: "tc-1",
@@ -39,6 +46,13 @@ describe("request validation", () => {
         expect(request.batchSize).toBe(3);
         expect(request.providerId).toBe("openai");
         expect(request.modelId).toBe("gpt-4.1-mini");
+        expect(request.providerApiKey).toBe("sk-local-test");
+        expect(request.bedrockCredentials).toEqual({
+            region: "us-east-1",
+            accessKeyId: "AKIA_TEST",
+            secretAccessKey: "secret-test",
+            sessionToken: "session-test",
+        });
         expect(request.testCases[0].outputValidation?.type).toBe("contains");
         expect(request.testCases[0].conversation?.[0].role).toBe("user");
         expect(request.rubrics?.[0].id).toBe("accuracy");
@@ -112,15 +126,27 @@ describe("request validation", () => {
             count: "6",
             providerId: "google",
             modelId: "gemini-2.5-flash",
+            providerApiKey: "google-local-key",
+            bedrockCredentials: {
+                region: "",
+            },
         });
         expect(generation.count).toBe(6);
         expect(generation.providerId).toBe("google");
         expect(generation.modelId).toBe("gemini-2.5-flash");
+        expect(generation.providerApiKey).toBe("google-local-key");
+        expect(generation.bedrockCredentials).toBeUndefined();
 
         const optimization = parseOptimizePromptRequest({
             currentPrompt: "Prompt",
             providerId: "anthropic",
             modelId: "claude-3-5-sonnet-20241022",
+            providerApiKey: "anthropic-local-key",
+            bedrockCredentials: {
+                region: "us-west-2",
+                accessKeyId: "AKIA_OPT",
+                secretAccessKey: "opt-secret",
+            },
             results: [
                 {
                     testCaseId: "tc-1",
@@ -134,6 +160,13 @@ describe("request validation", () => {
         expect(optimization.currentPrompt).toBe("Prompt");
         expect(optimization.providerId).toBe("anthropic");
         expect(optimization.modelId).toBe("claude-3-5-sonnet-20241022");
+        expect(optimization.providerApiKey).toBe("anthropic-local-key");
+        expect(optimization.bedrockCredentials).toEqual({
+            region: "us-west-2",
+            accessKeyId: "AKIA_OPT",
+            secretAccessKey: "opt-secret",
+            sessionToken: undefined,
+        });
         expect(optimization.results).toHaveLength(1);
         expect(optimization.results[0].status).toBe("pass");
         expect(optimization.results[0].metrics.tokens.total).toBe(0);

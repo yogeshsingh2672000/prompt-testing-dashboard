@@ -6,6 +6,7 @@ import { LLMProviderId, RubricDefinition, RubricResult } from "@/shared/types";
 interface EvaluatorModelSelection {
     providerId?: LLMProviderId;
     modelId?: string;
+    apiKey?: string;
 }
 
 export async function getSemanticScore(

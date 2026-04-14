@@ -6,6 +6,13 @@ export interface LLMProviderOption {
     description: string;
 }
 
+export interface BedrockRuntimeCredentials {
+    region?: string;
+    accessKeyId?: string;
+    secretAccessKey?: string;
+    sessionToken?: string;
+}
+
 export interface TestCase {
     id: string;
     input: string;
@@ -95,6 +102,8 @@ export interface EvaluationRequest {
     threshold: number;
     providerId?: LLMProviderId;
     modelId?: string;
+    providerApiKey?: string;
+    bedrockCredentials?: BedrockRuntimeCredentials;
     rubrics?: RubricDefinition[];
 }
 
@@ -108,6 +117,8 @@ export interface OptimizePromptRequest {
     results: EvaluationResult[];
     providerId?: LLMProviderId;
     modelId?: string;
+    providerApiKey?: string;
+    bedrockCredentials?: BedrockRuntimeCredentials;
 }
 
 export interface PromptOptimizationSuggestion {

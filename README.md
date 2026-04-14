@@ -87,14 +87,18 @@ GOOGLE_GENERATIVE_AI_API_KEY=
 ```
 
 4. Set `NEXT_PUBLIC_SITE_URL` in `.env.local` before deploying so canonical URLs, sitemap entries, and social metadata point to your real domain.
+5. You can also enter provider credentials directly in the workspace at runtime.
+   - OpenAI / Anthropic / Google: API key
+   - AWS Bedrock: region, access key ID, secret access key, and optional session token
+   Those credentials stay in memory for the current session only and are not persisted to IndexedDB or saved with runs.
 
-5. Start the app:
+6. Start the app:
 
 ```bash
 npm run dev
 ```
 
-6. Open `http://localhost:3000`
+7. Open `http://localhost:3000`
 
 ## Scripts
 
