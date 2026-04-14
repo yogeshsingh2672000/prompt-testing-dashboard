@@ -1,24 +1,24 @@
 ## Summary
 
-- What does this change do?
-- Why is it needed?
+- What changed?
+- Why does it matter for Promitly users or contributors?
 
-## Changes
-
-- 
-
-## Verification
+## Validation
 
 - [ ] `npm run lint`
 - [ ] `npm run test`
 - [ ] `npm run build`
 
-## Screenshots or recordings
+## Visual Proof
 
-Add visuals when the change affects UI, navigation, onboarding, docs, or SEO previews.
+- Add screenshots or a short recording for UI, onboarding, docs, or metadata changes.
 
-## Checklist
+## Risk Check
 
-- [ ] I kept API routes thin and moved logic into shared/server modules where appropriate.
-- [ ] I added or updated tests for logic changes.
-- [ ] I updated docs, metadata, or copy when behavior or discoverability changed.
+- [ ] No user-supplied credentials are persisted or logged.
+- [ ] Any schema or persistence changes are called out clearly.
+- [ ] Docs were updated if setup, behavior, or positioning changed.
+
+## Notes for Reviewers
+
+- Anything specific you want reviewed closely?

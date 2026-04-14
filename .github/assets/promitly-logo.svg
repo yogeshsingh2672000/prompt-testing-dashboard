@@ -1,0 +1,13 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="96" fill="#08111F"/>
+  <rect x="92" y="92" width="328" height="328" rx="56" fill="url(#card)" stroke="#24314D" stroke-width="10"/>
+  <path d="M176 166H290C337.496 166 376 204.504 376 252C376 299.496 337.496 338 290 338H230V280H282C298.569 280 312 266.569 312 250C312 233.431 298.569 220 282 220H176V166Z" fill="#F8FAFC"/>
+  <path d="M176 166H230V392H176V166Z" fill="#14B8A6"/>
+  <path d="M150 166H176V392H150C133.431 392 120 378.569 120 362V196C120 179.431 133.431 166 150 166Z" fill="#2563EB"/>
+  <defs>
+    <linearGradient id="card" x1="92" y1="92" x2="420" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#0A1325"/>
+    </linearGradient>
+  </defs>
+</svg>

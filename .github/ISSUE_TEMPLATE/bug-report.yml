@@ -1,29 +1,51 @@
 name: Bug report
-description: Report a bug in Promitly
+description: Report a reproducible bug in Promitly
 title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: textarea
     id: summary
     attributes:
-      label: Summary
-      description: What broke and what did you expect instead?
+      label: What broke?
+      description: Describe the current behavior and the expected behavior.
+      placeholder: Running the same dataset against a saved prompt version throws an error instead of showing results.
     validations:
       required: true
   - type: textarea
-    id: steps
+    id: reproduction
     attributes:
-      label: Steps to reproduce
-      description: List the steps so another contributor can reproduce the issue.
+      label: How can we reproduce it?
+      description: List the shortest path another contributor can follow to see the issue.
+      placeholder: |
+        1. Open Workspace
+        2. Select Anthropic provider
+        3. Load saved suite "Support JSON"
+        4. Click Run Evaluation
+        5. Observe...
     validations:
       required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area is affected?
+      options:
+        - Workspace
+        - Results
+        - Compare
+        - Datasets
+        - Reviews
+        - Analytics
+        - Schedules
+        - Settings
+        - API / services
+        - Docs / SEO
   - type: textarea
     id: environment
     attributes:
       label: Environment
-      description: Browser, OS, local setup, and any relevant model or prompt settings.
+      description: Browser, OS, provider, model, and whether you used env credentials or runtime credentials.
   - type: textarea
-    id: notes
+    id: evidence
     attributes:
       label: Extra context
-      description: Screenshots, logs, clips, or related issues.
+      description: Add logs, screenshots, recordings, exported runs, or related issues.

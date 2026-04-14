@@ -1,0 +1,26 @@
+changelog:
+  exclude:
+    labels:
+      - duplicate
+      - invalid
+      - question
+  categories:
+    - title: Features
+      labels:
+        - enhancement
+        - feature
+    - title: Fixes
+      labels:
+        - bug
+        - fix
+    - title: Documentation and discoverability
+      labels:
+        - documentation
+        - seo
+    - title: Tooling and CI
+      labels:
+        - ci
+        - tooling
+    - title: Other changes
+      labels:
+        - "*"

@@ -2,23 +2,35 @@
   "name": "promitly",
   "version": "0.1.0",
   "private": true,
-  "description": "Open-source, local-first prompt evaluation platform for private prompt testing, prompt comparison, structured output validation, and LLM QA workflows.",
+  "description": "Local-first Next.js platform for private prompt testing, LLM evaluation, regression checks, and multi-provider comparisons without exposing prompts.",
   "author": "Promitly Contributors",
   "license": "MIT",
+  "homepage": "https://github.com/yogeshsingh2672000/prompt-testing-dashboard#readme",
+  "bugs": {
+    "url": "https://github.com/yogeshsingh2672000/prompt-testing-dashboard/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yogeshsingh2672000/prompt-testing-dashboard.git"
+  },
   "keywords": [
-    "prompt-evaluation",
+    "ai",
+    "llm",
     "prompt-testing",
-    "local-prompt-testing",
-    "private-prompt-testing",
-    "prompt-engineering",
+    "prompt-evaluation",
     "llm-evaluation",
-    "ai-testing",
     "prompt-regression",
+    "prompt-engineering",
+    "local-first",
+    "privacy",
+    "private-prompt-testing",
+    "ai-testing",
+    "nextjs",
+    "typescript",
     "openai",
     "anthropic",
     "gemini",
     "bedrock",
-    "nextjs",
     "open-source"
   ],
   "scripts": {

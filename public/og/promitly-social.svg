@@ -5,20 +5,20 @@
   <circle cx="170" cy="520" r="160" fill="#2563EB" fill-opacity="0.15"/>
   <rect x="84" y="88" width="168" height="54" rx="16" fill="#F8FAFC"/>
   <text x="116" y="123" fill="#0B1020" font-family="Arial, sans-serif" font-size="28" font-weight="700">PROMITLY</text>
-  <text x="84" y="230" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="68" font-weight="800">
-    Private prompt QA for
+  <text x="84" y="230" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="64" font-weight="800">
+    Test prompts like code,
   </text>
-  <text x="84" y="308" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="68" font-weight="800">
-    local evaluation, comparison,
+  <text x="84" y="306" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="64" font-weight="800">
+    without handing them to
   </text>
-  <text x="84" y="386" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="68" font-weight="800">
-    review, and regression
+  <text x="84" y="382" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="64" font-weight="800">
+    someone else's platform
   </text>
-  <text x="84" y="470" fill="#B6C2DA" font-family="Arial, sans-serif" font-size="30" font-weight="500">
-    Open-source platform for private prompt testing, prompt versioning,
+  <text x="84" y="466" fill="#B6C2DA" font-family="Arial, sans-serif" font-size="30" font-weight="500">
+    Local-first prompt QA for private testing, structured validation,
   </text>
-  <text x="84" y="512" fill="#B6C2DA" font-family="Arial, sans-serif" font-size="30" font-weight="500">
-    structured output validation, and local-first LLM quality tracking.
+  <text x="84" y="508" fill="#B6C2DA" font-family="Arial, sans-serif" font-size="30" font-weight="500">
+    comparison, reviews, analytics, and multi-provider evaluation.
   </text>
   <defs>
     <linearGradient id="paint0_linear" x1="40" y1="40" x2="1160" y2="590" gradientUnits="userSpaceOnUse">

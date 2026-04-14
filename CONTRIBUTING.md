@@ -1,14 +1,14 @@
 # Contributing to Promitly
 
-Thanks for helping improve Promitly. This project is building an open-source prompt evaluation platform for prompt testing, prompt QA, LLM regression tracking, and prompt comparison workflows.
+Thanks for contributing to Promitly. This project is building a local-first prompt QA platform for developers who want to test prompts privately, compare versions, validate outputs, and review runs without depending on a hosted prompt testing service.
 
-## Before you start
+## Before You Open a PR
 
-1. Read the README for the product and architecture overview.
-2. Search open issues before starting new work.
-3. Open a feature request or bug report first for larger changes so contributors do not duplicate effort.
+1. Read the [README](./README.md) for product context and architecture.
+2. Search existing issues before starting work.
+3. For larger changes, open an issue first so we can avoid duplicated work.
 
-## Local setup
+## Local Setup
 
 ```bash
 npm install
@@ -16,22 +16,40 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Add the environment values your Bedrock setup needs in `.env.local`.
+You can either:
 
-## Project principles
+- add provider env keys in `.env.local`, or
+- enter runtime credentials in the app UI for the current session only
 
-- Keep API routes thin.
-- Put domain logic in `server/services` or `shared/lib`.
-- Reuse existing feature folders before creating new top-level structures.
-- Preserve existing visual language unless the change is explicitly a design refactor.
+## Project Principles
+
+- Keep API routes thin and move logic into `server/services`.
+- Reuse shared abstractions in `shared/lib`, `shared/types`, and `shared/constants`.
+- Add new model providers through the provider registry instead of branching logic across routes.
+- Do not persist user-supplied runtime credentials.
+- Preserve the product's local-first privacy story in copy, docs, and UX.
 - Add tests for logic-heavy changes.
 
-## Pull request guidance
+## Branches and Commits
 
-- Keep PRs focused.
-- Include screenshots for UI changes.
-- Mention any persistence or schema changes clearly.
-- Run:
+- Keep branches focused on one problem.
+- Use meaningful commits such as:
+  - `feat: add provider status badges`
+  - `fix: handle malformed compare payload`
+  - `docs: tighten README hero copy`
+- Prefer small, reviewable PRs over large mixed changes.
+
+## Code Style Expectations
+
+- Follow the domain-driven structure under `features`, `server`, and `shared`.
+- Avoid duplicating summary math, validation rules, or fallback object factories.
+- Keep comments short and only where they explain non-obvious intent.
+- For UI changes, reuse existing primitives before creating new one-off components.
+- Maintain the current visual language unless the issue is explicitly about design.
+
+## Verification
+
+Run all three before opening a PR:
 
 ```bash
 npm run lint
@@ -39,16 +57,17 @@ npm run test
 npm run build
 ```
 
-## Good first contribution areas
+## Pull Request Checklist
 
-- Prompt evaluation UX polish
-- Analytics and reporting improvements
-- Dataset import/export workflows
-- SEO and documentation improvements
-- Test coverage for shared utilities and services
+- Include screenshots or a short recording for UI changes.
+- Note any persistence, schema, or migration impact.
+- Update docs if behavior, setup, or positioning changes.
+- Keep secrets out of commits, issues, screenshots, and exported artifacts.
 
-## Code style notes
+## Good First Contribution Areas
 
-- Prefer domain-driven files under `features`, `server`, and `shared`.
-- Avoid duplicating summary math, request parsing, or fallback object construction.
-- Keep comments concise and only where they clarify non-obvious logic.
+- provider setup guidance and runtime credential UX
+- accessibility improvements
+- analytics and reporting polish
+- dataset import and export ergonomics
+- docs, onboarding, and launch content

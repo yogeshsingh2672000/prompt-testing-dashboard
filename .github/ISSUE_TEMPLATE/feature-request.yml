@@ -1,24 +1,30 @@
 name: Feature request
-description: Suggest a new feature or improvement for Promitly
+description: Propose a concrete improvement for Promitly
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Problem
-      description: What user problem or workflow gap does this solve?
+      label: What problem are you solving?
+      description: Explain the workflow gap or user pain clearly.
+      placeholder: I want to rerun only failed cases from the last saved run instead of rerunning the whole suite.
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
-      label: Proposed solution
-      description: Describe the feature, UX, or implementation direction you have in mind.
+      label: What should Promitly do?
+      description: Describe the desired UX or behavior.
     validations:
       required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: What does success look like?
+      description: Share acceptance criteria, example flows, or measurable outcomes.
   - type: textarea
     id: alternatives
     attributes:
       label: Alternatives considered
-      description: Mention any workarounds or alternate ideas.
+      description: Mention current workarounds or competing approaches.

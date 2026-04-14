@@ -1,240 +1,236 @@
 # Promitly
 
-Promitly is an open-source, local-first prompt evaluation platform for prompt testing, prompt comparison, prompt regression tracking, structured output validation, and human review workflows. It was built for developers who want to test prompts privately in their own environment instead of exposing prompt logic to a third-party hosted prompt testing platform.
+<p align="center">
+  <img src="./.github/assets/promitly-banner.svg" alt="Promitly banner" width="100%" />
+</p>
 
-## Why Promitly
+<p align="center">
+  <strong>Test prompts like code, without handing them to someone else's platform.</strong>
+</p>
 
-- Keep prompt logic inside your own local environment
-- Test prompts against reusable suites before shipping
-- Compare prompt versions side by side
-- Validate JSON and other structured output formats
-- Track prompt quality trends, regressions, and reviewer decisions
-- Run an open-source prompt QA workflow in a modern Next.js app
+<p align="center">
+  <a href="https://github.com/yogeshsingh2672000/prompt-testing-dashboard/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/yogeshsingh2672000/prompt-testing-dashboard/ci.yml?branch=main&label=CI" alt="CI status" />
+  </a>
+  <a href="./LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-0f172a" alt="MIT license" />
+  </a>
+  <img src="https://img.shields.io/badge/version-v0.1.0-14b8a6" alt="Version 0.1.0" />
+</p>
 
-If you are searching for a prompt testing dashboard, prompt evaluation tool, private prompt testing platform, or open-source LLM QA platform, Promitly is designed for exactly that use case.
+Promitly is a local-first prompt QA platform for teams that want to test, compare, and review prompts inside their own environment.
+It helps you catch regressions, enforce structured output contracts, and evaluate across providers before release.
+What makes it different: Promitly was built specifically for developers who do not want to expose prompt logic to a hosted prompt testing product.
 
-## The story behind Promitly
+## Why Developers Click Star
 
-Promitly started from a simple problem: developers needed a way to evaluate prompts locally without exposing sensitive prompt logic to the world through another hosted platform.
+- Keep prompt logic in your own environment instead of pasting it into a hosted evaluator.
+- Bring your own provider credentials at runtime, including AWS Bedrock, OpenAI, Anthropic, and Google.
+- Compare prompt versions, score with rubrics, review failures, and export reports from one local workflow.
+- Run a serious prompt QA process without needing a remote control plane first.
 
-That is the real USP of this project.
+## Demo
 
-Promitly gives developers a secluded, local-first prompt QA environment where they can:
+Promitly is intentionally local-first. That means the best demo is usually your own instance running against your own prompts and keys.
 
-- test prompts privately
-- compare prompt versions
-- run prompt regression checks
-- validate structured outputs
-- review model behavior before release
+- Live demo: private by design. Run it locally in a few commands or deploy your own copy.
+- Recommended 25-second GIF capture for the repo:
+  1. Open `Workspace` and paste a system prompt.
+  2. Add 2 test cases, including one JSON validation rule.
+  3. Run evaluation and show scores appearing in `Results`.
+  4. Jump to `Compare` and show version A/B deltas.
+  5. Open `Reviews` and approve or reject a failed case.
 
-The goal is not just better prompt evaluation. The goal is private prompt evaluation with full control.
+If you publish a hosted demo later, keep the messaging the same: Promitly exists so developers can run prompt QA in a controlled environment, not depend on a third-party testing dashboard.
 
-## Core capabilities
+## Features
 
-- Local-first prompt testing workflow for private prompt evaluation
-- Workspace for prompt authoring, rubric tuning, and test-case design
-- Automated evaluation with semantic score, rubric score, overall score, latency, token usage, and cost
-- Structured output validation for JSON, prefix, substring, and regex constraints
-- Prompt versioning and saved datasets
-- A/B comparison across prompt versions on the same dataset
-- Trend analytics, regression summaries, and model leaderboards
-- Scheduled evaluation configs for recurring prompt checks
-- Human review workflow with reviewer notes and pass/fail overrides
-- Shared HTML and Markdown run reports
-- Dataset import/export in JSON and CSV
-- Local app settings for evaluator defaults and rubric presets
-- Public marketing landing page, sitemap, robots, manifest, and structured SEO metadata
+- **Private local prompt QA**: Evaluate prompts without handing prompt logic to another hosted platform.
+- **Bring-your-own-provider workflow**: Use OpenAI, Anthropic, Google Gemini, or AWS Bedrock with user-supplied runtime credentials.
+- **Prompt comparison that catches regressions**: Compare prompt versions on the same dataset and inspect per-case winners and score deltas.
+- **Structured output enforcement**: Validate JSON, prefix, substring, and regex rules so format-sensitive prompts stay safe to ship.
+- **Human review on top of automated scoring**: Add reviewer notes, approvals, rejections, and final overrides to saved runs.
+- **Datasets, schedules, and reports**: Save reusable suites, schedule recurring checks, and export HTML or Markdown run reports.
+- **Trend analytics built for release decisions**: Track pass rates, rubric quality, regressions, and model leaderboards over time.
 
-## Stack
+## Who This Is For
 
-- Next.js App Router
-- React 19
-- Tailwind CSS 4
-- `next-intl` for localization
-- Multi-provider LLM support through the Vercel AI SDK
-  - AWS Bedrock
-  - OpenAI
-  - Anthropic
-  - Google Gemini
-- IndexedDB for local persistence
-- Vitest for automated tests
+Promitly is for:
 
-## Local setup
+- AI engineers shipping internal LLM features
+- teams evaluating prompts for support, extraction, classification, and agent workflows
+- developers working with sensitive prompts or proprietary business logic
+- builders who want prompt QA discipline without adopting a hosted prompt-ops platform first
+- open-source contributors interested in local-first AI tooling, evaluation, and developer experience
 
-1. Install dependencies:
+## Why This Exists
 
-```bash
-npm install
-```
+Most prompt testing products assume you are comfortable sending prompts, outputs, and evaluation logic to a hosted service.
+Promitly was built for the opposite case.
 
-2. Create a local environment file:
+The project started from a simple need: give developers a secluded environment where they can test prompts locally, compare versions, validate outputs, and review failures without exposing prompt logic to the world.
 
-```bash
-cp .env.example .env.local
-```
+That local-first privacy story is not a side benefit. It is the product.
 
-3. Add credentials for at least one provider in `.env.local`.
+## Real-World Use Cases
 
-```bash
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+1. Validate a JSON extraction prompt before wiring it into a production workflow.
+2. Compare a new support-bot prompt against the current version and catch regression cases before release.
+3. Run a recurring QA suite against a Bedrock, OpenAI, Anthropic, or Gemini model after prompt changes.
+4. Review failed outputs with a human override workflow before promoting a prompt version.
+5. Export a report for teammates after a prompt evaluation sprint or release review.
 
-AWS_REGION=us-east-1
-AWS_MODEL_ID=anthropic.claude-3-sonnet-20240229-v1:0
+## Proof It Is Built Seriously
 
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-GOOGLE_GENERATIVE_AI_API_KEY=
-```
-
-4. Set `NEXT_PUBLIC_SITE_URL` in `.env.local` before deploying so canonical URLs, sitemap entries, and social metadata point to your real domain.
-5. You can also enter provider credentials directly in the workspace at runtime.
-   - OpenAI / Anthropic / Google: API key
-   - AWS Bedrock: region, access key ID, secret access key, and optional session token
-   Those credentials stay in memory for the current session only and are not persisted to IndexedDB or saved with runs.
-
-6. Start the app:
-
-```bash
-npm run dev
-```
-
-7. Open `http://localhost:3000`
-
-## Scripts
-
-```bash
-npm run dev
-npm run build
-npm run start
-npm run lint
-npm run test
-npm run test:coverage
-```
-
-## Product routes
-
-- `/`: public landing page for search engines, social sharing, and contributor discovery
-- `/workspace`: author prompts, manage rubrics, and build test cases
-- `/results`: inspect evaluation metrics and row-level outputs
-- `/analytics`: track trends, regressions, rubric analytics, and model comparisons
-- `/history`: browse saved runs and export reports
-- `/compare`: run prompt version A/B comparisons
-- `/datasets`: manage reusable suites and import/export them
-- `/schedules`: create recurring prompt checks from saved prompt versions
-- `/reviews`: add reviewer decisions, notes, and overrides
-- `/settings`: manage default evaluator configuration and rubric presets
-
-## Evaluation flow
-
-1. Define a system prompt and user input template.
-2. Add test cases with expected outputs and optional structured validation rules.
-3. Choose or adjust rubrics, threshold, and model configuration.
-4. Run evaluation to execute each case against the selected model.
-5. Review semantic score, rubric score, overall score, similarity, latency, tokens, and cost.
-6. Save versions, compare prompt variants, and add human review decisions.
-7. Export datasets or generate shareable reports from saved runs.
+- 60+ automated tests cover provider selection, request validation, evaluation services, exports, reports, and scoring logic.
+- Multi-provider support works through a shared abstraction instead of hardcoded provider-specific routes.
+- Runtime credentials entered in the UI are session-only and are not persisted with runs, suites, schedules, or settings.
+- The app already includes structured metadata, social previews, contributor templates, CI, changelog, and release notes.
 
 ## Architecture
 
-Promitly is organized by responsibility rather than by a single page tree:
+```mermaid
+flowchart LR
+  A["Developer workspace"] --> B["Next.js app shell"]
+  B --> C["Local IndexedDB persistence"]
+  B --> D["API routes"]
+  D --> E["Request validation"]
+  E --> F["Evaluation, compare, optimize, and generation services"]
+  F --> G["Provider registry"]
+  G --> H["OpenAI"]
+  G --> I["Anthropic"]
+  G --> J["Google Gemini"]
+  G --> K["AWS Bedrock"]
+  F --> L["Scoring, rubrics, and output validation"]
+  L --> C
+  C --> M["Analytics, reports, reviews, schedules, and history"]
+```
+
+## Quick Start
+
+### 1. Clone
+
+```bash
+git clone https://github.com/yogeshsingh2672000/prompt-testing-dashboard.git
+cd prompt-testing-dashboard
+```
+
+### 2. Install and configure
+
+```bash
+npm install
+cp .env.example .env.local
+```
+
+Add env keys for any provider you want to use, or supply them at runtime inside the UI.
+
+### 3. Run
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Example Input -> Output
+
+### Input
+
+System prompt:
+
+```txt
+Extract a support ticket summary as strict JSON with keys: priority, topic, customer_sentiment.
+```
+
+Test case:
+
+```json
+{
+  "input": "My billing page charged me twice and support has not replied for 3 days.",
+  "expectedOutput": "{\"priority\":\"high\",\"topic\":\"billing\",\"customer_sentiment\":\"frustrated\"}",
+  "validation": {
+    "type": "json"
+  }
+}
+```
+
+### Output
+
+```json
+{
+  "output": {
+    "priority": "high",
+    "topic": "billing",
+    "customer_sentiment": "frustrated"
+  },
+  "semanticScore": 0.97,
+  "rubricScore": 0.95,
+  "overallScore": 0.96,
+  "formatValid": true,
+  "passed": true
+}
+```
+
+## Project Structure
 
 ```txt
 app/
-  [locale]/(platform)/...   Route entry points and app shell
-  api/                      Thin API handlers
+  [locale]/(platform)/...   Route entry points and shell
+  api/                      Thin route handlers
 
 features/
   dashboard/                Workspace, results, history
   compare/                  A/B comparison workbench
-  datasets/                 Dataset management UI
+  datasets/                 Dataset manager
   reviews/                  Human review workflow
-  settings/                 App-level evaluator defaults
-  runs/                     Shared run-loading hooks
-  evaluation/               Client evaluation hook
-  navigation/               Shell and route framing
+  analytics/                Trend and leaderboard views
+  settings/                 Defaults and rubric presets
+  navigation/               App shell and route framing
 
 server/
-  lib/                      AI client and evaluator adapters
-  services/                 Validation, evaluation, optimization, generation
+  lib/                      AI clients and provider registry
+  services/                 Evaluation, validation, generation, comparison
 
 shared/
-  constants/                Provider catalogs, models, defaults, rubric presets
-  lib/                      Persistence, exports, reports, summaries, factories
+  constants/                Site, models, defaults
+  lib/                      Persistence, reports, exports, summaries
   types/                    Shared domain types
   ui/                       Reusable UI primitives
 ```
 
-## Persistence model
+## Roadmap
 
-- Saved runs, datasets, prompt versions, and app settings are stored in IndexedDB.
-- Scheduled evaluations are also stored locally in IndexedDB.
-- Persistence is browser-local by design right now, which supports the product's local-first and privacy-focused workflow.
-- Reviews are attached to saved runs, so human QA context stays with the experiment it belongs to.
-- Settings store evaluator defaults such as model, threshold, batch size, and default rubric preset.
-- Because persistence is local, scheduled runs execute while the app is open rather than from a remote job runner.
+- CLI and CI-friendly run execution for prompt regression checks in GitHub Actions
+- richer schema-aware output validation beyond simple JSON and regex checks
+- flaky-case detection across repeated prompt runs
+- hosted team workspaces for teams that want collaboration after starting local-first
+- more granular provider status and runtime credential diagnostics
 
-## SEO and discoverability
+## Contributing
 
-Promitly now includes:
+Promitly is intentionally contributor-friendly.
 
-- localized metadata and route titles
-- a public landing page with search-friendly copy
-- `robots.txt`, `sitemap.xml`, and `manifest.webmanifest`
-- JSON-LD structured data for `WebSite` and `SoftwareApplication`
-- social preview assets for Open Graph and Twitter cards
-- contributor-facing GitHub templates and community files
+- Start with [CONTRIBUTING.md](./CONTRIBUTING.md)
+- Use the issue templates in [`.github/ISSUE_TEMPLATE`](./.github/ISSUE_TEMPLATE)
+- Check the seeded improvement ideas in [`.github/ISSUE_DRAFTS`](./.github/ISSUE_DRAFTS)
+- Run `npm run lint`, `npm run test`, and `npm run build` before opening a PR
 
-For production SEO, set:
+Good first areas:
 
-```bash
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
-```
+- provider UX polish
+- accessibility improvements
+- analytics/reporting refinements
+- dataset workflows
+- docs and onboarding improvements
 
-## Testing strategy
+## Release Status
 
-Promitly now includes focused automated coverage around the most important pure logic:
+Promitly is ready for a public `v0.1.0` launch.
 
-- output validation
-- dataset import/export parsing
-- report generation
-- API error/status mapping
-- request-shape validation
-- evaluation service behavior with mocked AI calls
-- scoring/summary utilities
-- fallback/default object factories
+- Release notes: [docs/releases/v0.1.0.md](./docs/releases/v0.1.0.md)
+- Changelog: [CHANGELOG.md](./CHANGELOG.md)
+- Suggested GitHub About, topics, and launch copy: [`.github/REPOSITORY_PROFILE.md`](./.github/REPOSITORY_PROFILE.md)
 
-Run the test suite with:
+## License
 
-```bash
-npm run test
-```
-
-Note: in some restricted Windows sandbox environments, the test runner may require elevated execution even though the suite itself is healthy.
-
-## Contributor notes
-
-- API routes should stay thin and delegate parsing plus business logic to `server/services`.
-- New LLM providers should be added through the shared provider registry and model catalog instead of branching provider logic across routes or UI components.
-- Shared math or repeated object construction should live in `shared/lib` instead of being duplicated across UI and service layers.
-- When adding new evaluator behavior, prefer testing pure utilities directly and mocking the AI boundary in service tests.
-- Persistence changes that affect IndexedDB must keep store version upgrades in sync.
-- Metadata, sitemap, and public discoverability changes should stay consistent with `shared/constants/site.ts`.
-
-## Open-source files
-
-The repository now includes:
-
-- `CONTRIBUTING.md`
-- `CODE_OF_CONDUCT.md`
-- `SECURITY.md`
-- `LICENSE`
-- GitHub issue templates
-- a pull request template
-
-## Current limitations
-
-- Semantic scoring still depends on a second model call, so it is useful but not perfectly deterministic.
-- Persistence is local to the browser because runs are stored in IndexedDB.
-- There is still no backend multi-user storage or auth layer.
-- Reports are exportable artifacts, but there is not yet a hosted share-link workflow.
-- Scheduled evaluations are browser-local rather than server-cron based.
+[MIT](./LICENSE)

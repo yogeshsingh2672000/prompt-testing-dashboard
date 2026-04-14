@@ -52,11 +52,11 @@ export function MarketingHome({ locale }: { locale: string }) {
                             </div>
                             <div className="space-y-4">
                                 <h1 className="max-w-4xl text-4xl font-black tracking-tight text-zinc-900 dark:text-white md:text-6xl">
-                                    {SITE_NAME} helps developers test prompts locally without exposing prompt logic to a hosted platform.
+                                    Test prompts like code, without handing them to someone else&apos;s platform.
                                 </h1>
                                 <p className="max-w-3xl text-base leading-8 text-zinc-600 dark:text-zinc-300 md:text-lg">
-                                    Promitly was built for developers who want a private, secluded environment for prompt testing. Instead of pasting sensitive prompts
-                                    into a third-party hosted prompt evaluator, you can run prompt evaluation, prompt comparison, regression checks, and structured output validation locally in your own setup.
+                                    {SITE_NAME} was built for developers who want a private, secluded environment for prompt testing. Instead of pasting sensitive prompts
+                                    into a third-party hosted evaluator, you can run comparison, regression checks, structured validation, reviews, and analytics in your own setup.
                                 </p>
                             </div>
 
@@ -125,7 +125,7 @@ export function MarketingHome({ locale }: { locale: string }) {
                     <div>
                         <div className="section-kicker">Why Promitly</div>
                         <h2 className="mt-3 text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
-                            A prompt testing dashboard that feels like a real QA platform
+                            A local-first prompt QA platform built around privacy and release confidence
                         </h2>
                     </div>
                     <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
